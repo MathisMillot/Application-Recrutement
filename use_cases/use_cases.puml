@@ -1,0 +1,111 @@
+@startuml
+actor Utilisateur as U #LightGray
+actor Candidat as C #LightBlue
+actor Recruteur as R #LightGreen
+actor Admin as A #Salmon
+
+
+
+' Heritage
+C --|> U
+R --|> U
+A --|> U
+
+rectangle "Application de recrutement" {
+    (Creer compte) as UC0
+    (Authentifier) as UC1
+    (Se deconnecter) as UC2
+    (Lister offres emploi) as UC3
+    (Rechercher offre) as UC4
+    (Consulter détail offre) as UC5
+    (Candidater offre) as UC6
+    (Modif/comp candidature) as UC7
+    (Annuler candidature) as UC8
+    (Lister mes candidatures) as UC9
+    (Demander devenir recruteur) as UC10
+    (Demander création org) as UC11
+    (Ajouter offre emploi) as UC12
+    (Éditer offre emploi) as UC13
+    (Supprimer offre emploi) as UC14
+    (Lister les offres -recruteur) as UC15
+    (Consulter candidatures offre) as UC16
+    (Télécharger dossiers candidature) as UC17
+    (Gérer utilisateurs) as UC18
+    (Attribuer rôle admin) as UC19
+    (Valider/refuser demande org) as UC20
+    (Valider/refuser demande recruteur) as UC21
+
+
+    U -[#Gray]-> UC0
+    U -[#Gray]-> UC1
+    U -[#Gray]-> UC2
+    U -[#Gray]-> UC3
+    U -[#Gray]-> UC4
+    U -[#Gray]-> UC5
+
+    C -[#Blue]-> UC6
+    C -[#Blue]-> UC7
+    C -[#Blue]-> UC8
+    C -[#Blue]-> UC9
+    C -[#Blue]-> UC10
+    C -[#Blue]-> UC11
+
+    R -[#Green]-> UC12
+    R -[#Green]-> UC13
+    R -[#Green]-> UC14
+    R -[#Green]-> UC15
+    R -[#Green]-> UC16
+    R -[#Green]-> UC17
+
+    A -[#Red]-> UC18
+    A -[#Red]-> UC19
+    A -[#Red]-> UC20
+    A -[#Red]-> UC21
+
+    'ce qui a besoin auth
+    UC2 .[#DarkOrange].> UC1 : <<include>>
+    UC6 .[#DarkOrange].> UC1 : <<include>>
+    UC7 .[#DarkOrange].> UC1 : <<include>>
+    UC8 .[#DarkOrange].> UC1 : <<include>>
+    UC9 .[#DarkOrange].> UC1 : <<include>>
+    UC10 .[#DarkOrange].> UC1 : <<include>>
+    UC11 .[#DarkOrange].> UC1 : <<include>>
+    UC12 .[#DarkOrange].> UC1 : <<include>>
+    UC13 .[#DarkOrange].> UC1 : <<include>>
+    UC14 .[#DarkOrange].> UC1 : <<include>>
+    UC15 .[#DarkOrange].> UC1 : <<include>>
+    UC16 .[#DarkOrange].> UC1 : <<include>>
+    UC17 .[#DarkOrange].> UC1 : <<include>>
+    UC18 .[#DarkOrange].> UC1 : <<include>>
+    UC19 .[#DarkOrange].> UC1 : <<include>>
+    UC20 .[#DarkOrange].> UC1 : <<include>>
+    UC21 .[#DarkOrange].> UC1 : <<include>>
+
+    
+    ' Inscription depuis login
+    UC0 <.[#Purple]. UC1 : <<extend>>
+
+    ' Candidat : navigation dans les offres
+    UC3 <.[#Purple]. UC4 : <<extend>>
+    UC3 <.[#Purple]. UC5 : <<extend>>
+    UC5 <.[#Purple]. UC6 : <<extend>>
+    UC3 <.[#Purple]. UC6 : <<extend>>
+
+    ' Candidat : gestion des candidatures
+    UC9 <.[#Purple]. UC7 : <<extend>>
+    UC9 <.[#Purple]. UC8 : <<extend>>
+
+    ' Candidat : devenir recruteur / créer org
+    UC10 <.[#Purple]. UC11 : <<extend>>
+
+    ' Recruteur : gestion des offres
+    UC15 <.[#Purple]. UC13 : <<extend>>
+    UC15 <.[#Purple]. UC14 : <<extend>>
+    UC15 <.[#Purple]. UC16 : <<extend>>
+    UC16 <.[#Purple]. UC17 : <<extend>>
+
+    ' Admin : gestion utilisateurs
+    UC18 <.[#Purple]. UC19 : <<extend>>
+}
+
+@enduml

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="654px" preserveAspectRatio="none" style="width:3630px;height:654px;" version="1.1" viewBox="0 0 3630 654" width="3630px" zoomAndPan="magnify"><defs><filter height="300%" id="f1n2ntwxjamw6g" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[998ecf020bd6deaa311deb96458c19fa]
+cluster Application de recrutement--><rect fill="#FFFFFF" filter="url(#f1n2ntwxjamw6g)" height="508" style="stroke:#000000;stroke-width:1.5;" width="3225" x="7" y="134.5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="191" x="1524" y="151.0332">Application de recrutement</text><ellipse cx="2402.957" cy="489.7914" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="69.457" ry="16.2914" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="2356.957" y="494.308">Creer compte</text><ellipse cx="1672.1242" cy="611.1042" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="63.1242" ry="15.6042" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="72" x="1633.1242" y="615.6208">Authentifier</text><ellipse cx="2223.981" cy="489.7962" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="74.481" ry="17.2962" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="100" x="2170.981" y="494.3128">Se deconnecter</text><ellipse cx="2049.8351" cy="192.867" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="82.3351" ry="18.867" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="120" x="1989.8351" y="196.5955">Lister offres emploi</text><ellipse cx="2122.1203" cy="336.3241" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="77.1203" ry="17.8241" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="107" x="2066.2783" y="340.6856">Rechercher offre</text><ellipse cx="2321.8923" cy="336.3785" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="87.3923" ry="19.8785" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="132" x="2255.8923" y="340.107">Consulter détail offre</text><ellipse cx="1911.1002" cy="490.02" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="75.6002" ry="17.52" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="103" x="1856.6002" y="494.5366">Candidater offre</text><ellipse cx="119.13" cy="490.026" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="95.63" ry="21.526" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="151" x="43.63" y="493.7545">Modif/comp candidature</text><ellipse cx="335.1926" cy="490.0385" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="85.6926" ry="19.5385" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="128" x="271.1926" y="493.767">Annuler candidature</text><ellipse cx="1052.13" cy="336.526" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="95.63" ry="21.526" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="151" x="976.63" y="340.2545">Lister mes candidatures</text><ellipse cx="1291.1585" cy="336.5317" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="108.1585" ry="24.0317" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="179" x="1201.6585" y="340.2602">Demander devenir recruteur</text><ellipse cx="750.9382" cy="490.0876" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="93.4382" ry="21.0876" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="146" x="677.9382" y="493.8162">Demander création org</text><ellipse cx="539.0873" cy="490.1175" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="83.5873" ry="19.1175" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="123" x="477.5873" y="493.846">Ajouter offre emploi</text><ellipse cx="1039.7827" cy="411.4565" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="80.2827" ry="18.4565" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="115" x="981.4192" y="415.4341">Éditer offre emploi</text><ellipse cx="1499.1309" cy="411.3262" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="92.1309" ry="20.8262" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="143" x="1427.6309" y="415.0547">Supprimer offre emploi</text><ellipse cx="1529.8975" cy="193.1795" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="101.3975" ry="22.6795" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="164" x="1447.8975" y="196.908">Lister les offres -recruteur</text><ellipse cx="1776.1128" cy="336.6226" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="108.6128" ry="24.1226" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="180" x="1686.1128" y="340.3511">Consulter candidatures offre</text><ellipse cx="1257.8069" cy="490.1614" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="123.8069" ry="27.1614" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="213" x="1151.3069" y="493.8899">Télécharger dossiers candidature</text><ellipse cx="2591.896" cy="336.4792" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="77.896" ry="17.9792" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="109" x="2535.4355" y="340.7466">Gérer utilisateurs</text><ellipse cx="2592.0066" cy="490.2013" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="84.0066" ry="19.2013" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="124" x="2530.0066" y="493.9298">Attribuer rôle admin</text><ellipse cx="2820.0675" cy="490.2135" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="109.0675" ry="24.2135" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="181" x="2729.5675" y="493.942">Valider/refuser demande org</text><ellipse cx="3090.1384" cy="490.1277" fill="#FEFECE" filter="url(#f1n2ntwxjamw6g)" rx="126.1384" ry="27.6277" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="218" x="2981.1384" y="493.8562">Valider/refuser demande recruteur</text><!--MD5=[ee0fec323975fbe97ba28321ad4c4bf3]
+entity U--><ellipse cx="3279" cy="161" fill="#D3D3D3" filter="url(#f1n2ntwxjamw6g)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M3279,169 L3279,196 M3266,177 L3292,177 M3279,196 L3266,211 M3279,196 L3292,211 " fill="none" filter="url(#f1n2ntwxjamw6g)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="62" x="3248" y="231.0332">Utilisateur</text><!--MD5=[16fab723be418f7eaf2ea4bd895a8e51]
+entity C--><ellipse cx="477" cy="14" fill="#ADD8E6" filter="url(#f1n2ntwxjamw6g)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M477,22 L477,49 M464,30 L490,30 M477,49 L464,64 M477,49 L490,64 " fill="none" filter="url(#f1n2ntwxjamw6g)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57" x="448.5" y="84.0332">Candidat</text><!--MD5=[ca4fca654d8994778fee589c6b3ae58e]
+entity R--><ellipse cx="903" cy="14" fill="#90EE90" filter="url(#f1n2ntwxjamw6g)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M903,22 L903,49 M890,30 L916,30 M903,49 L890,64 M903,49 L916,64 " fill="none" filter="url(#f1n2ntwxjamw6g)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63" x="871.5" y="84.0332">Recruteur</text><!--MD5=[770389ab9df153645bc6ef28055eb2b5]
+entity A--><ellipse cx="3434" cy="14" fill="#FA8072" filter="url(#f1n2ntwxjamw6g)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M3434,22 L3434,49 M3421,30 L3447,30 M3434,49 L3421,64 M3434,49 L3447,64 " fill="none" filter="url(#f1n2ntwxjamw6g)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="39" x="3414.5" y="84.0332">Admin</text><!--MD5=[e658a3ce0fa4bffc1c0d1afd0d3ba934]
+link C to U--><path d="M505.78,50.99 C568.75,59.53 723.58,79.44 854,87.5 C919.94,91.57 3173.47,95.85 3232,126.5 C3236.89,129.06 3241.38,132.38 3245.5,136.18 " fill="none" id="C-to-U" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="none" points="3250.91,131.73,3258.7,151.44,3240.32,140.89,3250.91,131.73" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[7d3ce9c9acb82c4275d3e2d4ecfe6371]
+link R to U--><path d="M934.78,47.29 C1206.1,49.82 3125.93,69.75 3232,126.5 C3236.64,128.98 3240.94,132.15 3244.88,135.75 " fill="none" id="R-to-U" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="none" points="3250.51,131.55,3258.39,151.22,3239.96,140.76,3250.51,131.55" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[f571c884e8d47585ad0e411656bf9c39]
+link A to U--><path d="M3414.17,59.05 C3393.64,72.05 3361.24,94.05 3337,117.5 C3331.27,123.05 3325.62,129.18 3320.23,135.47 " fill="none" id="A-to-U" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="none" points="3325.5,140.08,3307.46,151.2,3314.63,131.26,3325.5,140.08" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[d53f941e8472762fb31b804ee66ac285]
+link U to UC0--><path d="M3284.96,234.65 C3290.35,288.94 3290.29,383.89 3234,432.5 C3202.73,459.5 2531.74,455.66 2491,462.5 C2475.45,465.11 2458.79,469.66 2444.2,474.25 " fill="none" id="U-to-UC0" style="stroke:#808080;stroke-width:1.0;"/><polygon fill="#808080" points="2439.33,475.81,2449.1222,476.865,2444.0903,474.2804,2446.6749,469.2485,2439.33,475.81" style="stroke:#808080;stroke-width:1.0;"/><!--MD5=[0a70254f7fcccc78af094a57063370e0]
+link U to UC1--><path d="M3302.38,234.62 C3306.77,244.13 3310.7,254.43 3313,264.5 C3314.78,272.3 3313.31,274.51 3313,282.5 C3308.77,392.61 3323.62,453.39 3234,517.5 C3111.33,605.26 2025.99,610.37 1740.54,610.18 " fill="none" id="U-to-UC1" style="stroke:#808080;stroke-width:1.0;"/><polygon fill="#808080" points="1735.16,610.18,1744.1485,614.2057,1740.16,610.1943,1744.1714,606.2057,1735.16,610.18" style="stroke:#808080;stroke-width:1.0;"/><!--MD5=[d339eafd5e513c6cfb3f1117410f9a34]
+link U to UC2--><path d="M3247.8,222.29 C3242.65,226.54 3237.27,230.76 3232,234.5 C3197.26,259.18 3188.09,265.53 3149,282.5 C2938.52,373.87 2880.26,388.82 2655,432.5 C2506.51,461.29 2464.69,434.77 2316,462.5 C2300.88,465.32 2284.67,469.56 2270.13,473.83 " fill="none" id="U-to-UC2" style="stroke:#808080;stroke-width:1.0;"/><polygon fill="#808080" points="2265.27,475.28,2275.0381,476.5386,2270.0611,473.8498,2272.7498,468.8728,2265.27,475.28" style="stroke:#808080;stroke-width:1.0;"/><!--MD5=[f77f2acdb179da8ec684e67fcfe8d851]
+link U to UC3--><path d="M3247.93,193 C2877.85,193 2507.77,193 2137.69,193 " fill="none" id="U-to-UC3" style="stroke:#808080;stroke-width:1.0;"/><polygon fill="#808080" points="2132.51,193,2141.51,197,2137.51,193,2141.51,189,2132.51,193" style="stroke:#808080;stroke-width:1.0;"/><!--MD5=[9b7be194ae6f0694e7ee7df55d9413e7]
+link U to UC4--><path d="M3247.96,225.29 C3242.95,228.94 3237.57,232.18 3232,234.5 C3127.55,277.92 2328.72,294.8 2217,312.5 C2203.27,314.68 2188.59,317.81 2174.99,321.08 " fill="none" id="U-to-UC4" style="stroke:#808080;stroke-width:1.0;"/><polygon fill="#808080" points="2170.03,322.28,2179.7219,324.0315,2174.8874,321.0942,2177.8246,316.2597,2170.03,322.28" style="stroke:#808080;stroke-width:1.0;"/><!--MD5=[c18dcaead6e75b42460ecacb700e33ef]
+link U to UC5--><path d="M3247.9,225.15 C3242.9,228.82 3237.54,232.1 3232,234.5 C2930.53,364.99 2823.21,273.76 2497,312.5 C2465.36,316.26 2430.55,320.76 2400.36,324.78 " fill="none" id="U-to-UC5" style="stroke:#808080;stroke-width:1.0;"/><polygon fill="#808080" points="2395.17,325.47,2404.6176,328.2526,2400.1266,324.8129,2403.5663,320.322,2395.17,325.47" style="stroke:#808080;stroke-width:1.0;"/><!--MD5=[8803ea8e70df4074df11e78252bf2b0e]
+link C to UC6--><path d="M478.5,87.53 C481.27,126.74 489.09,187.04 511,234.5 C558.66,337.73 570.89,382.48 673,432.5 C788.09,488.88 1699.57,441.56 1826,462.5 C1839.99,464.82 1854.87,468.88 1868.2,473.13 " fill="none" id="C-to-UC6" style="stroke:#0000FF;stroke-width:1.0;"/><polygon fill="#0000FF" points="1873.04,474.7,1865.7309,468.0987,1868.2881,473.1446,1863.2422,475.7018,1873.04,474.7" style="stroke:#0000FF;stroke-width:1.0;"/><!--MD5=[2483dcf5b26ef1887dedc9f3dd944c94]
+link C to UC7--><path d="M448.38,57.03 C416.44,69.36 364.69,92.88 330,126.5 C222.98,230.22 152.21,399.8 128.14,463.63 " fill="none" id="C-to-UC7" style="stroke:#0000FF;stroke-width:1.0;"/><polygon fill="#0000FF" points="126.35,468.4,133.2366,461.3591,128.0931,463.7137,125.7385,458.5701,126.35,468.4" style="stroke:#0000FF;stroke-width:1.0;"/><!--MD5=[b7da8a3947cf9da47d252ee92d453df8]
+link C to UC8--><path d="M448.11,59.87 C425.59,71.53 395.61,90.94 380,117.5 C312.11,232.99 324.39,403.46 331.74,465.41 " fill="none" id="C-to-UC8" style="stroke:#0000FF;stroke-width:1.0;"/><polygon fill="#0000FF" points="332.35,470.37,335.2428,460.9556,331.7509,465.406,327.3004,461.9141,332.35,470.37" style="stroke:#0000FF;stroke-width:1.0;"/><!--MD5=[9b58fa6f141bc24c479ff6339dad12e1]
+link C to UC9--><path d="M496.74,87.83 C525.38,142.23 583.93,236.9 664,282.5 C712.1,309.89 855.99,323.88 954.35,330.44 " fill="none" id="C-to-UC9" style="stroke:#0000FF;stroke-width:1.0;"/><polygon fill="#0000FF" points="959.59,330.78,950.8725,326.1968,954.6008,330.4512,950.3464,334.1795,959.59,330.78" style="stroke:#0000FF;stroke-width:1.0;"/><!--MD5=[eee298a14461a21b098b5ff16ddd4328]
+link C to UC10--><path d="M505.97,57.27 C623.76,99.01 1068.18,256.53 1230.86,314.19 " fill="none" id="C-to-UC10" style="stroke:#0000FF;stroke-width:1.0;"/><polygon fill="#0000FF" points="1235.59,315.86,1228.444,309.0825,1230.8774,314.1892,1225.7707,316.6226,1235.59,315.86" style="stroke:#0000FF;stroke-width:1.0;"/><!--MD5=[ac7f9c7d07f0affd72750e3d8373df59]
+link C to UC11--><path d="M459.23,87.7 C455.82,97.29 452.77,107.61 451,117.5 C438.07,189.92 430.71,216.9 464,282.5 C502.64,358.63 514.08,383.51 584,432.5 C611.96,452.09 647.25,465.33 678.19,474.04 " fill="none" id="C-to-UC11" style="stroke:#0000FF;stroke-width:1.0;"/><polygon fill="#0000FF" points="683.11,475.4,675.4984,469.1499,678.2902,474.0699,673.3702,476.8617,683.11,475.4" style="stroke:#0000FF;stroke-width:1.0;"/><!--MD5=[26aa0b9277826b79df1de60b6083f9dd]
+link R to UC12--><path d="M871.37,48.51 C819.78,52.65 717.33,68.21 658,126.5 C559.65,223.13 542.56,402.27 539.61,465.87 " fill="none" id="R-to-UC12" style="stroke:#008000;stroke-width:1.0;"/><polygon fill="#008000" points="539.39,470.95,543.7717,462.1295,539.6041,465.9546,535.779,461.787,539.39,470.95" style="stroke:#008000;stroke-width:1.0;"/><!--MD5=[8ea29a229976ff836e35d35e78900f7a]
+link R to UC13--><path d="M884.03,87.74 C857.05,152.4 817.1,279.47 877,360.5 C883.54,369.35 937.53,384.8 981.6,396.19 " fill="none" id="R-to-UC13" style="stroke:#008000;stroke-width:1.0;"/><polygon fill="#008000" points="986.65,397.49,978.9438,391.357,981.8104,396.2337,976.9337,399.1003,986.65,397.49" style="stroke:#008000;stroke-width:1.0;"/><!--MD5=[422fa0e7bd9a07d44ccff17567976fbb]
+link R to UC14--><path d="M893.4,87.73 C880.21,155.03 865.75,289.08 939,360.5 C955.45,376.54 1250.77,396.04 1405.75,405.23 " fill="none" id="R-to-UC14" style="stroke:#008000;stroke-width:1.0;"/><polygon fill="#008000" points="1410.75,405.52,1402.0057,400.9882,1405.759,405.2205,1401.5266,408.9738,1410.75,405.52" style="stroke:#008000;stroke-width:1.0;"/><!--MD5=[1116193da79ec23835c2d2c542e688cf]
+link R to UC15--><path d="M934.52,54.29 C1030.33,76.45 1319.84,143.4 1456.75,175.06 " fill="none" id="R-to-UC15" style="stroke:#008000;stroke-width:1.0;"/><polygon fill="#008000" points="1461.96,176.26,1454.095,170.332,1457.089,175.1315,1452.2894,178.1255,1461.96,176.26" style="stroke:#008000;stroke-width:1.0;"/><!--MD5=[15859dadd5a0c4a6f1e35c6871cfa9db]
+link R to UC16--><path d="M934.51,46.8 C1119.04,45.94 2054.6,45.61 2150,126.5 C2203.98,172.27 2228.81,229.42 2182,282.5 C2146.74,322.48 1996.85,305.55 1944,312.5 C1920.43,315.6 1895.01,319.03 1871.26,322.28 " fill="none" id="R-to-UC16" style="stroke:#008000;stroke-width:1.0;"/><polygon fill="#008000" points="1866.22,322.97,1875.6843,325.6953,1871.1726,322.2829,1874.585,317.7712,1866.22,322.97" style="stroke:#008000;stroke-width:1.0;"/><!--MD5=[55f86f55f1fda1b794730838e2537f92]
+link R to UC17--><path d="M871.2,66.06 C777,124.71 513.15,306.19 632,432.5 C669.53,472.39 1069.68,455.5 1124,462.5 C1138.03,464.31 1152.81,466.71 1167.21,469.34 " fill="none" id="R-to-UC17" style="stroke:#008000;stroke-width:1.0;"/><polygon fill="#008000" points="1172.5,470.31,1164.3806,464.7355,1167.5839,469.398,1162.9214,472.6013,1172.5,470.31" style="stroke:#008000;stroke-width:1.0;"/><!--MD5=[4964f6686cbc04f2f85b4ed3eef582ab]
+link A to UC18--><path d="M3415.66,87.53 C3392.76,136.48 3353.5,214.75 3328,234.5 C3227.47,312.38 2845.06,330.21 2674.72,334.29 " fill="none" id="A-to-UC18" style="stroke:#FF0000;stroke-width:1.0;"/><polygon fill="#FF0000" points="2669.49,334.41,2678.5791,338.2033,2674.4887,334.2957,2678.3962,330.2054,2669.49,334.41" style="stroke:#FF0000;stroke-width:1.0;"/><!--MD5=[6739733961c081ac3510f3ea34fcc339]
+link A to UC19--><path d="M3432.34,87.8 C3426.37,171.84 3399.13,362.27 3275,432.5 C3218.74,464.33 2757.89,452.66 2694,462.5 C2678,464.97 2660.87,468.89 2645.31,472.98 " fill="none" id="A-to-UC19" style="stroke:#FF0000;stroke-width:1.0;"/><polygon fill="#FF0000" points="2640.09,474.37,2649.8162,475.9196,2644.9216,473.0835,2647.7577,468.1889,2640.09,474.37" style="stroke:#FF0000;stroke-width:1.0;"/><!--MD5=[a0a578fedc0a0d4e1a398ad19b6adc5c]
+link A to UC20--><path d="M3453.55,87.22 C3488.32,165.26 3549.29,337.83 3460,432.5 C3420.82,474.04 3003.6,454.98 2947,462.5 C2930.81,464.65 2913.61,467.71 2897.26,470.99 " fill="none" id="A-to-UC20" style="stroke:#FF0000;stroke-width:1.0;"/><polygon fill="#FF0000" points="2892.22,472.01,2901.8381,474.1296,2897.119,471.0102,2900.2384,466.2911,2892.22,472.01" style="stroke:#FF0000;stroke-width:1.0;"/><!--MD5=[9c6b0e21e625a8139358fbd2d4deca93]
+link A to UC21--><path d="M3453.64,54.66 C3476.99,64.98 3514.84,85.78 3531,117.5 C3594.55,242.25 3623.49,327.4 3531,432.5 C3510.28,456.04 3338.18,472.46 3215.23,481.31 " fill="none" id="A-to-UC21" style="stroke:#FF0000;stroke-width:1.0;"/><polygon fill="#FF0000" points="3210.14,481.68,3219.4028,485.0267,3215.1272,481.3227,3218.8312,477.0472,3210.14,481.68" style="stroke:#FF0000;stroke-width:1.0;"/><!--MD5=[8daf02cb78117a5871462b95277c15b4]
+link UC2 to UC1--><path d="M2198.2,506.43 C2167.74,523.85 2115.01,551.59 2066,565.5 C1954.54,597.13 1819.34,606.41 1739.79,609.05 " fill="none" id="UC2-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1734.63,609.21,1743.7618,612.8993,1739.6271,609.0387,1743.4877,604.904,1734.63,609.21" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="2116" y="561.9951">«include»</text><!--MD5=[536b101d4c5e1f03baa478d0a5603098]
+link UC6 to UC1--><path d="M1880.73,506.07 C1835.07,528.81 1749.03,571.65 1702.96,594.58 " fill="none" id="UC6-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1698.36,596.87,1708.1993,596.4354,1702.835,594.6397,1704.6307,589.2754,1698.36,596.87" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="1792" y="561.9951">«include»</text><!--MD5=[bc2ed00275033735b449c48cbde22b5c]
+link UC7 to UC1--><path d="M178.07,506.99 C247.39,524.94 366.07,553.18 470,565.5 C692.08,591.83 1383.97,605.25 1604.05,608.93 " fill="none" id="UC7-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1609.17,609.02,1600.2281,604.8918,1604.1705,608.9486,1600.1138,612.891,1609.17,609.02" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="471" y="561.9951">«include»</text><!--MD5=[e2c6dc1822a813db99409771acad5f26]
+link UC8 to UC1--><path d="M381.6,506.36 C437.86,524.14 535.7,552.62 622,565.5 C812.5,593.93 1402.95,605.73 1604.09,609 " fill="none" id="UC8-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1609.35,609.08,1600.4081,604.9518,1604.3505,609.0086,1600.2938,612.951,1609.35,609.08" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="623" y="561.9951">«include»</text><!--MD5=[0194e450f4b370860b48bd86590d2689]
+link UC9 to UC1--><path d="M1089.26,356.35 C1102.07,364.9 1114.94,376.3 1122,390.5 C1130.31,407.21 1131.97,416.72 1122,432.5 C1105.44,458.72 1075.56,436.28 1059,462.5 C1045.95,483.17 1043.24,498.82 1059,517.5 C1127.93,599.21 1458.98,609.81 1603.86,610.45 " fill="none" id="UC9-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1608.93,610.47,1599.9415,606.4443,1603.93,610.4557,1599.9186,614.4443,1608.93,610.47" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="1060" y="495.4951">«include»</text><!--MD5=[52a39e1974d371953e020e4619932298]
+link UC10 to UC1--><path d="M1310.78,360.33 C1343.42,396.99 1411.84,469.71 1481,517.5 C1530.52,551.72 1594.61,579.93 1634.52,595.87 " fill="none" id="UC10-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1639.26,597.75,1632.3706,590.7118,1634.6127,595.9054,1629.4192,598.1475,1639.26,597.75" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="1482" y="495.4951">«include»</text><!--MD5=[067f4b8d537832b92a4220baa99ceca0]
+link UC11 to UC1--><path d="M769.5,510.62 C787.78,528.53 817.5,553.93 849,565.5 C918.99,591.21 1420.54,604.55 1604.54,608.62 " fill="none" id="UC11-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1609.63,608.74,1600.7238,604.5354,1604.6313,608.6257,1600.5409,612.5333,1609.63,608.74" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="850" y="561.9951">«include»</text><!--MD5=[31e9e3723efb5d57e4fd7ca50f9c3ea6]
+link UC12 to UC1--><path d="M575.05,507.22 C616.71,525.1 687.78,552.99 752,565.5 C915.18,597.29 1420.21,606.8 1604.12,609.24 " fill="none" id="UC12-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1609.2,609.31,1600.2581,605.1818,1604.2005,609.2386,1600.1438,613.181,1609.2,609.31" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="753" y="561.9951">«include»</text><!--MD5=[cef3eb03b9f3be1e6b594d438c9724e0]
+link UC13 to UC1--><path d="M989.64,425.99 C971.37,433.59 952.62,445.15 942,462.5 C929.23,483.35 929.38,496.57 942,517.5 C965.62,556.66 989.02,552.98 1033,565.5 C1138.73,595.61 1462.27,605.75 1604.14,608.81 " fill="none" id="UC13-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1609.52,608.93,1600.6138,604.7254,1604.5213,608.8157,1600.4309,612.7233,1609.52,608.93" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="943" y="495.4951">«include»</text><!--MD5=[c03d5615cf1827e8a396bef5653f467d]
+link UC14 to UC1--><path d="M1516.22,432.16 C1549.78,470.47 1623.5,554.63 1656.03,591.77 " fill="none" id="UC14-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1659.42,595.64,1656.5063,586.232,1656.1285,591.8762,1650.4843,591.4984,1659.42,595.64" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="1590" y="495.4951">«include»</text><!--MD5=[67c12e75084f71fccb30db4909480dcd]
+link UC15 to UC1--><path d="M1549.01,215.12 C1560.09,228.44 1573.51,246.48 1582,264.5 C1614.8,334.13 1586.08,365.53 1624,432.5 C1633.29,448.91 1645.74,445.55 1654,462.5 C1674.43,504.42 1674.98,560.67 1673.54,590.12 " fill="none" id="UC15-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1673.26,595.3,1677.7684,586.5436,1673.5461,590.3082,1669.7815,586.0859,1673.26,595.3" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="1625" y="416.9951">«include»</text><!--MD5=[28c66f431333c3fc6de4cb7a4a6d00fd]
+link UC16 to UC1--><path d="M1783.08,360.78 C1787.86,380.41 1791.98,408.99 1784,432.5 C1778.6,448.41 1770.47,448.62 1761,462.5 C1730.58,507.11 1698.8,562.17 1682.71,590.74 " fill="none" id="UC16-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1680.07,595.43,1687.9751,589.5555,1682.5261,591.0748,1681.0067,585.6258,1680.07,595.43" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="1762" y="495.4951">«include»</text><!--MD5=[1c1b821b4642fc95b634e62a055e6ffe]
+link UC17 to UC1--><path d="M1292.66,515.98 C1317.47,532.62 1352.31,553.56 1386,565.5 C1458.52,591.21 1546.61,602.09 1605.7,606.67 " fill="none" id="UC17-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1610.97,607.07,1602.3053,602.3877,1605.9849,606.6843,1601.6883,610.3639,1610.97,607.07" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="1387" y="561.9951">«include»</text><!--MD5=[d6dba4eb2e67e698ef8c0e1495223e36]
+link UC18 to UC1--><path d="M2533.1,348.5 C2415.62,370.98 2156.46,423.34 2075,462.5 C2039.03,479.8 2039.29,498.84 2004,517.5 C1942.87,549.82 1922.54,546.69 1856,565.5 C1811.05,578.2 1759.3,590.52 1722.16,598.96 " fill="none" id="UC18-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1717.24,600.07,1726.9053,601.9625,1722.1141,598.9551,1725.1215,594.1639,1717.24,600.07" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="2076" y="495.4951">«include»</text><!--MD5=[89a4d4cac5689703fe01e57cc3ee36d7]
+link UC19 to UC1--><path d="M2546.34,505.98 C2491.22,523.38 2395.39,551.5 2311,565.5 C2105.07,599.65 1857.58,607.65 1740.19,609.48 " fill="none" id="UC19-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1735.04,609.56,1744.0962,613.431,1740.0395,609.4886,1743.9819,605.4318,1735.04,609.56" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="2397" y="561.9951">«include»</text><!--MD5=[7598c938add9eefb577c37359522645a]
+link UC20 to UC1--><path d="M2750.7,508.6 C2678.77,526.11 2562.78,552.22 2461,565.5 C2195.89,600.09 1877.21,607.81 1740.13,609.52 " fill="none" id="UC20-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1734.94,609.58,1743.9962,613.451,1739.9395,609.5086,1743.8819,605.4518,1734.94,609.58" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="2571" y="561.9951">«include»</text><!--MD5=[24034c94d6a79db2d4b515c66cf3699a]
+link UC21 to UC1--><path d="M2999.8,509.21 C2908.31,526.87 2762.44,552.79 2635,565.5 C2300.14,598.9 1897.24,607.28 1739.74,609.35 " fill="none" id="UC21-to-UC1" style="stroke:#FF8C00;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FF8C00" points="1734.7,609.41,1743.7562,613.281,1739.6995,609.3386,1743.6419,605.2818,1734.7,609.41" style="stroke:#FF8C00;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="2774" y="561.9951">«include»</text><!--MD5=[7d548d9bf0170c80e1ba87d7fcf05691]
+reverse link UC0 to UC1--><path d="M2365.77,506.45 C2322.09,523.86 2247.09,551.56 2180,565.5 C2022.03,598.33 1831.51,606.97 1734.86,609.22 " fill="none" id="UC0-backto-UC1" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="2370.42,504.59,2360.5781,504.2186,2365.7776,506.447,2363.5493,511.6464,2370.42,504.59" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="2249" y="561.9951">«extend»</text><!--MD5=[d4a5aae1b0e654ff863e0f2caddd3bea]
+reverse link UC3 to UC4--><path d="M2035.52,216.65 C2025.55,235.37 2016.07,262.08 2028,282.5 C2038.77,300.94 2058.59,313.47 2077.26,321.69 " fill="none" id="UC3-backto-UC4" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="2038.05,212.08,2030.1826,218.0048,2035.6218,216.4508,2037.1758,221.89,2038.05,212.08" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="2029" y="278.9951">«extend»</text><!--MD5=[a1313c52b5c2d6db7ccca18a4247035e]
+reverse link UC3 to UC5--><path d="M2086.68,213.08 C2139.74,240.69 2237.15,291.36 2288.42,318.03 " fill="none" id="UC3-backto-UC5" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="2082,210.65,2088.1341,218.3554,2086.4344,212.9599,2091.8299,211.2603,2082,210.65" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="2219" y="278.9951">«extend»</text><!--MD5=[23f849f0b8ed3146df21555be77ceecd]
+reverse link UC5 to UC6--><path d="M2258.08,352.38 C2244.56,355.28 2230.34,358.15 2217,360.5 C2118.08,377.93 2080.91,341.92 1993,390.5 C1990.7,391.77 1947.1,444.85 1924.44,472.55 " fill="none" id="UC5-backto-UC6" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="2263.03,351.31,2253.3876,349.3038,2258.1431,352.3674,2255.0795,357.1229,2263.03,351.31" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="1994" y="416.9951">«extend»</text><!--MD5=[dd9a780b77d76ed9c60a6ac2bfcc89cc]
+reverse link UC3 to UC6--><path d="M2033.25,216.21 C2016.39,239.33 1990.43,277.06 1973,312.5 C1945.34,368.75 1924.15,440.5 1915.39,472.41 " fill="none" id="UC3-backto-UC6" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="2036.29,212.07,2027.7399,216.9582,2033.3313,216.1007,2034.1889,221.6921,2036.29,212.07" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="1974" y="341.9951">«extend»</text><!--MD5=[7ec503f1bd42fff3772ea9420af72fb5]
+reverse link UC9 to UC7--><path d="M965.18,348.42 C815.09,367.8 497.65,411.08 232,462.5 C215.38,465.72 197.5,469.68 180.98,473.54 " fill="none" id="UC9-backto-UC7" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="970.45,347.74,961.0183,344.9039,965.4897,348.369,962.0247,352.8404,970.45,347.74" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="657" y="416.9951">«extend»</text><!--MD5=[0bf0f20b9d4d0977164c04d519880fe4]
+reverse link UC9 to UC8--><path d="M953.38,341.75 C903.35,347.77 843.51,361.19 797,390.5 C777.15,403.01 785.53,421.13 765,432.5 C701.16,467.84 509.9,450.04 438,462.5 C420.81,465.48 402.27,469.87 385.73,474.23 " fill="none" id="UC9-backto-UC8" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="958.5,341.16,949.1021,338.2139,953.5327,341.731,950.0156,346.1616,958.5,341.16" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="798" y="416.9951">«extend»</text><!--MD5=[23a091af75a6f63365ff330001793d21]
+reverse link UC10 to UC11--><path d="M1206.73,353.76 C1192.82,356.19 1178.52,358.54 1165,360.5 C1103.51,369.42 939.86,357.84 887,390.5 C868.12,402.16 876.4,417.56 860,432.5 C841.8,449.08 817.84,462.2 797.01,471.61 " fill="none" id="UC10-backto-UC11" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="1211.83,352.86,1202.2698,350.4929,1206.9068,353.733,1203.6667,358.37,1211.83,352.86" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="888" y="416.9951">«extend»</text><!--MD5=[18230641ec9019faaa4a148fbf7cc828]
+reverse link UC15 to UC13--><path d="M1497.91,218.07 C1482.96,230.59 1465.9,246.93 1454,264.5 C1428.36,302.36 1452.91,332.2 1417,360.5 C1372.34,395.7 1217.1,406.16 1120.31,409.25 " fill="none" id="UC15-backto-UC13" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="1502.06,214.65,1492.5736,217.2972,1498.2049,217.834,1497.668,223.4654,1502.06,214.65" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="1455" y="278.9951">«extend»</text><!--MD5=[53ce4e5cb0402e4505247325cd8f6e6c]
+reverse link UC15 to UC14--><path d="M1526.18,220.69 C1519.89,264.59 1507.51,351.07 1501.89,390.3 " fill="none" id="UC15-backto-UC14" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="1526.91,215.55,1521.6673,223.8875,1526.1969,220.4989,1529.5855,225.0285,1526.91,215.55" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="1520" y="278.9951">«extend»</text><!--MD5=[53c18909305255e08ec985690ddfe6d6]
+reverse link UC15 to UC16--><path d="M1569.39,216.65 C1615.86,243.39 1692.59,287.52 1738.31,313.82 " fill="none" id="UC15-backto-UC16" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="1564.98,214.12,1570.7927,222.0706,1569.3159,216.6099,1574.7766,215.1331,1564.98,214.12" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="1683" y="278.9951">«extend»</text><!--MD5=[7c6bb7d859960db6fc627f0123232e21]
+reverse link UC16 to UC17--><path d="M1749.74,364.19 C1741.7,372.52 1732.89,381.81 1725,390.5 C1708.47,408.7 1710.76,421.05 1689,432.5 C1633.62,461.64 1470.96,453.75 1409,462.5 C1389.89,465.2 1369.5,468.49 1350.08,471.83 " fill="none" id="UC16-backto-UC17" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="1753.62,360.18,1744.4934,363.8821,1750.1493,363.7792,1750.2522,369.4351,1753.62,360.18" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="1726" y="416.9951">«extend»</text><!--MD5=[1fb06e3e2909d743208d4155953bcacc]
+reverse link UC18 to UC19--><path d="M2592,359.93 C2592,390.06 2592,443.01 2592,470.8 " fill="none" id="UC18-backto-UC19" style="stroke:#800080;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#800080" points="2592,354.58,2588,363.58,2592,359.58,2596,363.58,2592,354.58" style="stroke:#800080;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="2593" y="416.9951">«extend»</text><!--MD5=[14bc30958ae996cdc10ace5d4d3cd53c]
+@startuml
+actor Utilisateur as U #LightGray
+actor Candidat as C #LightBlue
+actor Recruteur as R #LightGreen
+actor Admin as A #Salmon
+
+
+
+' Heritage
+C - -|> U
+R - -|> U
+A - -|> U
+
+rectangle "Application de recrutement" {
+    (Creer compte) as UC0
+    (Authentifier) as UC1
+    (Se deconnecter) as UC2
+    (Lister offres emploi) as UC3
+    (Rechercher offre) as UC4
+    (Consulter détail offre) as UC5
+    (Candidater offre) as UC6
+    (Modif/comp candidature) as UC7
+    (Annuler candidature) as UC8
+    (Lister mes candidatures) as UC9
+    (Demander devenir recruteur) as UC10
+    (Demander création org) as UC11
+    (Ajouter offre emploi) as UC12
+    (Éditer offre emploi) as UC13
+    (Supprimer offre emploi) as UC14
+    (Lister les offres -recruteur) as UC15
+    (Consulter candidatures offre) as UC16
+    (Télécharger dossiers candidature) as UC17
+    (Gérer utilisateurs) as UC18
+    (Attribuer rôle admin) as UC19
+    (Valider/refuser demande org) as UC20
+    (Valider/refuser demande recruteur) as UC21
+
+
+    U -[#Gray]-> UC0
+    U -[#Gray]-> UC1
+    U -[#Gray]-> UC2
+    U -[#Gray]-> UC3
+    U -[#Gray]-> UC4
+    U -[#Gray]-> UC5
+
+    C -[#Blue]-> UC6
+    C -[#Blue]-> UC7
+    C -[#Blue]-> UC8
+    C -[#Blue]-> UC9
+    C -[#Blue]-> UC10
+    C -[#Blue]-> UC11
+
+    R -[#Green]-> UC12
+    R -[#Green]-> UC13
+    R -[#Green]-> UC14
+    R -[#Green]-> UC15
+    R -[#Green]-> UC16
+    R -[#Green]-> UC17
+
+    A -[#Red]-> UC18
+    A -[#Red]-> UC19
+    A -[#Red]-> UC20
+    A -[#Red]-> UC21
+
+    'ce qui a besoin auth
+    UC2 .[#DarkOrange].> UC1 : <<include>>
+    UC6 .[#DarkOrange].> UC1 : <<include>>
+    UC7 .[#DarkOrange].> UC1 : <<include>>
+    UC8 .[#DarkOrange].> UC1 : <<include>>
+    UC9 .[#DarkOrange].> UC1 : <<include>>
+    UC10 .[#DarkOrange].> UC1 : <<include>>
+    UC11 .[#DarkOrange].> UC1 : <<include>>
+    UC12 .[#DarkOrange].> UC1 : <<include>>
+    UC13 .[#DarkOrange].> UC1 : <<include>>
+    UC14 .[#DarkOrange].> UC1 : <<include>>
+    UC15 .[#DarkOrange].> UC1 : <<include>>
+    UC16 .[#DarkOrange].> UC1 : <<include>>
+    UC17 .[#DarkOrange].> UC1 : <<include>>
+    UC18 .[#DarkOrange].> UC1 : <<include>>
+    UC19 .[#DarkOrange].> UC1 : <<include>>
+    UC20 .[#DarkOrange].> UC1 : <<include>>
+    UC21 .[#DarkOrange].> UC1 : <<include>>
+
+    
+    ' Inscription depuis login
+    UC0 <.[#Purple]. UC1 : <<extend>>
+
+    ' Candidat : navigation dans les offres
+    UC3 <.[#Purple]. UC4 : <<extend>>
+    UC3 <.[#Purple]. UC5 : <<extend>>
+    UC5 <.[#Purple]. UC6 : <<extend>>
+    UC3 <.[#Purple]. UC6 : <<extend>>
+
+    ' Candidat : gestion des candidatures
+    UC9 <.[#Purple]. UC7 : <<extend>>
+    UC9 <.[#Purple]. UC8 : <<extend>>
+
+    ' Candidat : devenir recruteur / créer org
+    UC10 <.[#Purple]. UC11 : <<extend>>
+
+    ' Recruteur : gestion des offres
+    UC15 <.[#Purple]. UC13 : <<extend>>
+    UC15 <.[#Purple]. UC14 : <<extend>>
+    UC15 <.[#Purple]. UC16 : <<extend>>
+    UC16 <.[#Purple]. UC17 : <<extend>>
+
+    ' Admin : gestion utilisateurs
+    UC18 <.[#Purple]. UC19 : <<extend>>
+}
+
+@enduml
+
+@startuml
+actor Utilisateur as U #LightGray
+actor Candidat as C #LightBlue
+actor Recruteur as R #LightGreen
+actor Admin as A #Salmon
+
+
+
+C - -|> U
+R - -|> U
+A - -|> U
+
+rectangle "Application de recrutement" {
+    (Creer compte) as UC0
+    (Authentifier) as UC1
+    (Se deconnecter) as UC2
+    (Lister offres emploi) as UC3
+    (Rechercher offre) as UC4
+    (Consulter détail offre) as UC5
+    (Candidater offre) as UC6
+    (Modif/comp candidature) as UC7
+    (Annuler candidature) as UC8
+    (Lister mes candidatures) as UC9
+    (Demander devenir recruteur) as UC10
+    (Demander création org) as UC11
+    (Ajouter offre emploi) as UC12
+    (Éditer offre emploi) as UC13
+    (Supprimer offre emploi) as UC14
+    (Lister les offres -recruteur) as UC15
+    (Consulter candidatures offre) as UC16
+    (Télécharger dossiers candidature) as UC17
+    (Gérer utilisateurs) as UC18
+    (Attribuer rôle admin) as UC19
+    (Valider/refuser demande org) as UC20
+    (Valider/refuser demande recruteur) as UC21
+
+
+    U -[#Gray]-> UC0
+    U -[#Gray]-> UC1
+    U -[#Gray]-> UC2
+    U -[#Gray]-> UC3
+    U -[#Gray]-> UC4
+    U -[#Gray]-> UC5
+
+    C -[#Blue]-> UC6
+    C -[#Blue]-> UC7
+    C -[#Blue]-> UC8
+    C -[#Blue]-> UC9
+    C -[#Blue]-> UC10
+    C -[#Blue]-> UC11
+
+    R -[#Green]-> UC12
+    R -[#Green]-> UC13
+    R -[#Green]-> UC14
+    R -[#Green]-> UC15
+    R -[#Green]-> UC16
+    R -[#Green]-> UC17
+
+    A -[#Red]-> UC18
+    A -[#Red]-> UC19
+    A -[#Red]-> UC20
+    A -[#Red]-> UC21
+
+    UC2 .[#DarkOrange].> UC1 : <<include>>
+    UC6 .[#DarkOrange].> UC1 : <<include>>
+    UC7 .[#DarkOrange].> UC1 : <<include>>
+    UC8 .[#DarkOrange].> UC1 : <<include>>
+    UC9 .[#DarkOrange].> UC1 : <<include>>
+    UC10 .[#DarkOrange].> UC1 : <<include>>
+    UC11 .[#DarkOrange].> UC1 : <<include>>
+    UC12 .[#DarkOrange].> UC1 : <<include>>
+    UC13 .[#DarkOrange].> UC1 : <<include>>
+    UC14 .[#DarkOrange].> UC1 : <<include>>
+    UC15 .[#DarkOrange].> UC1 : <<include>>
+    UC16 .[#DarkOrange].> UC1 : <<include>>
+    UC17 .[#DarkOrange].> UC1 : <<include>>
+    UC18 .[#DarkOrange].> UC1 : <<include>>
+    UC19 .[#DarkOrange].> UC1 : <<include>>
+    UC20 .[#DarkOrange].> UC1 : <<include>>
+    UC21 .[#DarkOrange].> UC1 : <<include>>
+
+    
+    UC0 <.[#Purple]. UC1 : <<extend>>
+
+    UC3 <.[#Purple]. UC4 : <<extend>>
+    UC3 <.[#Purple]. UC5 : <<extend>>
+    UC5 <.[#Purple]. UC6 : <<extend>>
+    UC3 <.[#Purple]. UC6 : <<extend>>
+
+    UC9 <.[#Purple]. UC7 : <<extend>>
+    UC9 <.[#Purple]. UC8 : <<extend>>
+
+    UC10 <.[#Purple]. UC11 : <<extend>>
+
+    UC15 <.[#Purple]. UC13 : <<extend>>
+    UC15 <.[#Purple]. UC14 : <<extend>>
+    UC15 <.[#Purple]. UC16 : <<extend>>
+    UC16 <.[#Purple]. UC17 : <<extend>>
+
+    UC18 <.[#Purple]. UC19 : <<extend>>
+}
+
+@enduml
+
+PlantUML version 1.2021.00(Sun Jan 10 11:25:05 CET 2021)
+(MIT source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: Cp1252
+Language: en
+Country: US
+--></g></svg>
