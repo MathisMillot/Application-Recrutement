@@ -6,7 +6,7 @@
 
 Application web de recrutement permettant de mettre en relation **candidats**, **recruteurs** et **administrateurs**. La plateforme offre une gestion complète du processus de recrutement, de la publication des offres d'emploi jusqu'au suivi des candidatures.
 
-## 🎭 Acteurs
+## Acteurs
 
 | Acteur | Rôle |
 |--------|------|
@@ -15,7 +15,7 @@ Application web de recrutement permettant de mettre en relation **candidats**, *
 | **Recruteur** | Publie et gère les offres d'emploi, consulte les candidatures reçues |
 | **Administrateur** | Gère les utilisateurs, valide les demandes d'organisation et de rôle recruteur |
 
-## ⚙️ Fonctionnalités
+## Fonctionnalités
 
 ### Utilisateur (tous)
 - Créer un compte
@@ -45,46 +45,21 @@ Application web de recrutement permettant de mettre en relation **candidats**, *
 - Valider / Refuser les demandes d'organisation
 - Valider / Refuser les demandes de rôle recruteur
 
-## 📁 Structure du projet
+## Structure du projet
 
 ```
 .
-├── .gitlab-ci.yml          # Pipeline CI/CD (SAST + Secret Detection)
 ├── README.md
 └── use_cases/
-    ├── use_cases.puml      # Diagramme de cas d'utilisation (PlantUML)
-    └── use_cases.docx      # Documentation des cas d'utilisation
+    ├── use_cases.puml      
+    └── use_cases.docx      
 ```
 
-## 🛠️ Outils & Technologies
+## Outils & Technologies
 
 - **Modélisation** : [PlantUML](https://plantuml.com/) pour les diagrammes UML
-- **CI/CD** : GitLab CI avec SAST et Secret Detection
 - **Hébergement** : [GitLab UTC](https://gitlab.utc.fr)
 
-## 🚀 Démarrage rapide
+## Auteur
 
-### Cloner le dépôt
-
-```bash
-git clone https://gitlab.utc.fr/millomat/application-de-recrutement.git
-cd application-de-recrutement
-```
-
-### Générer le diagramme de cas d'utilisation
-
-```bash
-# Avec PlantUML installé localement
-plantuml use_cases/use_cases.puml
-
-# Ou via Docker
-docker run --rm -v $(pwd):/data plantuml/plantuml use_cases/use_cases.puml
-```
-
-## 👥 Auteurs
-
-- **millomat** — UTC GI02
-
-## 📄 Licence
-
-Projet universitaire — UTC SR10
+- **Mathis Millot** — UTC GI02
