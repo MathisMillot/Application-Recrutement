@@ -1,0 +1,103 @@
+@startuml MCD - Application de Recrutement
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam linetype ortho
+
+' ─────────────────────────────────────────
+' Entités
+' ─────────────────────────────────────────
+
+class Utilisateur {
+  {field} # id : int <<key>>
+  + nom : String
+  + prenom : String
+  + email : String
+  + mdp : String
+  + num_tel : String [0..1]
+  + statut : {ACTIF, INACTIF}
+}
+
+class Candidat{
+  {field} # id : int <<key>>
+  documents : string
+}
+
+class Admin{
+  {field} # id : int <<key>>
+}
+
+class Recruteur {
+  {field} # id : int <<key>>
+  idAdmin : int
+}
+
+class Organisation {
+  {field} # siren : int <<key>>
+  + nom : String
+  + type : String
+  + siege : String
+  + validation : {ATTENTE, OUI, NON}
+}
+
+class FicheDePoste {
+  {field} # id : int <<key>>
+  + intitule : String
+  + nom_poste : String
+  + responsable : String
+  + lieu : String
+  + salaire_min : int
+  + salaire_max : int
+  + description : String
+}
+
+class OffreEmploi {
+  {field} # idOffre : int <<key>>
+  + statut : {inactive, publiee, expiree}
+  + date_expiration : Date
+  + description : String
+  + nb_prises_demandes : int
+}
+
+class Candidature {
+  {field} # idCandidature : int
+  + date : Date
+  + idCandidat : int
+  + idOffre : int
+}
+
+class DocumentsCandidature {
+  {field} # idDossier : int
+  + nom : String
+  + idCandidature : int
+}
+
+' ─────────────────────────────────────────
+' Héritage
+' ─────────────────────────────────────────
+
+Utilisateur <|-- Recruteur : <<est un>>
+Utilisateur <|-- Candidat  : <<est un>>
+Utilisateur <|-- Admin  : <<est un>>
+
+' ─────────────────────────────────────────
+' Associations
+' ─────────────────────────────────────────
+
+Recruteur "0..*" *-- "1..*" Organisation : employe par >
+
+Organisation "1" -- "0..*" OffreEmploi : genere >
+
+FicheDePoste "1" -- "0..*" Organisation : possede >
+
+Candidature "0..*" --* "1..*" DocumentsCandidature : contient >
+
+Candidature "0..*" -- "0..1" OffreEmploi : concerne >
+
+Candidat "1" --* "0..*" Candidature : faite par >
+
+Admin "1" -- "0..*" Organisation : creer >
+Admin "1" --"0..*" Recruteur : accepte > 
+
+
+@enduml
