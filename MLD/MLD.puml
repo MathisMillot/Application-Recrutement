@@ -1,0 +1,109 @@
+@startuml MLD_Recrutement
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+hide circle
+
+class Utilisateur {
+  {field} **id_user : int <<PK>>**
+  nom : str
+  prenom : str
+  email : str
+  mdp : str
+  num_tel : str [0..1]
+  statut : {ACTIF, INACTIF}
+}
+
+class Candidat {
+  {field} **#id_user : int <<PK, FK>>**
+  documents : str
+}
+
+class Admin {
+  {field} **#id_user : int <<PK, FK>>**
+}
+
+class Recruteur {
+  {field} **#id_user : int <<PK, FK>>**
+  **#id_admin_validateur : int <<FK>>**
+}
+
+class Organisation {
+  {field} **siren : int <<PK>>**
+  nom : str
+  type : str
+  siege_social : str
+  validation : {ATTENTE, OUI, NON}
+  **#id_admin_createur : int <<FK>>**
+}
+
+class FicheDePoste {
+  {field} **id_fiche : int <<PK>>**
+  intitule : str
+  nom_poste : str
+  responsable : str
+  lieu : str
+  salaire_min : int
+  salaire_max : int
+  description : str
+  **#siren_organisation : int <<FK>>**
+}
+
+class OffreEmploi {
+  {field} **id_offre : int <<PK>>**
+  statut : {inactive, publiee, expiree}
+  date_expiration : date
+  description : str
+  nb_prises_demandes : int
+  **#siren_organisation : int <<FK>>**
+}
+
+class Candidature {
+  {field} **id_candidature : int <<PK>>**
+  date : date
+  **#id_candidat : int <<FK>>**
+  **#id_offre : int <<FK>>**
+}
+
+class DocumentsCandidature {
+  {field} **id_dossier : int <<PK>>**
+  nom : str
+  **#id_candidature : int <<FK>>**
+}
+
+class Appartient {
+  {field} **#id_recruteur : int <<PK, FK>>**
+  {field} **#siren_organisation : int <<PK, FK>>**
+}
+
+' Héritage (spécialisation)
+Utilisateur <|-- Candidat
+Utilisateur <|-- Admin
+Utilisateur <|-- Recruteur
+
+' Admin valide Recruteur (1 admin accepte 0..* recruteurs → FK dans Recruteur)
+Admin "1" -- "0..*" Recruteur : accepte >
+
+' Admin crée Organisation (1 admin crée 0..* organisations → FK dans Organisation)
+Admin "1" -- "0..*" Organisation : crée >
+
+' Recruteur appartient à Organisation (0..* -- 1..* → table de jointure)
+Recruteur "0..*" -- "0..*" Appartient
+Appartient "0..*" -- "1..*" Organisation
+
+' Organisation possède FicheDePoste (1 -- 0..* → FK dans FicheDePoste)
+Organisation "1" -- "0..*" FicheDePoste : possède >
+
+' Organisation génère OffreEmploi (1 -- 0..* → FK dans OffreEmploi)
+Organisation "1" -- "0..*" OffreEmploi : génère >
+
+' Candidat fait Candidature (1 -- 0..* → FK dans Candidature)
+Candidat "1" -- "0..*" Candidature : faite par >
+
+' Candidature concerne OffreEmploi (0..* -- 0..1 → FK dans Candidature)
+OffreEmploi "0..1" -- "0..*" Candidature : concerne >
+
+' Candidature contient DocumentsCandidature (1 -- 1..* → FK dans DocumentsCandidature)
+Candidature "1" -- "1..*" DocumentsCandidature : contient >
+
+@enduml
