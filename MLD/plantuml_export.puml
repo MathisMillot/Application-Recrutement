@@ -1,0 +1,94 @@
+@startuml MLD_Recrutement
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+hide circle
+
+class Utilisateur {
+  {field} **id_user : int <<PK>>**
+  nom : str
+  prenom : str
+  email : str
+  mdp : str (12+ car.)
+  num_tel : str [0..1]
+  date_creation : date
+  statut_compte : {ACTIF, INACTIF}
+}
+
+class Candidat {
+  {field} **#id_user : int <<PK, FK>>**
+}
+
+class Admin {
+  {field} **#id_user : int <<PK, FK>>**
+}
+
+class Recruteur {
+  {field} **#id_user : int <<PK, FK>>**
+  **#siren_organisation : int <<FK>>**
+  **#id_admin_validateur : int <<FK>>**
+}
+
+class Organisation {
+  {field} **siren : int <<PK>>**
+  nom : str
+  type : {Association, Eurl, Sarl, SASU, ...}
+  siege_social : varchar
+  etat_validation : {ATTENTE, VALIDE, REFUSE}
+  **#id_admin_createur : int <<FK>>**
+}
+
+class FicheDePoste {
+  {field} **id_fiche : int <<PK>>**
+  intitule : str
+  statut_poste : str
+  responsable_hierarchique : str
+  type_metier : str
+  lieu : str
+  rythme : str
+  salaire_min : int
+  salaire_max : int
+  description : str
+  **#siren_organisation : int <<FK>>**
+}
+
+class OffreEmploi {
+  {field} **id_offre : int <<PK>>**
+  etat_publication : {NON_PUBLIEE, PUBLIEE, EXPIREE}
+  date_expiration : date
+  liste_pieces_demandees : str
+  nb_pieces : int
+  **#id_fiche : int <<FK>>**
+  **#id_recruteur_editeur : int <<FK>>**
+}
+
+class Candidature {
+  {field} **id_candidature : int <<PK>>**
+  date_candidature : date
+  **#id_user_candidat : int <<FK>>**
+  **#id_offre : int <<FK>>**
+}
+
+class DocumentCandidature {
+  {field} **id_document : int <<PK>>**
+  nom_fichier : str
+  chemin_stockage : str
+  **#id_candidature : int <<FK>>**
+}
+
+' Relations de spécialisation (Héritage -> MLD)
+Utilisateur <|-- Candidat
+Utilisateur <|-- Admin
+Utilisateur <|-- Recruteur
+
+' Relations fonctionnelles
+Admin "1" -- "0..*" Organisation : valide/crée > 
+Organisation "1" -- "0..*" FicheDePoste : possède > 
+FicheDePoste "1" -- "0..*" OffreEmploi : est liée à >
+Recruteur "1" -- "0..*" OffreEmploi : édite > 
+Candidat "1" -- "0..*" Candidature : postule > 
+OffreEmploi "1" -- "0..*" Candidature : reçoit > 
+Candidature "1" -- "1..*" DocumentCandidature : contient > 
+Recruteur "0..*" -- "1" Organisation : appartient à > 
+
+@enduml
