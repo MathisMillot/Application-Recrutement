@@ -50,16 +50,27 @@ Application web de recrutement permettant de mettre en relation **candidats**, *
 ```
 .
 ├── README.md
+├── .gitignore
+├── MCD/
+│   └── MCD.puml               # Modèle Conceptuel de Données (PlantUML)
+├── MLD/
+│   ├── MLD.puml               # Modèle Logique de Données (PlantUML)
+│   ├── MLD.md                  # Documentation du MLD
+│   └── MLD_SR10.png            # Export du diagramme MLD
+├── SQL/
+│   └── BDD_SR10.sql            # Script SQL de création de la base de données
 └── use_cases/
-    ├── use_cases.puml      
-    └── use_cases.docx      
+    ├── use_cases.puml          # Diagramme de cas d'utilisation (PlantUML)
+    └── use_cases.docx          # Documentation des cas d'utilisation
 ```
 
 ## Outils & Technologies
 
-- **Modélisation** : [PlantUML](https://plantuml.com/) pour les diagrammes UML
+- **Modélisation** : [PlantUML](https://plantuml.com/) pour les diagrammes UML (cas d'utilisation, MCD, MLD)
+- **Base de données** : SQL
 - **Hébergement** : [GitLab UTC](https://gitlab.utc.fr)
 
-## Auteur
+## Auteurs
 
 - **Mathis Millot** — UTC GI02
+- **Romain Pierre** — UTC GI02
