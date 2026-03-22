@@ -45,12 +45,20 @@ Application web de recrutement permettant de mettre en relation **candidats**, *
 - Valider / Refuser les demandes d'organisation
 - Valider / Refuser les demandes de rôle recruteur
 
+## Design / Maquettes
+
+🎨 **[Voir le design interactif sur Figma](https://www.figma.com/design/xgd9JJ3HCEs81UgGbPXefr/Projet-SR10?node-id=1-410&t=ae0jYcE9vUCI0NpB-1)**
+
+![Aperçu des maquettes](design/maquette.png)
+
 ## Structure du projet
 
 ```
 .
 ├── README.md
 ├── .gitignore
+├── design/
+│   └── maquette.png           # Aperçu des maquettes (Figma)
 ├── MCD/
 │   └── MCD.puml               # Modèle Conceptuel de Données (PlantUML)
 ├── MLD/
@@ -66,6 +74,7 @@ Application web de recrutement permettant de mettre en relation **candidats**, *
 
 ## Outils & Technologies
 
+- **Design** : [Figma](https://www.figma.com/) pour les maquettes UI
 - **Modélisation** : [PlantUML](https://plantuml.com/) pour les diagrammes UML (cas d'utilisation, MCD, MLD)
 - **Base de données** : SQL
 - **Hébergement** : [GitLab UTC](https://gitlab.utc.fr)
