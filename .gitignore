@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# PlantUML output (généré automatiquement)
+**/out/
+
+# VSCode
+.vscode/
