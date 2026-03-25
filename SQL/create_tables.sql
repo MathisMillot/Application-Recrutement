@@ -4,7 +4,7 @@
 -- ============================================================
 
 CREATE TABLE Utilisateur (
-    id_user         SERIAL          PRIMARY KEY,
+    id_user         INT             AUTO_INCREMENT PRIMARY KEY,
     nom             VARCHAR(100)    NOT NULL,
     prenom          VARCHAR(100)    NOT NULL,
     email           VARCHAR(255)    NOT NULL UNIQUE,
@@ -14,8 +14,8 @@ CREATE TABLE Utilisateur (
 );
 
 CREATE TABLE Candidat (
-    id_user         INT             PRIMARY KEY,
-    documents       TEXT,
+    id_user INT PRIMARY KEY,
+    documents TEXT,
     FOREIGN KEY (id_user) REFERENCES Utilisateur(id_user)
 );
 
@@ -50,7 +50,7 @@ CREATE TABLE Appartient (
 );
 
 CREATE TABLE FicheDePoste (
-    id_fiche            SERIAL          PRIMARY KEY,
+    id_fiche            INT             AUTO_INCREMENT PRIMARY KEY,
     intitule            VARCHAR(255)    NOT NULL,
     nom_poste           VARCHAR(255)    NOT NULL,
     responsable         VARCHAR(255)    NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE FicheDePoste (
 );
 
 CREATE TABLE OffreEmploi (
-    id_offre            SERIAL          PRIMARY KEY,
+    id_offre            INT             AUTO_INCREMENT PRIMARY KEY,
     statut              VARCHAR(20)     NOT NULL CHECK (statut IN ('inactive', 'publiee', 'expiree')),
     date_expiration     DATE            NOT NULL,
     description         TEXT,
@@ -73,7 +73,7 @@ CREATE TABLE OffreEmploi (
 );
 
 CREATE TABLE Candidature (
-    id_candidature  SERIAL  PRIMARY KEY,
+    id_candidature  INT     AUTO_INCREMENT PRIMARY KEY,
     date            DATE    NOT NULL,
     id_candidat     INT     NOT NULL,
     id_offre        INT,
@@ -82,7 +82,7 @@ CREATE TABLE Candidature (
 );
 
 CREATE TABLE DocumentsCandidature (
-    id_dossier      SERIAL          PRIMARY KEY,
+    id_dossier      INT             AUTO_INCREMENT PRIMARY KEY,
     nom             VARCHAR(255)    NOT NULL,
     id_candidature  INT             NOT NULL,
     FOREIGN KEY (id_candidature) REFERENCES Candidature(id_candidature)
