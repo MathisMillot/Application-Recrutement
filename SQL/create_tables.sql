@@ -74,7 +74,7 @@ CREATE TABLE OffreEmploi (
 
 CREATE TABLE Candidature (
     id_candidature  INT     AUTO_INCREMENT PRIMARY KEY,
-    date            DATE    NOT NULL,
+    date_candidature DATE   NOT NULL,
     id_candidat     INT     NOT NULL,
     id_offre        INT,
     FOREIGN KEY (id_candidat)   REFERENCES Candidat(id_user),

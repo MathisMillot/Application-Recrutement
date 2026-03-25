@@ -41,10 +41,10 @@ INSERT INTO Candidat (id_user, documents) VALUES
 -- Organisations
 -- ------------------------------------------------------------
 INSERT INTO Organisation (siren, nom, type, siege_social, validation, id_admin_createur) VALUES
-(123456789, 'TechCorp',      'SASU',        '12 rue de la Paix, Paris',       'VALIDE',  1),
-(987654321, 'DataSolutions', 'SARL',        '45 avenue Victor Hugo, Lyon',     'VALIDE',  2),
+(123456789, 'TechCorp',      'SASU',        '12 rue de la Paix, Paris',       'OUI',  1),
+(987654321, 'DataSolutions', 'SARL',        '45 avenue Victor Hugo, Lyon',     'OUI',  2),
 (111222333, 'GreenStart',    'Association', '8 impasse des Lilas, Bordeaux',   'ATTENTE', 3),
-(444555666, 'WebAgency',     'EURL',        '3 boulevard Haussmann, Paris',    'REFUSE',  1);
+(444555666, 'WebAgency',     'EURL',        '3 boulevard Haussmann, Paris',    'NON',  1);
 
 -- ------------------------------------------------------------
 -- Appartient (affectation des recruteurs aux organisations)
@@ -77,7 +77,7 @@ INSERT INTO OffreEmploi (statut, date_expiration, description, nb_prises_demande
 -- ------------------------------------------------------------
 -- Candidatures
 -- ------------------------------------------------------------
-INSERT INTO Candidature (date, id_candidat, id_offre) VALUES
+INSERT INTO Candidature (date_candidature, id_candidat, id_offre) VALUES
 ('2026-03-10', 7, 1),
 ('2026-03-12', 8, 1),
 ('2026-03-15', 9, 2),
@@ -88,11 +88,11 @@ INSERT INTO Candidature (date, id_candidat, id_offre) VALUES
 -- Documents de candidature
 -- ------------------------------------------------------------
 INSERT INTO DocumentsCandidature (nom, id_candidature) VALUES
-('CV_Gaelle_Thomas.pdf',        1),
-('Lettre_motivation_Gaelle.pdf',1),
-('CV_Hugo_Petit.pdf',           2),
-('CV_Ines_Robert.pdf',          3),
-('Portfolio_Ines_Robert.pdf',   3),
-('LM_Ines_Robert.pdf',         3),
-('CV_Gaelle_Thomas_v2.pdf',     4),
-('CV_Jules_Richard.pdf',        5);
+('CV_Gaelle_Thomas.pdf',        11),
+('Lettre_motivation_Gaelle.pdf',11),
+('CV_Hugo_Petit.pdf',           12),
+('CV_Ines_Robert.pdf',          13),
+('Portfolio_Ines_Robert.pdf',   13),
+('LM_Ines_Robert.pdf',         13),
+('CV_Gaelle_Thomas_v2.pdf',     14),
+('CV_Jules_Richard.pdf',        15);
