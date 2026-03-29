@@ -1,0 +1,63 @@
+/* ============================================================
+   Landr — Page de candidature (candidature.html)
+   Layout sidebar + formulaire, carte offre
+   ============================================================ */
+
+.apply-page {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  padding: 48px 69px;
+}
+
+.apply-page__sidebar {
+  width: 308px;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.apply-page__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.apply-page__offer-card {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 32px;
+}
+
+/* ------------------------------------------------------------
+   Création d'offre d'emploi (offre-form)
+   ------------------------------------------------------------ */
+.offer-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 48px 69px;
+}
+
+.offer-page__title {
+  text-align: center;
+}
+
+.offer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1083px;
+  margin: 0 auto;
+}
+
+.offer-form__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}

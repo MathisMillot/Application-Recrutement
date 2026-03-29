@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Postuler à une offre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../CSS/base.css" />
+  <link rel="stylesheet" href="../CSS/components.css" />
+  <link rel="stylesheet" href="../CSS/candidature.css" />
+  <link rel="stylesheet" href="../CSS/offres.css" />
+</head>
+
+<body>
+
+  <!-- ── Navbar ──────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a class="navbar__brand" href="acceuil.html">
+      <img src="logo_landr.png" alt="Landr logo" />
+      <span>Landr</span>
+    </a>
+    <div class="navbar__nav">
+      <a href="offres.html">Trouver un job</a>
+      <a href="#">Trouver une entreprise</a>
+    </div>
+    <div class="navbar__search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input type="text" placeholder="Chercher un job..." />
+    </div>
+    <a class="navbar__user" href="#">
+      <div class="navbar__avatar">PP</div>
+      <span>Mon espace</span>
+    </a>
+  </nav>
+
+  <!-- ── Contenu principal ───────────────────────────────────── -->
+  <div class="apply-page">
+
+    <!-- Sidebar : résumé de l'offre -->
+    <aside class="apply-page__sidebar">
+      <div class="offer-card__company">
+        <div class="offer-card__company-logo-placeholder">BP</div>
+        <span class="offer-card__company-name">BPIFRANCE</span>
+      </div>
+      <h3>Data scientist risque TPE F/H</h3>
+      <div class="tag">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        Maisons-Alfort
+      </div>
+      <div class="tag">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="17" x2="12" y2="21" />
+        </svg>
+        Télétravail fréquent
+      </div>
+      <hr style="border: none; border-top: 1px solid #E5E5E5;" />
+      <a href="offres.html" style="font-size:14px; color: var(--color-medium); text-decoration: none;">← Retour aux
+        offres</a>
+    </aside>
+
+    <!-- Formulaire de candidature -->
+    <main class="apply-page__main">
+      <div class="apply-page__offer-card">
+        <h3 class="mb-24">Formulaire de candidature</h3>
+
+        <form class="form" style="width:100%; max-width:600px;">
+
+          <div class="form__row">
+            <div class="form__group">
+              <label for="prenom">Prénom *</label>
+              <input class="form__input" type="text" id="prenom" placeholder="Jean" />
+            </div>
+            <div class="form__group">
+              <label for="nom">Nom *</label>
+              <input class="form__input" type="text" id="nom" placeholder="Dupont" />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="email">Email *</label>
+            <input class="form__input" type="email" id="email" placeholder="prenom.nom@email.com" />
+          </div>
+
+          <div class="form__group">
+            <label for="tel">Téléphone</label>
+            <input class="form__input" type="tel" id="tel" placeholder="+33 6 00 00 00 00" />
+          </div>
+
+          <div class="form__group">
+            <label>CV (PDF, DOC) *</label>
+            <div class="file-upload">
+              <input type="file" id="cv" accept=".pdf,.doc,.docx" onchange="updateFileName('cv','cv-name')" />
+              <label class="file-upload__label" for="cv">
+                <span class="file-upload__btn">Choisir un fichier</span>
+                <span class="file-upload__name" id="cv-name">Aucun fichier sélectionné</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label>Lettre de motivation</label>
+            <div class="file-upload">
+              <input type="file" id="motivation" accept=".pdf,.doc,.docx"
+                onchange="updateFileName('motivation','motivation-name')" />
+              <label class="file-upload__label" for="motivation">
+                <span class="file-upload__btn">Choisir un fichier</span>
+                <span class="file-upload__name" id="motivation-name">Aucun fichier sélectionné</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="dispo">Disponibilité *</label>
+            <select class="form__select" id="dispo">
+              <option value="" disabled selected>Choisir une disponibilité</option>
+              <option>Immédiatement</option>
+              <option>Dans 1 mois</option>
+              <option>Dans 2 mois</option>
+              <option>Dans 3 mois ou plus</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn--primary-full mt-8">Envoyer ma candidature</button>
+
+        </form>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    function updateFileName(inputId, nameId) {
+      const input = document.getElementById(inputId);
+      const label = document.getElementById(nameId);
+      label.textContent = input.files.length ? input.files[0].name : 'Aucun fichier sélectionné';
+    }
+  </script>
+
+</body>
+
+</html>

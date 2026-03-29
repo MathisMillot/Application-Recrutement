@@ -1,0 +1,91 @@
+/* ============================================================
+   Landr — Dashboard / Tableau de bord & Profil
+   ============================================================ */
+
+.dashboard {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+.dashboard__sidebar {
+  width: 308px;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dashboard__sidebar-item {
+  font-weight: 500;
+  font-size: 18px;
+  padding: 10px 16px;
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.dashboard__sidebar-item:hover,
+.dashboard__sidebar-item--active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.dashboard__content {
+  flex: 1;
+  padding: 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.dashboard__greeting-underline {
+  display: inline-block;
+  border-bottom: 2px solid var(--color-dark);
+  padding-bottom: 2px;
+}
+
+.dashboard__section-title {
+  margin-bottom: 16px;
+}
+
+.card-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.card-grid__item {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  width: calc(25% - 12px);
+  min-width: 180px;
+}
+
+.dashboard-divider {
+  width: 176px;
+  height: 3px;
+  background: var(--color-light-bg);
+  border: none;
+}
+
+/* ------------------------------------------------------------
+   Profil recruteur / Informations entreprise
+   ------------------------------------------------------------ */
+.profile-section {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profile-section__title {
+  text-align: center;
+}

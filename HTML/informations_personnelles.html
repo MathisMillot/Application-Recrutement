@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Landr — Profil professionnel</title>
+  <title>Landr — Informations personnelles</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="template.css" />
+  <link rel="stylesheet" href="../CSS/base.css" />
+  <link rel="stylesheet" href="../CSS/components.css" />
+  <link rel="stylesheet" href="../CSS/auth.css" />
   <style>
     :root {
       --color-primary:  #ECC023;
@@ -32,8 +34,10 @@
       padding: 40px 24px 60px;
     }
 
-    /* ── Logo ── */
-    .topbar { margin-bottom: 28px; }
+    /* ── Logo centré ── */
+    .topbar {
+      margin-bottom: 28px;
+    }
 
     .topbar a {
       display: flex;
@@ -65,7 +69,7 @@
       max-width: 680px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
+      gap: 24px;
     }
 
     .card__title {
@@ -74,6 +78,7 @@
       font-size: 28px;
       color: var(--color-dark);
       text-align: center;
+      margin-bottom: 4px;
     }
 
     /* ── Form ── */
@@ -89,15 +94,23 @@
       gap: 8px;
     }
 
+    .form-group--full {
+      grid-column: 1 / -1;
+    }
+
     .form-group label {
       font-family: var(--font-main);
       font-weight: 600;
       font-size: 15px;
       color: var(--color-dark);
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .form-group select,
-    .form-group input[type="number"] {
+    .required { color: #e53935; font-size: 14px; }
+
+    .form-group input {
       height: 50px;
       border: 1.5px solid var(--color-border);
       border-radius: var(--radius-input);
@@ -107,60 +120,17 @@
       color: var(--color-dark);
       background: var(--color-white);
       outline: none;
-      appearance: none;
-      transition: border-color 0.2s;
-      cursor: pointer;
-    }
-
-    .form-group select:focus,
-    .form-group input[type="number"]:focus {
-      border-color: var(--color-primary);
-    }
-
-    /* CV file input */
-    .form-group--cv {
-      grid-column: 1;
-    }
-
-    .file-input-wrapper {
-      position: relative;
-      height: 50px;
-    }
-
-    .file-input-wrapper input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-
-    .file-input-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 50px;
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-input);
-      font-family: var(--font-main);
-      font-size: 15px;
-      color: var(--color-medium);
-      background: var(--color-white);
-      cursor: pointer;
       transition: border-color 0.2s;
     }
 
-    .file-input-wrapper:hover .file-input-label {
-      border-color: var(--color-primary);
-    }
+    .form-group input:focus { border-color: var(--color-primary); }
 
     /* ── Actions ── */
     .form-actions {
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      margin-top: 4px;
+      margin-top: 8px;
     }
 
     .btn {
@@ -171,6 +141,8 @@
       font-family: var(--font-main);
       font-weight: 700;
       font-size: 17px;
+      color: var(--color-dark);
+      background: var(--color-primary);
       cursor: pointer;
       transition: opacity 0.2s;
       text-decoration: none;
@@ -179,16 +151,6 @@
       justify-content: center;
     }
     .btn:hover { opacity: 0.88; }
-
-    .btn--yellow {
-      background: var(--color-primary);
-      color: var(--color-dark);
-    }
-
-    .btn--dark {
-      background: #3B3B8E;
-      color: #FFFFFF;
-    }
   </style>
 </head>
 <body>
@@ -203,65 +165,52 @@
 
   <!-- Card -->
   <div class="card">
-    <h1 class="card__title">Profil professionnel</h1>
+    <h1 class="card__title">Informations personnelles</h1>
 
     <div class="form-row">
 
       <div class="form-group">
-        <label>Niveau d'études </label>
-        <select>
-          <option value=""></option>
-          <option>Bac</option>
-          <option>Bac +2</option>
-          <option>Bac +3</option>
-          <option>Bac +5</option>
-          <option>Doctorat</option>
-        </select>
+        <label>Prénom <span class="required">*</span></label>
+        <input type="text" />
       </div>
 
       <div class="form-group">
-        <label>Domaine / Spécialité </label>
-        <select>
-          <option value=""></option>
-          <option>Informatique</option>
-          <option>Marketing</option>
-          <option>Finance</option>
-          <option>Ressources Humaines</option>
-          <option>Design</option>
-        </select>
+        <label>Nom <span class="required">*</span></label>
+        <input type="text" />
       </div>
 
       <div class="form-group">
-        <label>Années d'expérience</label>
-        <input type="number" min="0" max="50" />
+        <label>Date de Naissance <span class="required">*</span></label>
+        <input type="date" />
       </div>
 
       <div class="form-group">
-        <label>Type de contrat souhaité </label>
-        <select>
-          <option value=""></option>
-          <option>CDI</option>
-          <option>CDD</option>
-          <option>Stage</option>
-          <option>Alternance</option>
-          <option>Freelance</option>
-        </select>
+        <label>Téléphone <span class="required">*</span></label>
+        <input type="tel" />
       </div>
 
-      <div class="form-group form-group--cv">
-        <label>CV</label>
-        <div class="file-input-wrapper">
-          <input type="file" accept=".pdf,.doc,.docx" id="cv" />
-          <div class="file-input-label">Choose file</div>
-        </div>
+      <div class="form-group form-group--full">
+        <label>Adresse <span class="required">*</span></label>
+        <input type="text" />
+      </div>
+
+      <div class="form-group">
+        <label>Code Postal <span class="required">*</span></label>
+        <input type="text" />
+      </div>
+
+      <div class="form-group">
+        <label>Ville <span class="required">*</span></label>
+        <input type="text" />
       </div>
 
     </div>
 
     <div class="form-actions">
-      <a href="inscription_candidat2.html" class="btn btn--yellow">Retour</a>
-      <a href="#" class="btn btn--dark">Créer mon Compte</a>
+      <a href="inscription_candidat.html" class="btn">Retour</a>
+      <a href="profil_professionnel.html" class="btn">Suivant</a>
     </div>
+
   </div>
 
 </body>
