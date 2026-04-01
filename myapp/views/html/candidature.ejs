@@ -47,16 +47,16 @@
     <!-- Sidebar : résumé de l'offre -->
     <aside class="apply-page__sidebar">
       <div class="offer-card__company">
-        <div class="offer-card__company-logo-placeholder">BP</div>
-        <span class="offer-card__company-name">BPIFRANCE</span>
+        <div class="offer-card__company-logo-placeholder" id="sidebar-initiale">--</div>
+        <span class="offer-card__company-name" id="sidebar-entreprise">--</span>
       </div>
-      <h3>Data scientist risque TPE F/H</h3>
+      <h3 id="sidebar-titre">--</h3>
       <div class="tag">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        Maisons-Alfort
+        <span id="sidebar-localisation">--</span>
       </div>
       <div class="tag">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -64,7 +64,7 @@
           <line x1="8" y1="21" x2="16" y2="21" />
           <line x1="12" y1="17" x2="12" y2="21" />
         </svg>
-        Télétravail fréquent
+        <span id="sidebar-remote">--</span>
       </div>
       <hr style="border: none; border-top: 1px solid #E5E5E5;" />
       <a href="/offres" style="font-size:14px; color: var(--color-medium); text-decoration: none;">← Retour aux
@@ -140,6 +140,15 @@
     </main>
 
   </div>
+
+  <script>
+    const p = new URLSearchParams(window.location.search);
+    document.getElementById('sidebar-titre').textContent        = p.get('titre')       || '';
+    document.getElementById('sidebar-entreprise').textContent   = p.get('entreprise')  || '';
+    document.getElementById('sidebar-initiale').textContent     = p.get('initiale')    || '';
+    document.getElementById('sidebar-localisation').textContent = p.get('localisation')|| '';
+    document.getElementById('sidebar-remote').textContent       = p.get('remote')      || '';
+  </script>
 
   <script>
     function updateFileName(inputId, nameId) {

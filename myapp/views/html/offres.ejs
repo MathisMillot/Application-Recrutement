@@ -18,7 +18,7 @@
 
   <!-- ── Navbar ──────────────────────────────────────────────── -->
   <nav class="navbar">
-    <a class="navbar__brand" href="#">
+    <a class="navbar__brand" href="/accueil">
       <img src="/images/logo_landr.png" alt="Landr logo" />
       <span>Landr</span>
     </a>
@@ -184,6 +184,17 @@
       data.forEach(offre => {
         const card = document.createElement('article');
         card.className = 'offer-card';
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+          const params = new URLSearchParams({
+            titre: offre.titre,
+            entreprise: offre.entreprise,
+            initiale: offre.entreprise_initiale,
+            localisation: offre.localisation,
+            remote: offre.remote
+          });
+          window.location = '/candidature?' + params.toString();
+        });
 
         const imageHtml = offre.photo
           ? `<img class="offer-card__image" src="${offre.photo}" alt="${offre.titre}" loading="lazy" />`
