@@ -36,7 +36,7 @@
       </svg>
       <input type="text" placeholder="Chercher un job..." />
     </div>
-    <a class="navbar__user" href="#">
+    <a class="navbar__user" href="#" onclick="monEspace(event)">
       <div class="navbar__avatar">PP</div>
       <span>Mon espace</span>
     </a>
@@ -96,6 +96,14 @@
       <!-- Offres injectées dynamiquement via JS -->
     </div>
   </section>
+
+  <script>
+    function monEspace(e) {
+      e.preventDefault();
+      const user = localStorage.getItem('user');
+      window.location = user ? '/profil_candidat' : '/connection';
+    }
+  </script>
 
   <script>
     // ─── Données des offres (base de données) ───
