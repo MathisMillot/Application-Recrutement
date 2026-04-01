@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Landr — Connexion</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../CSS/base.css" />
-  <link rel="stylesheet" href="../CSS/components.css" />
-  <link rel="stylesheet" href="../CSS/auth.css" />
+  <link rel="stylesheet" href="template.css" />
   <style>
     :root {
       --color-primary:  #ECC023;
@@ -125,6 +123,10 @@
       cursor: pointer;
       transition: opacity 0.2s;
       margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
     }
     .btn-connect:hover { opacity: 0.88; }
 
@@ -180,8 +182,8 @@
 
   <!-- Logo cliquable → accueil -->
   <div class="topbar">
-    <a href="/accueil" class="topbar__logo">
-      <img src="/images/logo_landr.png" alt="Logo Landr" />
+    <a href="acceuil.html" class="topbar__logo">
+      <img src="logo_landr.png" alt="Logo Landr" />
       <span>Landr</span>
     </a>
   </div>
@@ -217,7 +219,7 @@
       Continuer avec Google
     </button>
 
-<p class="signup-link">Pas encore inscrit(e) ? <a href="/inscription_candidat">S'inscrire</a></p>
+    <p class="signup-link">Pas encore inscrit(e) ? <a href="inscription.html">S'inscrire</a></p>
 
   </div>
 

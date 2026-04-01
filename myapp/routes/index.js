@@ -45,4 +45,8 @@ router.get('/informations_personnelles', function(req, res) {
   res.render('html/informations_personnelles');
 });
 
+router.get('/profil_candidat', function(req, res) {
+  res.render('html/profil_candidat');
+});
+
 module.exports = router;
