@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Liste des utilisateurs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../CSS/base.css" />
+  <link rel="stylesheet" href="../CSS/components.css" />
+  <style>
+    /* Styles spécifiques à la page userslist */
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 60px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    thead tr {
+      background-color: var(--color-primary);
+      color: var(--color-dark);
+    }
+
+    th, td {
+      padding: 14px 18px;
+      text-align: left;
+      border-bottom: 1px solid #E5E5E5;
+    }
+
+    tbody tr:hover { background-color: var(--color-light-bg); }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .badge--admin     { background: #3B3B8E; color: #fff; }
+    .badge--recruteur { background: var(--color-primary); color: var(--color-dark); }
+    .badge--candidat  { background: var(--color-light-bg); color: var(--color-dark); }
+
+    .statut-actif   { color: #2e7d32; font-weight: 600; }
+    .statut-inactif { color: #c62828; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="/accueil" class="navbar__brand">
+        <img src="/images/logo_landr.png" alt="Logo Landr" />
+        <span>Landr</span>
+      </a>
+    </nav>
+
+    <h1 class="page-title mt-32">Liste des utilisateurs</h1>
+
+    <div class="card w-full">
+      <% if (users.length === 0) { %>
+        <p class="text-center">Aucun utilisateur trouvé.</p>
+      <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Email</th>
+              <th>Rôle</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(function(user) { %>
+              <tr>
+                <td><%= user.id_user %></td>
+                <td><%= user.nom %></td>
+                <td><%= user.prenom %></td>
+                <td><%= user.email %></td>
+                <td>
+                  <span class="badge badge--<%= user.role.toLowerCase() %>">
+                    <%= user.role %>
+                  </span>
+                </td>
+                <td>
+                  <span class="statut-<%= user.statut.toLowerCase() %>">
+                    <%= user.statut %>
+                  </span>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+
+  </div>
+
+</body>
+</html>
