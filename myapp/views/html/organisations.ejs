@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Organisations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../CSS/base.css" />
+  <link rel="stylesheet" href="../CSS/components.css" />
+  <link rel="stylesheet" href="../CSS/table.css" />
+  <style>
+    /* Styles spécifiques à la page organisations */
+
+    .badge-validation {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .badge-validation--oui     { background: #c8e6c9; color: #2e7d32; }
+    .badge-validation--non     { background: #ffcdd2; color: #c62828; }
+    .badge-validation--attente { background: #fff9c4; color: #f57f17; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/accueil" class="navbar__brand">
+      <img src="/images/logo_landr.png" alt="Logo Landr" />
+      <span>Landr</span>
+    </a>
+  </nav>
+
+  <div class="page-wrapper">
+    <h1 class="page-title mt-32">Liste des organisations</h1>
+
+    <div class="card w-full">
+      <% if (organisations.length === 0) { %>
+        <p class="text-center">Aucune organisation trouvée.</p>
+      <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th>SIREN</th>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Siège social</th>
+              <th>Validation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% organisations.forEach(function(org) { %>
+              <tr>
+                <td><%= org.siren %></td>
+                <td><%= org.nom %></td>
+                <td><%= org.type %></td>
+                <td><%= org.siege_social %></td>
+                <td>
+                  <span class="badge-validation badge-validation--<%= org.validation.toLowerCase() %>">
+                    <%= org.validation %>
+                  </span>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </div>
+
+</body>
+</html>

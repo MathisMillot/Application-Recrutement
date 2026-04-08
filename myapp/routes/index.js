@@ -1,5 +1,8 @@
 var express = require('express');
 var router = express.Router();
+const offre = require('../model/offre');
+const organisation = require('../model/organisation');
+const candidature = require('../model/candidature');
 
 /* Page d'accueil */
 router.get('/', function(req, res) {
@@ -11,8 +14,33 @@ router.get('/accueil', function(req, res) {
 });
 
 /* Offres d'emploi */
-router.get('/offres', function(req, res) {
-  res.render('html/offres');
+router.get('/offres', async function(req, res, next) {
+  try {
+    const offres = await offre.readAll();
+    res.render('html/offres', { offres });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* Organisations */
+router.get('/organisations', async function(req, res, next) {
+  try {
+    const organisations = await organisation.readAll();
+    res.render('html/organisations', { organisations });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* Candidatures */
+router.get('/candidatures', async function(req, res, next) {
+  try {
+    const candidatures = await candidature.readAll();
+    res.render('html/candidatures', { candidatures });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /* Connexion / Inscription */
