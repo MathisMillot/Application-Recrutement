@@ -36,8 +36,8 @@
       </svg>
       <input type="text" placeholder="Chercher un job..." />
     </div>
-    <a class="navbar__user" href="#" onclick="monEspace(event)">
-      <div class="navbar__avatar">PP</div>
+    <a class="navbar__user" href="<%= user ? '/profil_candidat' : '/connection' %>">
+      <div class="navbar__avatar"><%= user ? user.prenom[0] + user.nom[0] : '?' %></div>
       <span>Mon espace</span>
     </a>
   </nav>
@@ -124,13 +124,6 @@
     </div>
   </section>
 
-  <script>
-    function monEspace(e) {
-      e.preventDefault();
-      const user = localStorage.getItem('user');
-      window.location = user ? '/profil_candidat' : '/connection';
-    }
-  </script>
 
 </body>
 

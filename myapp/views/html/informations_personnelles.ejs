@@ -167,49 +167,51 @@
   <div class="card">
     <h1 class="card__title">Informations personnelles</h1>
 
-    <div class="form-row">
+    <form method="POST" action="/inscription/etape2">
+      <div class="form-row">
 
-      <div class="form-group">
-        <label>Prénom <span class="required">*</span></label>
-        <input type="text" />
+        <div class="form-group">
+          <label>Prénom <span class="required">*</span></label>
+          <input type="text" name="prenom" required />
+        </div>
+
+        <div class="form-group">
+          <label>Nom <span class="required">*</span></label>
+          <input type="text" name="nom" required />
+        </div>
+
+        <div class="form-group">
+          <label>Date de Naissance <span class="required">*</span></label>
+          <input type="date" name="date_naissance" />
+        </div>
+
+        <div class="form-group">
+          <label>Téléphone <span class="required">*</span></label>
+          <input type="tel" name="num_tel" />
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Adresse <span class="required">*</span></label>
+          <input type="text" name="adresse" />
+        </div>
+
+        <div class="form-group">
+          <label>Code Postal <span class="required">*</span></label>
+          <input type="text" name="code_postal" />
+        </div>
+
+        <div class="form-group">
+          <label>Ville <span class="required">*</span></label>
+          <input type="text" name="ville" />
+        </div>
+
       </div>
 
-      <div class="form-group">
-        <label>Nom <span class="required">*</span></label>
-        <input type="text" />
+      <div class="form-actions">
+        <a href="/inscription_candidat" class="btn">Retour</a>
+        <button type="submit" class="btn">Suivant</button>
       </div>
-
-      <div class="form-group">
-        <label>Date de Naissance <span class="required">*</span></label>
-        <input type="date" />
-      </div>
-
-      <div class="form-group">
-        <label>Téléphone <span class="required">*</span></label>
-        <input type="tel" />
-      </div>
-
-      <div class="form-group form-group--full">
-        <label>Adresse <span class="required">*</span></label>
-        <input type="text" />
-      </div>
-
-      <div class="form-group">
-        <label>Code Postal <span class="required">*</span></label>
-        <input type="text" />
-      </div>
-
-      <div class="form-group">
-        <label>Ville <span class="required">*</span></label>
-        <input type="text" />
-      </div>
-
-    </div>
-
-    <div class="form-actions">
-      <a href="/inscription_candidat" class="btn">Retour</a>
-      <a href="/profil_professionnel" class="btn">Suivant</a>
-    </div>
+    </form>
 
   </div>
 

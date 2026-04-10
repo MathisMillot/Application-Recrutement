@@ -1,4 +1,5 @@
 const db = require('./db');
+const bcrypt = require('bcrypt');
 
 module.exports = {
 
@@ -35,12 +36,28 @@ module.exports = {
     return rows.length === 1 && rows[0].mdp === mdp;
   },
 
+  async findByCredentials(email, mdp) {
+    // on récupère d'abord le hash stocké, puis on compare avec bcrypt
+    const [rows] = await db.query(
+      'SELECT id_user, nom, prenom, email, num_tel, statut, mdp FROM Utilisateur WHERE email = ?',
+      [email]
+    );
+    if (!rows[0]) return null;
+    const valide = await bcrypt.compare(mdp, rows[0].mdp);
+    if (!valide) return null;
+    const { mdp: _, ...user } = rows[0]; // on ne retourne pas le hash
+    return user;
+  },
+
   async create(nom, prenom, email, mdp, num_tel) {
+    const hash = await bcrypt.hash(mdp, 10); // hash le mdp avant stockage
     const [result] = await db.query(
       'INSERT INTO Utilisateur (nom, prenom, email, mdp, num_tel, statut) VALUES (?, ?, ?, ?, ?, ?)',
-      [nom, prenom, email, mdp, num_tel, 'ACTIF']
+      [nom, prenom, email, hash, num_tel, 'ACTIF']
     );
-    return result.insertId;
+    const id_user = result.insertId;
+    await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
+    return id_user;
   },
 
   async update(id_user, nom, prenom, email, num_tel) {
@@ -49,6 +66,24 @@ module.exports = {
       [nom, prenom, email, num_tel, id_user]
     );
     return result.affectedRows;
+  },
+
+  async getDocuments(id_user) {
+    const [rows] = await db.query(
+      'SELECT documents FROM Candidat WHERE id_user = ?',
+      [id_user]
+    );
+    if (!rows[0] || !rows[0].documents) return [];
+    return JSON.parse(rows[0].documents);
+  },
+
+  async addDocument(id_user, filename) {
+    const docs = await this.getDocuments(id_user);
+    docs.push(filename);
+    await db.query(
+      'INSERT INTO Candidat (id_user, documents) VALUES (?, ?) ON DUPLICATE KEY UPDATE documents = ?',
+      [id_user, JSON.stringify(docs), JSON.stringify(docs)]
+    );
   },
 
   async setStatut(id_user, statut) {

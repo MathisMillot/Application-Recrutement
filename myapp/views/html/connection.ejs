@@ -194,17 +194,19 @@
   <!-- Carte login -->
   <div class="login-card">
 
-    <div class="form-group">
-      <label for="identifiant">Identifiant</label>
-      <input type="text" id="identifiant" placeholder="" />
-    </div>
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+      </div>
 
-    <div class="form-group">
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" placeholder="" />
-    </div>
+      <div class="form-group" style="margin-top:16px">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="mdp" required />
+      </div>
 
-    <button class="btn-connect">Se connecter</button>
+      <button type="submit" class="btn-connect" style="margin-top:20px">Se connecter</button>
+    </form>
 
     <p class="divider">ou</p>
 
