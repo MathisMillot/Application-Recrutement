@@ -17,9 +17,12 @@ module.exports = {
 
   async readByCandidat(id_candidat) {
     const [rows] = await db.query(
-      `SELECT c.id_candidature, c.date, c.id_candidat, c.id_offre, o.description AS offre_description
+      `SELECT c.id_candidature, c.date, c.id_candidat, c.id_offre,
+              o.description AS offre_description, o.statut,
+              org.nom AS organisation
        FROM Candidature c
        LEFT JOIN OffreEmploi o ON c.id_offre = o.id_offre
+       LEFT JOIN Organisation org ON o.siren_organisation = org.siren
        WHERE c.id_candidat = ?`,
       [id_candidat]
     );

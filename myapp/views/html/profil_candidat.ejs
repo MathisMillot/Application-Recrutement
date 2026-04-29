@@ -311,8 +311,15 @@
               <div class="job-card__img-placeholder"></div>
               <div class="job-card__body">
                 <p class="job-card__title"><%= c.offre_description || 'Offre #' + c.id_offre %></p>
+                <% if (c.organisation) { %>
+                <div class="job-card__company">
+                  <div class="company-logo"><%= c.organisation.substring(0,2).toUpperCase() %></div>
+                  <span><%= c.organisation %></span>
+                </div>
+                <% } %>
                 <div class="job-card__tags">
-                  <span class="tag">🗓 <%= new Date(c.date).toLocaleDateString('fr-FR') %></span>
+                  <% if (c.statut) { %><span class="tag"><%= c.statut %></span><% } %>
+                  <span class="tag">Postulé le <%= new Date(c.date).toLocaleDateString('fr-FR') %></span>
                 </div>
               </div>
             </div>

@@ -35,8 +35,8 @@
       </svg>
       <input type="text" placeholder="Chercher un job..." />
     </div>
-    <a class="navbar__user" href="#">
-      <div class="navbar__avatar">PP</div>
+    <a class="navbar__user" href="<%= user ? '/profil_candidat' : '/connection' %>">
+      <div class="navbar__avatar"><%= user ? user.prenom[0] + user.nom[0] : '?' %></div>
       <span>Mon espace</span>
     </a>
   </nav>
@@ -76,7 +76,8 @@
       <div class="apply-page__offer-card">
         <h3 class="mb-24">Formulaire de candidature</h3>
 
-        <form class="form" style="width:100%; max-width:600px;">
+        <form class="form" style="width:100%; max-width:600px;" action="/candidature" method="POST">
+          <input type="hidden" name="id_offre" id="hidden-id-offre" />
 
           <div class="form__row">
             <div class="form__group">
@@ -148,6 +149,7 @@
     document.getElementById('sidebar-initiale').textContent     = p.get('initiale')    || '';
     document.getElementById('sidebar-localisation').textContent = p.get('localisation')|| '';
     document.getElementById('sidebar-remote').textContent       = p.get('remote')      || '';
+    document.getElementById('hidden-id-offre').value            = p.get('id')          || '';
   </script>
 
   <script>
