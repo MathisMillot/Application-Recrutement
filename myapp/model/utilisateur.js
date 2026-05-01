@@ -28,6 +28,14 @@ module.exports = {
     return rows[0];
   },
 
+  async findByEmail(email) {
+    const [rows] = await db.query(
+      'SELECT * FROM Utilisateur WHERE email = ?',
+      [email]
+    );
+    return rows[0]; // Retourne l'utilisateur s'il existe, sinon undefined
+  },
+
   async areValid(email, mdp) {
     const [rows] = await db.query(
       'SELECT mdp FROM Utilisateur WHERE email = ?',

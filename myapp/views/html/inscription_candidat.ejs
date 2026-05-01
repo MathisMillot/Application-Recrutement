@@ -160,6 +160,16 @@
   <div class="register-card">
     <h1 class="register-card__title">Inscription candidat</h1>
 
+    <% if (typeof error !== 'undefined') { %>
+      <div style="background-color: #ffcdd2; color: #c62828; padding: 12px; border-radius: 8px; font-weight: 500; font-size: 14px; text-align: center; margin-bottom: 16px;">
+        <% if (error === 'email') { %>
+          Cet email est déjà utilisé par un autre compte.
+        <% } else if (error === 'mdp') { %>
+          Les mots de passe ne correspondent pas.
+        <% } %>
+      </div>
+    <% } %>
+
     <form method="POST" action="/inscription/etape1">
       <div class="form-group">
         <label for="email">Email <span class="required">*</span></label>

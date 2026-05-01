@@ -51,7 +51,7 @@ router.get('/connection', function(req, res) {
 });
 
 router.get('/inscription_candidat', function(req, res) {
-  res.render('html/inscription_candidat');
+  res.render('html/inscription_candidat', { error: req.query.error });
 });
 
 router.get('/inscription_recruteur', function(req, res) {
@@ -105,12 +105,24 @@ router.post('/upload', upload.single('document'), async function(req, res, next)
 });
 
 /* Inscription multi-étapes */
-router.post('/inscription/etape1', function(req, res) {
-  const { email, mdp, confirm } = req.body;
-  if (mdp !== confirm) return res.redirect('/inscription_candidat');
-  
-  req.session.inscription = { email, mdp };
-  res.redirect('/informations_personnelles');
+router.post('/inscription/etape1', async function(req, res, next) {
+  try {
+    const { email, mdp, confirm } = req.body;
+    
+    if (mdp !== confirm) {
+      return res.redirect('/inscription_candidat?error=mdp');
+    }
+
+    const existingUser = await utilisateur.findByEmail(email);
+    if (existingUser) {
+      return res.redirect('/inscription_candidat?error=email');
+    }
+    
+    req.session.inscription = { email, mdp };
+    res.redirect('/informations_personnelles');
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.post('/inscription/etape2', function(req, res) {
