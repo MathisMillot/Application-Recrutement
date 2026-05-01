@@ -64,19 +64,7 @@ router.get('/responsable_recrutement', function(req, res) {
 
 /* Espace candidat */
 router.get('/candidature', function(req, res) {
-  res.render('html/candidature', { user: req.session.user || null });
-});
-
-router.post('/candidature', async function(req, res, next) {
-  try {
-    if (!req.session.user) return res.redirect('/connection');
-    const id_candidat = req.session.user.id_user;
-    const id_offre = req.body.id_offre;
-    await candidature.create(id_candidat, id_offre);
-    res.render('html/candidature_confirmation');
-  } catch (err) {
-    next(err);
-  }
+  res.render('html/candidature');
 });
 
 router.get('/profil_professionnel', function(req, res) {
@@ -91,21 +79,24 @@ router.get('/profil_candidat', async function(req, res, next) {
   try {
     if (!req.session.user) return res.redirect('/connection');
     const id = req.session.user.id_user;
+    
     const [candidatures, documents] = await Promise.all([
       candidature.readByCandidat(id),
       utilisateur.getDocuments(id)
     ]);
+    
     res.render('html/profil_candidat', { user: req.session.user, candidatures, documents });
   } catch (err) {
     next(err);
   }
 });
 
-/* Upload document */
+/* Upload document (depuis le profil) */
 router.post('/upload', upload.single('document'), async function(req, res, next) {
   try {
     if (!req.session.user) return res.redirect('/connection');
     if (!req.file) return res.redirect('/profil_candidat');
+    
     await utilisateur.addDocument(req.session.user.id_user, req.file.filename);
     res.redirect('/profil_candidat');
   } catch (err) {
@@ -117,6 +108,7 @@ router.post('/upload', upload.single('document'), async function(req, res, next)
 router.post('/inscription/etape1', function(req, res) {
   const { email, mdp, confirm } = req.body;
   if (mdp !== confirm) return res.redirect('/inscription_candidat');
+  
   req.session.inscription = { email, mdp };
   res.redirect('/informations_personnelles');
 });
@@ -127,10 +119,18 @@ router.post('/inscription/etape2', function(req, res) {
   res.redirect('/profil_professionnel');
 });
 
-router.post('/inscription/etape3', async function(req, res, next) {
+router.post('/inscription/etape3', upload.single('cv'), async function(req, res, next) {
   try {
     const { nom, prenom, email, mdp, num_tel } = req.session.inscription;
+    
+    // 1. Création de l'utilisateur
     const id_user = await utilisateur.create(nom, prenom, email, mdp, num_tel);
+    
+    // 2. Ajout du CV s'il a été téléchargé
+    if (req.file) {
+      await utilisateur.addDocument(id_user, req.file.filename);
+    }
+
     req.session.inscription = null;
     req.session.user = { id_user, nom, prenom, email, num_tel };
     res.redirect('/profil_candidat');
@@ -144,8 +144,10 @@ router.post('/login', async function(req, res, next) {
   try {
     const { email, mdp } = req.body;
     const user = await utilisateur.findByCredentials(email, mdp);
+    
     if (!user) return res.redirect('/connection');
-    // régénère l'ID de session pour éviter la session fixation
+    
+    // Régénère l'ID de session pour éviter la session fixation
     req.session.regenerate(function(err) {
       if (err) return next(err);
       req.session.user = user;
