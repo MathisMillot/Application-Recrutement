@@ -12,6 +12,18 @@ module.exports = {
     return rows;
   },
 
+  async searchOffres(keyword) {
+    const searchTerm = `%${keyword}%`; 
+    const [rows] = await db.query(`
+      SELECT o.id_offre, o.statut, o.date_expiration, o.description,
+             o.nb_prises_demandes, org.nom AS organisation
+      FROM OffreEmploi o
+      JOIN Organisation org ON o.siren_organisation = org.siren
+      WHERE o.description LIKE ? OR org.nom LIKE ?
+    `, [searchTerm, searchTerm]);
+    return rows;
+  },
+
   async read(id_offre) {
     const [rows] = await db.query(
       `SELECT o.*, org.nom AS organisation
