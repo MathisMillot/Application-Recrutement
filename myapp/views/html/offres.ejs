@@ -44,43 +44,65 @@
   </nav>
 
   <!-- ── Filtres ─────────────────────────────────────────────── -->
-  <div class="filters">
-    <!-- Icône filtre générique réutilisée pour chaque chip -->
-    <button class="filter-chip">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="7" width="20" height="10" rx="2" />
-        <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
-      </svg>
-      Salaire
-    </button>
-    <button class="filter-chip">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="7" width="20" height="10" rx="2" />
-        <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
-      </svg>
-      Localisation
-    </button>
-    <button class="filter-chip">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="7" width="20" height="10" rx="2" />
-        <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
-      </svg>
-      Type de contrat
-    </button>
-    <button class="filter-chip">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="7" width="20" height="10" rx="2" />
-        <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
-      </svg>
-      Télétravail
-    </button>
-    <button class="filter-chip">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="7" width="20" height="10" rx="2" />
-        <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
-      </svg>
-      Secteur
-    </button>
+<div class="filters">
+    
+    <!-- Filtre : Salaire -->
+    <div class="filter-wrapper">
+      <button class="filter-chip" data-target="dropdown-salaire">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="10" rx="2" />
+          <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
+        </svg>
+        Salaire
+      </button>
+      <div class="filter-dropdown" id="dropdown-salaire">
+        <label>Salaire minimum (€)</label>
+        <input type="number" placeholder="Ex: 35000" />
+        <button class="btn btn--primary" style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+      </div>
+    </div>
+
+    <!-- Filtre : Localisation -->
+    <div class="filter-wrapper">
+      <button class="filter-chip" data-target="dropdown-localisation">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        Localisation
+      </button>
+      <div class="filter-dropdown" id="dropdown-localisation">
+        <label>Ville ou Code Postal</label>
+        <input type="text" placeholder="Ex: Paris, Lyon..." />
+        <button class="btn btn--primary" style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+      </div>
+    </div>
+
+    <!-- Filtre : Type de contrat -->
+    <div class="filter-wrapper">
+      <button class="filter-chip" data-target="dropdown-contrat">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Type de contrat
+      </button>
+      <div class="filter-dropdown" id="dropdown-contrat">
+        <label>Contrat souhaité</label>
+        <select>
+          <option value="">Tous les contrats</option>
+          <option value="CDI">CDI</option>
+          <option value="CDD">CDD</option>
+          <option value="Stage">Stage</option>
+          <option value="Alternance">Alternance</option>
+        </select>
+        <button class="btn btn--primary" style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+      </div>
+    </div>
+
     <button class="filter-chip filter-chip--all">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="4" y1="6" x2="20" y2="6" />
@@ -124,6 +146,45 @@
       <% }); %>
     </div>
   </section>
+
+  <script>
+    const filterButtons = document.querySelectorAll('.filter-chip[data-target]');
+    
+    // Gérer le clic sur les boutons
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        // Empêche le clic de se propager au document (pour ne pas fermer tout de suite)
+        e.stopPropagation();
+
+        const targetId = this.getAttribute('data-target');
+        const targetDropdown = document.getElementById(targetId);
+        const isActive = this.classList.contains('filter-chip--active');
+
+        // 1. Fermer tous les menus et désactiver tous les boutons
+        document.querySelectorAll('.filter-dropdown').forEach(dd => dd.classList.remove('show'));
+        document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('filter-chip--active'));
+
+        // 2. Si le bouton cliqué n'était pas déjà actif, on l'ouvre
+        if (!isActive && targetDropdown) {
+          this.classList.add('filter-chip--active');
+          targetDropdown.classList.add('show');
+        }
+      });
+    });
+
+    // Empêcher la fermeture quand on clique à l'intérieur du menu déroulant
+    document.querySelectorAll('.filter-dropdown').forEach(dropdown => {
+      dropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    });
+
+    // Fermer les menus si on clique n'importe où ailleurs sur la page
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.filter-dropdown').forEach(dd => dd.classList.remove('show'));
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('filter-chip--active'));
+    });
+  </script>
 
 
 </body>
