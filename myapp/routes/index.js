@@ -18,8 +18,16 @@ router.get('/accueil', function(req, res) {
 /* Offres d'emploi */
 router.get('/offres', async function(req, res, next) {
   try {
-    const offres = await offre.readAll();
-    res.render('html/offres', { offres, user: req.session.user || null });
+    const q = req.query.q; 
+    let offres;
+
+    if (q) {
+      offres = await offre.searchOffres(q); 
+    } else {
+      offres = await offre.readAll(); 
+    }
+
+    res.render('html/offres', { offres, user: req.session.user || null, q: q || '' });
   } catch (err) {
     next(err);
   }
@@ -47,7 +55,7 @@ router.get('/candidatures', async function(req, res, next) {
 
 /* Connexion / Inscription */
 router.get('/connection', function(req, res) {
-  res.render('html/connection');
+  res.render('html/connection', { error: req.query.error });
 });
 
 router.get('/inscription_candidat', function(req, res) {
@@ -157,7 +165,7 @@ router.post('/login', async function(req, res, next) {
     const { email, mdp } = req.body;
     const user = await utilisateur.findByCredentials(email, mdp);
     
-    if (!user) return res.redirect('/connection');
+    if (!user) return res.redirect('/connection?error=credentials');
     
     // Régénère l'ID de session pour éviter la session fixation
     req.session.regenerate(function(err) {
