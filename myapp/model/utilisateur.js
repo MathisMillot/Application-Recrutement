@@ -1,6 +1,8 @@
 const db = require('./db');
 const bcrypt = require('bcrypt');
 
+db.query('ALTER TABLE Utilisateur ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(() => {});
+
 module.exports = {
 
   async readAll() {
@@ -47,7 +49,7 @@ module.exports = {
   async findByCredentials(email, mdp) {
     // on récupère d'abord le hash stocké, puis on compare avec bcrypt
     const [rows] = await db.query(
-      'SELECT id_user, nom, prenom, email, num_tel, statut, mdp FROM Utilisateur WHERE email = ?',
+      'SELECT id_user, nom, prenom, email, num_tel, statut, photo_profil, mdp FROM Utilisateur WHERE email = ?',
       [email]
     );
     if (!rows[0]) return null;
@@ -92,6 +94,28 @@ module.exports = {
       'INSERT INTO Candidat (id_user, documents) VALUES (?, ?) ON DUPLICATE KEY UPDATE documents = ?',
       [id_user, JSON.stringify(docs), JSON.stringify(docs)]
     );
+  },
+
+  async findOrCreateByGoogle(profile) {
+    const email = profile.emails[0].value;
+    const [rows] = await db.query(
+      'SELECT id_user, nom, prenom, email, num_tel, statut, photo_profil FROM Utilisateur WHERE email = ?',
+      [email]
+    );
+    if (rows[0]) return rows[0];
+    const nom = profile.name.familyName || '';
+    const prenom = profile.name.givenName || '';
+    const [result] = await db.query(
+      'INSERT INTO Utilisateur (nom, prenom, email, mdp, num_tel, statut) VALUES (?, ?, ?, ?, ?, ?)',
+      [nom, prenom, email, '', '', 'ACTIF']
+    );
+    const id_user = result.insertId;
+    await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
+    return { id_user, nom, prenom, email, num_tel: '', statut: 'ACTIF', photo_profil: null };
+  },
+
+  async setPhoto(id_user, filename) {
+    await db.query('UPDATE Utilisateur SET photo_profil = ? WHERE id_user = ?', [filename, id_user]);
   },
 
   async setStatut(id_user, statut) {

@@ -30,4 +30,21 @@ const fileFilter = function (req, file, cb) {
   }
 };
 
-module.exports = multer({ storage, fileFilter });
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) { cb(null, uploadDir); },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, 'avatar-' + req.session.user.id_user + ext);
+  }
+});
+
+const avatarFilter = function (req, file, cb) {
+  const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowed.includes(ext)) cb(null, true);
+  else cb(new Error('Seuls les fichiers image sont acceptés'));
+};
+
+const documentUpload = multer({ storage, fileFilter });
+module.exports = documentUpload;
+module.exports.avatar = multer({ storage: avatarStorage, fileFilter: avatarFilter });

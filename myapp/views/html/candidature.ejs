@@ -19,26 +19,45 @@
 
   <!-- ── Navbar ──────────────────────────────────────────────── -->
   <nav class="navbar">
-    <a class="navbar__brand" href="/accueil">
+    <a class="navbar__brand" href="/offres">
       <img src="/images/logo_landr.png" alt="Landr logo" />
       <span>Landr</span>
     </a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <div class="navbar__nav">
-      <a href="/offres">Trouver un job</a>
+      <a href="#">Trouver un job</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <a href="#">Trouver une entreprise</a>
     </div>
-    <div class="navbar__search">
+    <form class="navbar__search" method="GET" action="/offres">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
-      <input type="text" placeholder="Chercher un job..." />
-    </div>
-    <a class="navbar__user" href="<%= user ? '/profil_candidat' : '/connection' %>">
-      <div class="navbar__avatar"><%= user ? user.prenom[0] + user.nom[0] : '?' %></div>
+      <input type="text" name="q" placeholder="Chercher un job, une entreprise..."
+        value="<%= typeof q !== 'undefined' ? q : '' %>" />
+      <button type="submit" style="display: none;">Chercher</button>
+    </form>
+    <div class="navbar__user" id="user-menu">
+      <div class="navbar__avatar">
+        <% if (user.photo_profil) { %>
+          <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
+          <% } else { %>
+            <%= user.prenom[0] %>
+              <%= user.nom[0] %>
+                <% } %>
+      </div>
       <span>Mon espace</span>
-    </a>
+      <div class="user-dropdown" id="user-dropdown">
+        <a href="/profil_candidat">Mon profil</a>
+        <a href="/modifier_profil">Modifier mon profil</a>
+        <div class="dropdown-divider"></div>
+        <form method="POST" action="/logout" style="margin:0;padding:0">
+          <button type="submit" class="dropdown-logout">Se déconnecter</button>
+        </form>
+      </div>
+    </div>
   </nav>
 
   <!-- ── Contenu principal ───────────────────────────────────── -->
@@ -144,12 +163,12 @@
 
   <script>
     const p = new URLSearchParams(window.location.search);
-    document.getElementById('sidebar-titre').textContent        = p.get('titre')       || '';
-    document.getElementById('sidebar-entreprise').textContent   = p.get('entreprise')  || '';
-    document.getElementById('sidebar-initiale').textContent     = p.get('initiale')    || '';
-    document.getElementById('sidebar-localisation').textContent = p.get('localisation')|| '';
-    document.getElementById('sidebar-remote').textContent       = p.get('remote')      || '';
-    document.getElementById('hidden-id-offre').value            = p.get('id')          || '';
+    document.getElementById('sidebar-titre').textContent = p.get('titre') || '';
+    document.getElementById('sidebar-entreprise').textContent = p.get('entreprise') || '';
+    document.getElementById('sidebar-initiale').textContent = p.get('initiale') || '';
+    document.getElementById('sidebar-localisation').textContent = p.get('localisation') || '';
+    document.getElementById('sidebar-remote').textContent = p.get('remote') || '';
+    document.getElementById('hidden-id-offre').value = p.get('id') || '';
   </script>
 
   <script>

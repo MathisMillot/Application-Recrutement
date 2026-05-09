@@ -1,11 +1,14 @@
 const db = require('./db');
 
+db.query('ALTER TABLE OffreEmploi ADD COLUMN localisation VARCHAR(255) DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE OffreEmploi ADD COLUMN remote VARCHAR(50) DEFAULT NULL').catch(() => {});
+
 module.exports = {
 
   async readAll() {
     const [rows] = await db.query(`
       SELECT o.id_offre, o.statut, o.date_expiration, o.description,
-             o.nb_prises_demandes, org.nom AS organisation
+             o.nb_prises_demandes, o.localisation, o.remote, org.nom AS organisation
       FROM OffreEmploi o
       JOIN Organisation org ON o.siren_organisation = org.siren
     `);
@@ -13,10 +16,10 @@ module.exports = {
   },
 
   async searchOffres(keyword) {
-    const searchTerm = `%${keyword}%`; 
+    const searchTerm = `%${keyword}%`;
     const [rows] = await db.query(`
       SELECT o.id_offre, o.statut, o.date_expiration, o.description,
-             o.nb_prises_demandes, org.nom AS organisation
+             o.nb_prises_demandes, o.localisation, o.remote, org.nom AS organisation
       FROM OffreEmploi o
       JOIN Organisation org ON o.siren_organisation = org.siren
       WHERE o.description LIKE ? OR org.nom LIKE ?

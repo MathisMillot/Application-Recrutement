@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var passport = require('passport');
 const offre = require('../model/offre');
 const organisation = require('../model/organisation');
 const candidature = require('../model/candidature');
@@ -7,24 +8,24 @@ const utilisateur = require('../model/utilisateur');
 const upload = require('../model/upload');
 
 /* Page d'accueil */
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
   res.render('html/accueil');
 });
 
-router.get('/accueil', function(req, res) {
+router.get('/accueil', function (req, res) {
   res.render('html/accueil');
 });
 
 /* Offres d'emploi */
-router.get('/offres', async function(req, res, next) {
+router.get('/offres', async function (req, res, next) {
   try {
-    const q = req.query.q; 
+    const q = req.query.q;
     let offres;
 
     if (q) {
-      offres = await offre.searchOffres(q); 
+      offres = await offre.searchOffres(q);
     } else {
-      offres = await offre.readAll(); 
+      offres = await offre.readAll();
     }
 
     res.render('html/offres', { offres, user: req.session.user || null, q: q || '' });
@@ -34,7 +35,7 @@ router.get('/offres', async function(req, res, next) {
 });
 
 /* Organisations */
-router.get('/organisations', async function(req, res, next) {
+router.get('/organisations', async function (req, res, next) {
   try {
     const organisations = await organisation.readAll();
     res.render('html/organisations', { organisations });
@@ -44,7 +45,7 @@ router.get('/organisations', async function(req, res, next) {
 });
 
 /* Candidatures */
-router.get('/candidatures', async function(req, res, next) {
+router.get('/candidatures', async function (req, res, next) {
   try {
     const candidatures = await candidature.readAll();
     res.render('html/candidatures', { candidatures });
@@ -54,45 +55,46 @@ router.get('/candidatures', async function(req, res, next) {
 });
 
 /* Connexion / Inscription */
-router.get('/connection', function(req, res) {
+router.get('/connection', function (req, res) {
+  if (req.session.user) return res.redirect('/profil_candidat');
   res.render('html/connection', { error: req.query.error });
 });
 
-router.get('/inscription_candidat', function(req, res) {
+router.get('/inscription_candidat', function (req, res) {
   res.render('html/inscription_candidat', { error: req.query.error });
 });
 
-router.get('/inscription_recruteur', function(req, res) {
+router.get('/inscription_recruteur', function (req, res) {
   res.render('html/inscription_recruteur');
 });
 
-router.get('/responsable_recrutement', function(req, res) {
+router.get('/responsable_recrutement', function (req, res) {
   res.render('html/responsable_recrutement');
 });
 
 /* Espace candidat */
-router.get('/candidature', function(req, res) {
-  res.render('html/candidature');
+router.get('/candidature', function (req, res) {
+  res.render('html/candidature', { user: req.session.user || null });
 });
 
-router.get('/profil_professionnel', function(req, res) {
+router.get('/profil_professionnel', function (req, res) {
   res.render('html/profil_professionnel');
 });
 
-router.get('/informations_personnelles', function(req, res) {
+router.get('/informations_personnelles', function (req, res) {
   res.render('html/informations_personnelles');
 });
 
-router.get('/profil_candidat', async function(req, res, next) {
+router.get('/profil_candidat', async function (req, res, next) {
   try {
     if (!req.session.user) return res.redirect('/connection');
     const id = req.session.user.id_user;
-    
+
     const [candidatures, documents] = await Promise.all([
       candidature.readByCandidat(id),
       utilisateur.getDocuments(id)
     ]);
-    
+
     res.render('html/profil_candidat', { user: req.session.user, candidatures, documents });
   } catch (err) {
     next(err);
@@ -100,11 +102,11 @@ router.get('/profil_candidat', async function(req, res, next) {
 });
 
 /* Upload document (depuis le profil) */
-router.post('/upload', upload.single('document'), async function(req, res, next) {
+router.post('/upload', upload.single('document'), async function (req, res, next) {
   try {
     if (!req.session.user) return res.redirect('/connection');
     if (!req.file) return res.redirect('/profil_candidat');
-    
+
     await utilisateur.addDocument(req.session.user.id_user, req.file.filename);
     res.redirect('/profil_candidat');
   } catch (err) {
@@ -113,10 +115,10 @@ router.post('/upload', upload.single('document'), async function(req, res, next)
 });
 
 /* Inscription multi-étapes */
-router.post('/inscription/etape1', async function(req, res, next) {
+router.post('/inscription/etape1', async function (req, res, next) {
   try {
     const { email, mdp, confirm } = req.body;
-    
+
     if (mdp !== confirm) {
       return res.redirect('/inscription_candidat?error=mdp');
     }
@@ -125,7 +127,7 @@ router.post('/inscription/etape1', async function(req, res, next) {
     if (existingUser) {
       return res.redirect('/inscription_candidat?error=email');
     }
-    
+
     req.session.inscription = { email, mdp };
     res.redirect('/informations_personnelles');
   } catch (err) {
@@ -133,19 +135,19 @@ router.post('/inscription/etape1', async function(req, res, next) {
   }
 });
 
-router.post('/inscription/etape2', function(req, res) {
+router.post('/inscription/etape2', function (req, res) {
   const { nom, prenom, num_tel } = req.body;
   req.session.inscription = { ...req.session.inscription, nom, prenom, num_tel };
   res.redirect('/profil_professionnel');
 });
 
-router.post('/inscription/etape3', upload.single('cv'), async function(req, res, next) {
+router.post('/inscription/etape3', upload.single('cv'), async function (req, res, next) {
   try {
     const { nom, prenom, email, mdp, num_tel } = req.session.inscription;
-    
+
     // 1. Création de l'utilisateur
     const id_user = await utilisateur.create(nom, prenom, email, mdp, num_tel);
-    
+
     // 2. Ajout du CV s'il a été téléchargé
     if (req.file) {
       await utilisateur.addDocument(id_user, req.file.filename);
@@ -159,16 +161,65 @@ router.post('/inscription/etape3', upload.single('cv'), async function(req, res,
   }
 });
 
+/* Modifier profil */
+router.get('/modifier_profil', function (req, res) {
+  if (!req.session.user) return res.redirect('/connection');
+  res.render('html/modifier_profil', { user: req.session.user });
+});
+
+router.post('/modifier_profil', async function (req, res, next) {
+  try {
+    if (!req.session.user) return res.redirect('/connection');
+    const { nom, prenom, email, num_tel } = req.body;
+    await utilisateur.update(req.session.user.id_user, nom, prenom, email, num_tel);
+    req.session.user = { ...req.session.user, nom, prenom, email, num_tel };
+    res.redirect('/profil_candidat');
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/profil/photo', upload.avatar.single('photo'), async function (req, res, next) {
+  try {
+    if (!req.session.user) return res.redirect('/connection');
+    if (!req.file) return res.redirect('/modifier_profil');
+    await utilisateur.setPhoto(req.session.user.id_user, req.file.filename);
+    req.session.user = { ...req.session.user, photo_profil: req.file.filename };
+    res.redirect('/modifier_profil');
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* Google OAuth */
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/connection?error=credentials' }),
+  function (req, res) {
+    req.session.user = req.user;
+    res.redirect('/profil_candidat');
+  }
+);
+
+/* Déconnexion */
+router.post('/logout', function (req, res, next) {
+  req.session.destroy(function (err) {
+    if (err) return next(err);
+    res.redirect('/connection');
+  });
+});
+
 /* Connexion */
-router.post('/login', async function(req, res, next) {
+router.post('/login', async function (req, res, next) {
   try {
     const { email, mdp } = req.body;
     const user = await utilisateur.findByCredentials(email, mdp);
-    
+
     if (!user) return res.redirect('/connection?error=credentials');
-    
+
     // Régénère l'ID de session pour éviter la session fixation
-    req.session.regenerate(function(err) {
+    req.session.regenerate(function (err) {
       if (err) return next(err);
       req.session.user = user;
       res.redirect('/profil_candidat');

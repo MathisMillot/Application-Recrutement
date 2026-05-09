@@ -11,3 +11,6 @@
 
 #env
 .env
+
+#modules
+/myapp/node_modules

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Modifier mon profil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../CSS/base.css" />
+  <link rel="stylesheet" href="../CSS/components.css" />
+  <style>
+    body { min-height: 100vh; }
+
+    .page-content {
+      max-width: 640px;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 0 24px;
+    }
+
+    .page-title {
+      font-weight: 700;
+      font-size: 32px;
+      color: var(--color-dark);
+    }
+
+    .card {
+      background: var(--color-white);
+      border-radius: 20px;
+      padding: 32px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--color-dark);
+      margin-bottom: 4px;
+    }
+
+    /* ── Avatar ── */
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .avatar-preview {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 2px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 28px;
+      color: var(--color-dark);
+      flex-shrink: 0;
+      overflow: hidden;
+      background: var(--color-light-bg);
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-upload label {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--color-light-bg);
+      border-radius: 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .avatar-upload label:hover { background: var(--color-border); }
+    .avatar-upload input { display: none; }
+
+    .avatar-upload .hint {
+      font-size: 12px;
+      color: var(--color-medium);
+      margin-top: 6px;
+    }
+
+    /* ── Form ── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-dark);
+    }
+
+    .form-group input {
+      height: 48px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 28px;
+      padding: 0 18px;
+      font-family: var(--font-main);
+      font-size: 15px;
+      color: var(--color-dark);
+      background: var(--color-white);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus { border-color: var(--color-primary); }
+
+    .btn-save {
+      align-self: flex-start;
+      height: 48px;
+      padding: 0 32px;
+      background: var(--color-primary);
+      border: none;
+      border-radius: 28px;
+      font-family: var(--font-main);
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--color-dark);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-save:hover { opacity: 0.85; }
+
+    .back-link {
+      font-size: 14px;
+      color: var(--color-medium);
+      text-decoration: none;
+    }
+
+    .back-link:hover { color: var(--color-dark); }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ══ NAVBAR ══ -->
+  <nav class="navbar">
+    <a href="/offres" class="navbar__brand">
+      <img src="/images/logo_landr.png" alt="Landr" />
+      <span>Landr</span>
+    </a>
+    <div class="navbar__nav">
+      <a href="/offres">Trouver un job</a>
+      <a href="#">Trouver une entreprise</a>
+    </div>
+    <div class="navbar__search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="5" stroke="#888" stroke-width="1.5" />
+        <path d="M10.5 10.5L14 14" stroke="#888" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+      <input type="text" placeholder="Chercher un job..." />
+    </div>
+    <div class="navbar__user" id="user-menu">
+      <div class="navbar__avatar">
+        <% if (user.photo_profil) { %>
+          <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
+        <% } else { %>
+          <%= user.prenom[0] %><%= user.nom[0] %>
+        <% } %>
+      </div>
+      <span>Mon espace</span>
+      <div class="user-dropdown" id="user-dropdown">
+        <a href="/profil_candidat">Mon profil</a>
+        <a href="/modifier_profil">Modifier mon profil</a>
+        <div class="dropdown-divider"></div>
+        <form method="POST" action="/logout" style="margin:0;padding:0">
+          <button type="submit" class="dropdown-logout">Se déconnecter</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ CONTENU ══ -->
+  <div class="page-content">
+
+    <div>
+      <a href="/profil_candidat" class="back-link">← Retour au profil</a>
+      <h1 class="page-title" style="margin-top:12px">Modifier mon profil</h1>
+    </div>
+
+    <!-- Photo de profil -->
+    <div class="card">
+      <p class="card-title">Photo de profil</p>
+      <div class="avatar-section">
+        <div class="avatar-preview">
+          <% if (user.photo_profil) { %>
+            <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
+          <% } else { %>
+            <%= user.prenom[0] %><%= user.nom[0] %>
+          <% } %>
+        </div>
+        <div class="avatar-upload">
+          <form method="POST" action="/profil/photo" enctype="multipart/form-data" id="photo-form">
+            <label for="photo-input">Changer la photo</label>
+            <input type="file" id="photo-input" name="photo" accept=".jpg,.jpeg,.png,.webp" />
+          </form>
+          <p class="hint">JPG, PNG ou WebP — max 5 Mo</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Infos personnelles -->
+    <div class="card">
+      <p class="card-title">Informations personnelles</p>
+      <form method="POST" action="/modifier_profil">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prenom">Prénom</label>
+            <input type="text" id="prenom" name="prenom" value="<%= user.prenom %>" required />
+          </div>
+          <div class="form-group">
+            <label for="nom">Nom</label>
+            <input type="text" id="nom" name="nom" value="<%= user.nom %>" required />
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="<%= user.email %>" required />
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label for="num_tel">Téléphone</label>
+          <input type="tel" id="num_tel" name="num_tel" value="<%= user.num_tel || '' %>" />
+        </div>
+        <button type="submit" class="btn-save" style="margin-top:24px">Enregistrer</button>
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    // Dropdown navbar
+    const menu = document.getElementById('user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+    menu.addEventListener('click', () => dropdown.classList.toggle('open'));
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    // Soumettre automatiquement le form photo dès qu'un fichier est sélectionné
+    document.getElementById('photo-input').addEventListener('change', () => {
+      document.getElementById('photo-form').submit();
+    });
+  </script>
+
+</body>
+
+</html>

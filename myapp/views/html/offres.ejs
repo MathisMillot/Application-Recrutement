@@ -18,7 +18,7 @@
 
   <!-- ── Navbar ──────────────────────────────────────────────── -->
   <nav class="navbar">
-    <a class="navbar__brand" href="/accueil">
+    <a class="navbar__brand" href="/offres">
       <img src="/images/logo_landr.png" alt="Landr logo" />
       <span>Landr</span>
     </a>
@@ -34,18 +34,34 @@
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
-      <input type="text" name="q" placeholder="Chercher un job, une entreprise..." value="<%= typeof q !== 'undefined' ? q : '' %>" />
+      <input type="text" name="q" placeholder="Chercher un job, une entreprise..."
+        value="<%= typeof q !== 'undefined' ? q : '' %>" />
       <button type="submit" style="display: none;">Chercher</button>
     </form>
-    <a class="navbar__user" href="<%= user ? '/profil_candidat' : '/connection' %>">
-      <div class="navbar__avatar"><%= user ? user.prenom[0] + user.nom[0] : '?' %></div>
+    <div class="navbar__user" id="user-menu">
+      <div class="navbar__avatar">
+        <% if (user.photo_profil) { %>
+          <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
+          <% } else { %>
+            <%= user.prenom[0] %>
+              <%= user.nom[0] %>
+                <% } %>
+      </div>
       <span>Mon espace</span>
-    </a>
+      <div class="user-dropdown" id="user-dropdown">
+        <a href="/profil_candidat">Mon profil</a>
+        <a href="/modifier_profil">Modifier mon profil</a>
+        <div class="dropdown-divider"></div>
+        <form method="POST" action="/logout" style="margin:0;padding:0">
+          <button type="submit" class="dropdown-logout">Se déconnecter</button>
+        </form>
+      </div>
+    </div>
   </nav>
 
   <!-- ── Filtres ─────────────────────────────────────────────── -->
-<div class="filters">
-    
+  <div class="filters">
+
     <!-- Filtre : Salaire -->
     <div class="filter-wrapper">
       <button class="filter-chip" data-target="dropdown-salaire">
@@ -58,7 +74,8 @@
       <div class="filter-dropdown" id="dropdown-salaire">
         <label>Salaire minimum (€)</label>
         <input type="number" placeholder="Ex: 35000" />
-        <button class="btn btn--primary" style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+        <button class="btn btn--primary"
+          style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
       </div>
     </div>
 
@@ -74,7 +91,8 @@
       <div class="filter-dropdown" id="dropdown-localisation">
         <label>Ville ou Code Postal</label>
         <input type="text" placeholder="Ex: Paris, Lyon..." />
-        <button class="btn btn--primary" style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+        <button class="btn btn--primary"
+          style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
       </div>
     </div>
 
@@ -99,7 +117,8 @@
           <option value="Stage">Stage</option>
           <option value="Alternance">Alternance</option>
         </select>
-        <button class="btn btn--primary" style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+        <button class="btn btn--primary"
+          style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
       </div>
     </div>
 
@@ -117,19 +136,30 @@
   <section class="offers-section">
     <div class="offers-grid">
       <% offres.forEach(function(offre) { %>
-        <article class="offer-card" style="cursor:pointer"
-          onclick="window.location='/candidature?id=<%= offre.id_offre %>'">
+        <article class="offer-card" style="cursor:pointer" data-id="<%= offre.id_offre %>"
+          data-titre="<%= encodeURIComponent(offre.description || '') %>"
+          data-entreprise="<%= encodeURIComponent(offre.organisation || '') %>"
+          data-initiale="<%= encodeURIComponent((offre.organisation || '--').substring(0, 2).toUpperCase()) %>"
+          data-localisation="<%= encodeURIComponent(offre.localisation || '') %>"
+          data-remote="<%= encodeURIComponent(offre.remote || '') %>"
+          onclick="goToCandidature(this)">
           <div class="offer-card__image-placeholder">Photo de l'entreprise</div>
           <div class="offer-card__body">
-            <h2 class="offer-card__title"><%= offre.description || 'Offre #' + offre.id_offre %></h2>
+            <h2 class="offer-card__title">
+              <%= offre.description || 'Offre #' + offre.id_offre %>
+            </h2>
             <div class="offer-card__company">
               <div class="offer-card__company-logo-placeholder">
                 <%= offre.organisation.substring(0, 2).toUpperCase() %>
               </div>
-              <span class="offer-card__company-name"><%= offre.organisation %></span>
+              <span class="offer-card__company-name">
+                <%= offre.organisation %>
+              </span>
             </div>
             <div class="offer-card__tags">
-              <span class="tag"><%= offre.statut %></span>
+              <span class="tag">
+                <%= offre.statut %>
+              </span>
             </div>
           </div>
           <div class="offer-card__footer">
@@ -138,21 +168,24 @@
             </span>
             <div class="offer-card__actions">
               <button title="Voir l'offre">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
               </button>
             </div>
           </div>
         </article>
-      <% }); %>
+        <% }); %>
     </div>
   </section>
 
   <script>
     const filterButtons = document.querySelectorAll('.filter-chip[data-target]');
-    
+
     // Gérer le clic sur les boutons
     filterButtons.forEach(btn => {
-      btn.addEventListener('click', function(e) {
+      btn.addEventListener('click', function (e) {
         // Empêche le clic de se propager au document (pour ne pas fermer tout de suite)
         e.stopPropagation();
 
@@ -174,18 +207,42 @@
 
     // Empêcher la fermeture quand on clique à l'intérieur du menu déroulant
     document.querySelectorAll('.filter-dropdown').forEach(dropdown => {
-      dropdown.addEventListener('click', function(e) {
+      dropdown.addEventListener('click', function (e) {
         e.stopPropagation();
       });
     });
 
     // Fermer les menus si on clique n'importe où ailleurs sur la page
-    document.addEventListener('click', function() {
+    document.addEventListener('click', function () {
       document.querySelectorAll('.filter-dropdown').forEach(dd => dd.classList.remove('show'));
       document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('filter-chip--active'));
     });
   </script>
 
+  <script>
+    function goToCandidature(el) {
+      const params = new URLSearchParams({
+        id: el.dataset.id,
+        titre: decodeURIComponent(el.dataset.titre || ''),
+        entreprise: decodeURIComponent(el.dataset.entreprise || ''),
+        initiale: decodeURIComponent(el.dataset.initiale || ''),
+        localisation: decodeURIComponent(el.dataset.localisation || ''),
+        remote: decodeURIComponent(el.dataset.remote || '')
+      });
+      window.location = '/candidature?' + params.toString();
+    }
+  </script>
+
+  <script>
+    const menu = document.getElementById('user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+    if (menu && dropdown) {
+      menu.addEventListener('click', () => dropdown.classList.toggle('open'));
+      document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target)) dropdown.classList.remove('open');
+      });
+    }
+  </script>
 
 </body>
 
