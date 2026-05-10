@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Gestion des offres</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Admin</div>
+      <a href="/admin">Dashboard</a>
+      <a href="/admin/offres" class="active">Offres</a>
+      <a href="/admin/candidatures">Candidatures</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
+
+    <!-- Contenu -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Offres d'emploi</h1>
+      </div>
+
+      <!-- Stats rapides -->
+      <div class="stats-row">
+        <div class="stat-chip">
+          <span class="stat-chip__label">Total</span>
+          <span class="stat-chip__value"><%= offres.length %></span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__label">Publiées</span>
+          <span class="stat-chip__value"><%= offres.filter(o => o.statut === 'publiee').length %></span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__label">Expirées</span>
+          <span class="stat-chip__value"><%= offres.filter(o => new Date(o.date_expiration) < new Date()).length %></span>
+        </div>
+      </div>
+
+      <!-- Tableau -->
+      <div class="section-card">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Poste</th>
+              <th>Organisation</th>
+              <th>Localisation</th>
+              <th>Remote</th>
+              <th>Statut</th>
+              <th>Expire le</th>
+              <th>Candidatures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% offres.forEach(function(o) {
+              const expire = new Date(o.date_expiration) < new Date();
+            %>
+            <tr>
+              <td class="text-muted">#<%= o.id_offre %></td>
+              <td><strong><%= o.description %></strong></td>
+              <td><%= o.organisation %></td>
+              <td><%= o.localisation || '—' %></td>
+              <td><%= o.remote || '—' %></td>
+              <td><span class="badge badge--<%= expire ? 'expiree' : o.statut %>"><%= expire ? 'Expirée' : o.statut %></span></td>
+              <td class="<%= expire ? 'text-muted' : '' %>"><%= new Date(o.date_expiration).toLocaleDateString('fr-FR') %></td>
+              <td class="text-center"><%= o.nb_prises_demandes || 0 %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</body>
+
+</html>

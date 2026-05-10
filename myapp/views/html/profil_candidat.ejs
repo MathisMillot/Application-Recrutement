@@ -246,7 +246,6 @@
     .job-card__actions svg:hover {
       color: var(--color-dark);
     }
-
   </style>
 </head>
 
@@ -276,9 +275,10 @@
       <div class="navbar__avatar">
         <% if (user.photo_profil) { %>
           <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
-        <% } else { %>
-          <%= user.prenom[0] %><%= user.nom[0] %>
-        <% } %>
+          <% } else { %>
+            <%= user.prenom[0] %>
+              <%= user.nom[0] %>
+                <% } %>
       </div>
       <span>Mon espace</span>
       <div class="user-dropdown" id="user-dropdown">
@@ -318,23 +318,6 @@
         </form>
       </div>
 
-      <div>
-        <p class="sidebar__section-title">Mes expériences</p>
-        <div>
-          <div class="sidebar__exp-item">
-            <strong>Expérience 1</strong>
-            <span>Début - Fin</span>
-          </div>
-          <div class="sidebar__exp-item">
-            <strong>Expérience 2</strong>
-            <span>Début - Fin</span>
-          </div>
-          <div class="sidebar__exp-item">
-            <strong>Expérience 3</strong>
-            <span>Début - Fin</span>
-          </div>
-        </div>
-      </div>
     </aside>
 
     <!-- Main -->
@@ -344,10 +327,12 @@
       <div class="profile-card">
         <div class="profile-card__avatar">
           <% if (user.photo_profil) { %>
-            <img src="/uploads/<%= user.photo_profil %>" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
-          <% } else { %>
-            <%= user.prenom[0] %><%= user.nom[0] %>
-          <% } %>
+            <img src="/uploads/<%= user.photo_profil %>" alt="avatar"
+              style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+            <% } else { %>
+              <%= user.prenom[0] %>
+                <%= user.nom[0] %>
+                  <% } %>
         </div>
         <div class="profile-card__info">
           <h1 class="profile-card__name">Bonjour <%= user.prenom %>,</h1>

@@ -23,10 +23,18 @@ module.exports = {
   },
 
   async read(id_user) {
-    const [rows] = await db.query(
-      'SELECT * FROM Utilisateur WHERE id_user = ?',
-      [id_user]
-    );
+    const [rows] = await db.query(`
+      SELECT u.*,
+        CASE
+          WHEN a.id_user IS NOT NULL THEN 'Admin'
+          WHEN r.id_user IS NOT NULL THEN 'Recruteur'
+          ELSE 'Candidat'
+        END AS role
+      FROM Utilisateur u
+      LEFT JOIN Admin a     ON u.id_user = a.id_user
+      LEFT JOIN Recruteur r ON u.id_user = r.id_user
+      WHERE u.id_user = ?
+    `, [id_user]);
     return rows[0];
   },
 
@@ -47,15 +55,22 @@ module.exports = {
   },
 
   async findByCredentials(email, mdp) {
-    // on récupère d'abord le hash stocké, puis on compare avec bcrypt
-    const [rows] = await db.query(
-      'SELECT id_user, nom, prenom, email, num_tel, statut, photo_profil, mdp FROM Utilisateur WHERE email = ?',
-      [email]
-    );
+    const [rows] = await db.query(`
+      SELECT u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.statut, u.photo_profil, u.mdp,
+        CASE
+          WHEN a.id_user IS NOT NULL THEN 'Admin'
+          WHEN r.id_user IS NOT NULL THEN 'Recruteur'
+          ELSE 'Candidat'
+        END AS role
+      FROM Utilisateur u
+      LEFT JOIN Admin a     ON u.id_user = a.id_user
+      LEFT JOIN Recruteur r ON u.id_user = r.id_user
+      WHERE u.email = ?
+    `, [email]);
     if (!rows[0]) return null;
     const valide = await bcrypt.compare(mdp, rows[0].mdp);
     if (!valide) return null;
-    const { mdp: _, ...user } = rows[0]; // on ne retourne pas le hash
+    const { mdp: _, ...user } = rows[0];
     return user;
   },
 
@@ -98,10 +113,18 @@ module.exports = {
 
   async findOrCreateByGoogle(profile) {
     const email = profile.emails[0].value;
-    const [rows] = await db.query(
-      'SELECT id_user, nom, prenom, email, num_tel, statut, photo_profil FROM Utilisateur WHERE email = ?',
-      [email]
-    );
+    const [rows] = await db.query(`
+      SELECT u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.statut, u.photo_profil,
+        CASE
+          WHEN a.id_user IS NOT NULL THEN 'Admin'
+          WHEN r.id_user IS NOT NULL THEN 'Recruteur'
+          ELSE 'Candidat'
+        END AS role
+      FROM Utilisateur u
+      LEFT JOIN Admin a     ON u.id_user = a.id_user
+      LEFT JOIN Recruteur r ON u.id_user = r.id_user
+      WHERE u.email = ?
+    `, [email]);
     if (rows[0]) return rows[0];
     const nom = profile.name.familyName || '';
     const prenom = profile.name.givenName || '';
@@ -111,7 +134,7 @@ module.exports = {
     );
     const id_user = result.insertId;
     await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
-    return { id_user, nom, prenom, email, num_tel: '', statut: 'ACTIF', photo_profil: null };
+    return { id_user, nom, prenom, email, num_tel: '', statut: 'ACTIF', photo_profil: null, role: 'Candidat' };
   },
 
   async setPhoto(id_user, filename) {
@@ -124,6 +147,33 @@ module.exports = {
       [statut, id_user]
     );
     return result.affectedRows;
+  },
+
+  async changeRole(id_user, newRole, newAdminId, validatorAdminId) {
+    const [orgs] = await db.query('SELECT COUNT(*) AS n FROM Organisation WHERE id_admin_createur = ?', [id_user]);
+    const [recs] = await db.query('SELECT COUNT(*) AS n FROM Recruteur WHERE id_admin_validateur = ?', [id_user]);
+    if (orgs[0].n > 0 || recs[0].n > 0) {
+      if (!newAdminId) {
+        const err = new Error(`Cet admin est lié à ${orgs[0].n} organisation(s) et ${recs[0].n} recruteur(s). Choisissez un admin pour les réassigner.`);
+        err.status = 409;
+        throw err;
+      }
+      if (orgs[0].n > 0)
+        await db.query('UPDATE Organisation SET id_admin_createur = ? WHERE id_admin_createur = ?', [newAdminId, id_user]);
+      if (recs[0].n > 0)
+        await db.query('UPDATE Recruteur SET id_admin_validateur = ? WHERE id_admin_validateur = ?', [newAdminId, id_user]);
+    }
+    await db.query('DELETE FROM Appartient WHERE id_recruteur = ?', [id_user]);
+    await db.query('DELETE FROM Admin WHERE id_user = ?', [id_user]);
+    await db.query('DELETE FROM Recruteur WHERE id_user = ?', [id_user]);
+    await db.query('DELETE FROM Candidat WHERE id_user = ?', [id_user]);
+    if (newRole === 'Admin') {
+      await db.query('INSERT INTO Admin (id_user) VALUES (?)', [id_user]);
+    } else if (newRole === 'Recruteur') {
+      await db.query('INSERT INTO Recruteur (id_user, id_admin_validateur) VALUES (?, ?)', [id_user, validatorAdminId]);
+    } else {
+      await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
+    }
   }
 
 };

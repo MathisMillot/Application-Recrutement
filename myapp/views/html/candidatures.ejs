@@ -1,31 +1,46 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Landr — Candidatures</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../CSS/base.css" />
-  <link rel="stylesheet" href="../CSS/components.css" />
-  <link rel="stylesheet" href="../CSS/table.css" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
 </head>
+
 <body>
+  <div class="admin-layout">
 
-  <nav class="navbar">
-    <a href="/accueil" class="navbar__brand">
-      <img src="/images/logo_landr.png" alt="Logo Landr" />
-      <span>Landr</span>
-    </a>
-  </nav>
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Admin</div>
+      <a href="/admin">Dashboard</a>
+      <a href="/admin/offres">Offres</a>
+      <a href="/admin/candidatures" class="active">Candidatures</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
 
-  <div class="page-wrapper">
-    <h1 class="page-title mt-32">Liste des candidatures</h1>
+    <!-- Contenu -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Candidatures</h1>
+        <div class="stat-chip">
+          <span class="stat-chip__label">Total</span>
+          <span class="stat-chip__value"><%= candidatures.length %></span>
+        </div>
+      </div>
 
-    <div class="card w-full">
-      <% if (candidatures.length === 0) { %>
-        <p class="text-center">Aucune candidature trouvée.</p>
-      <% } else { %>
+      <div class="section-card">
+        <% if (candidatures.length === 0) { %>
+          <p class="text-muted text-sm">Aucune candidature pour le moment.</p>
+        <% } else { %>
         <table>
           <thead>
             <tr>
@@ -38,19 +53,21 @@
           </thead>
           <tbody>
             <% candidatures.forEach(function(c) { %>
-              <tr>
-                <td><%= c.id_candidature %></td>
-                <td><%= c.prenom %> <%= c.nom %></td>
-                <td><%= c.email %></td>
-                <td><%= c.offre_description || '—' %></td>
-                <td><%= new Date(c.date).toLocaleDateString('fr-FR') %></td>
-              </tr>
+            <tr>
+              <td class="text-muted">#<%= c.id_candidature %></td>
+              <td><%= c.prenom %> <%= c.nom %></td>
+              <td><%= c.email %></td>
+              <td><%= c.offre_description || '—' %></td>
+              <td><%= new Date(c.date).toLocaleDateString('fr-FR') %></td>
+            </tr>
             <% }); %>
           </tbody>
         </table>
-      <% } %>
-    </div>
-  </div>
+        <% } %>
+      </div>
 
+    </main>
+  </div>
 </body>
+
 </html>

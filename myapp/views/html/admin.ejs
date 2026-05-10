@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Administration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Admin</div>
+      <a href="/admin" class="active">Dashboard</a>
+      <a href="/admin/offres">Offres</a>
+      <a href="/admin/candidatures">Candidatures</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
+
+    <!-- Contenu -->
+    <main class="admin-main">
+      <div id="admin-error" class="admin-error"></div>
+
+      <div class="admin-header">
+        <h1>Dashboard</h1>
+        <span class="admin-header__user">Connecté en tant que <strong><%= user.prenom %> <%= user.nom %></strong></span>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-card__label">Utilisateurs</span>
+          <span class="stat-card__value"><%= users.length %></span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Offres</span>
+          <span class="stat-card__value"><%= offres.length %></span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Candidatures</span>
+          <span class="stat-card__value"><%= candidatures.length %></span>
+        </div>
+      </div>
+
+      <!-- Table utilisateurs -->
+      <div class="section-card">
+        <h2>Utilisateurs</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Rôle</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(function(u) { %>
+            <tr class="clickable-row"
+                data-id="<%= u.id_user %>"
+                data-name="<%= u.prenom %> <%= u.nom %>"
+                data-role="<%= u.role %>"
+                onclick="openRoleModal(this.dataset.id, this.dataset.name, this.dataset.role)">
+              <td><%= u.prenom %> <%= u.nom %></td>
+              <td><%= u.email %></td>
+              <td><%= u.num_tel || '—' %></td>
+              <td><span class="badge badge--<%= u.role.toLowerCase() %>"><%= u.role %></span></td>
+              <td><%= u.statut %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal changement de rôle -->
+      <div id="role-modal" class="role-modal">
+        <div class="role-modal__dialog">
+          <div>
+            <h3 class="role-modal__title">Changer le rôle</h3>
+            <p id="modal-username" class="role-modal__subtitle"></p>
+          </div>
+          <form id="role-form" method="POST">
+            <input type="hidden" name="role" id="modal-role-input" />
+            <input type="hidden" name="newAdminId" id="modal-new-admin-input" />
+            <div class="role-modal__actions">
+              <button type="button" onclick="selectRole('Candidat')" class="role-btn" id="btn-Candidat">Candidat</button>
+              <button type="button" onclick="selectRole('Recruteur')" class="role-btn" id="btn-Recruteur">Recruteur</button>
+              <button type="button" onclick="selectRole('Admin')" class="role-btn" id="btn-Admin">Admin</button>
+            </div>
+            <div id="reassign-section" class="role-modal__reassign">
+              <label class="role-modal__reassign-label">Réassigner les organisations à :</label>
+              <select id="reassign-select" class="role-modal__select">
+                <option value="">— Choisir un admin —</option>
+                <% users.filter(u => u.role === 'Admin').forEach(function(a) { %>
+                <option value="<%= a.id_user %>"><%= a.prenom %> <%= a.nom %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="role-modal__footer">
+              <button type="submit" class="btn btn--primary btn--modal">Confirmer</button>
+              <button type="button" onclick="closeRoleModal()" class="role-modal__cancel">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    const modal = document.getElementById('role-modal');
+    let currentAdminRole = null;
+
+    function openRoleModal(id, name, currentRole) {
+      document.getElementById('modal-username').textContent = name;
+      document.getElementById('role-form').action = '/admin/users/' + id + '/role';
+      currentAdminRole = currentRole;
+      document.getElementById('modal-role-input').value = currentRole;
+      document.getElementById('modal-new-admin-input').value = '';
+      document.getElementById('reassign-select').value = '';
+      ['Candidat', 'Recruteur', 'Admin'].forEach(r => {
+        document.getElementById('btn-' + r).classList.toggle('selected', r === currentRole);
+      });
+      Array.from(document.getElementById('reassign-select').options).forEach(opt => {
+        opt.disabled = opt.value === id;
+      });
+      document.getElementById('reassign-section').style.display = 'none';
+      modal.style.display = 'flex';
+    }
+
+    function closeRoleModal() { modal.style.display = 'none'; }
+
+    function selectRole(role) {
+      document.getElementById('modal-role-input').value = role;
+      ['Candidat', 'Recruteur', 'Admin'].forEach(r => {
+        document.getElementById('btn-' + r).classList.toggle('selected', r === role);
+      });
+      const needsReassign = currentAdminRole === 'Admin' && role !== 'Admin';
+      document.getElementById('reassign-section').style.display = needsReassign ? 'flex' : 'none';
+    }
+
+    document.getElementById('reassign-select').addEventListener('change', function () {
+      document.getElementById('modal-new-admin-input').value = this.value;
+    });
+
+    modal.addEventListener('click', e => { if (e.target === modal) closeRoleModal(); });
+
+    const errParam = new URLSearchParams(window.location.search).get('error');
+    if (errParam) {
+      const box = document.getElementById('admin-error');
+      box.textContent = errParam;
+      box.style.display = 'block';
+    }
+  </script>
+</body>
+
+</html>

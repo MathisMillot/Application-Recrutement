@@ -394,3 +394,34 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ------------------------------------------------------------
+   Badges role / statut (pages tableau)
+   ------------------------------------------------------------ */
+.badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.badge--admin     { background: #3B3B8E; color: #fff; }
+.badge--recruteur { background: var(--color-primary); color: var(--color-dark); }
+.badge--candidat  { background: var(--color-light-bg); color: var(--color-dark); }
+
+.statut-actif   { color: #2e7d32; font-weight: 600; }
+.statut-inactif { color: #c62828; font-weight: 600; }
+
+/* Badges validation organisation */
+.badge-validation {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.badge-validation--oui     { background: #c8e6c9; color: #2e7d32; }
+.badge-validation--non     { background: #ffcdd2; color: #c62828; }
+.badge-validation--attente { background: #fff9c4; color: #f57f17; }

@@ -7,6 +7,19 @@ const candidature = require('../model/candidature');
 const utilisateur = require('../model/utilisateur');
 const upload = require('../model/upload');
 
+/* Middleware admin */
+function isAdmin(req, res, next) {
+  if (req.session.user && req.session.user.role === 'Admin') return next();
+  res.status(403).send('Accès refusé');
+}
+
+/* Middleware candidat — bloque les admins */
+function isCandidat(req, res, next) {
+  if (!req.session.user) return res.redirect('/connection');
+  if (req.session.user.role === 'Admin') return res.redirect('/admin');
+  next();
+}
+
 /* Page d'accueil */
 router.get('/', function (req, res) {
   res.render('html/accueil');
@@ -44,11 +57,11 @@ router.get('/organisations', async function (req, res, next) {
   }
 });
 
-/* Candidatures */
-router.get('/candidatures', async function (req, res, next) {
+/* Candidatures (admin) */
+router.get('/admin/candidatures', isAdmin, async function (req, res, next) {
   try {
     const candidatures = await candidature.readAll();
-    res.render('html/candidatures', { candidatures });
+    res.render('html/candidatures', { user: req.session.user, candidatures });
   } catch (err) {
     next(err);
   }
@@ -73,14 +86,12 @@ router.get('/responsable_recrutement', function (req, res) {
 });
 
 /* Espace candidat */
-router.get('/candidature', function (req, res) {
-  if (!req.session.user) return res.redirect('/connection');
+router.get('/candidature', isCandidat, function (req, res) {
   res.render('html/candidature', { user: req.session.user });
 });
 
-router.post('/candidature', async function (req, res, next) {
+router.post('/candidature', isCandidat, async function (req, res, next) {
   try {
-    if (!req.session.user) return res.redirect('/connection');
     const { id_offre } = req.body;
     await candidature.create(req.session.user.id_user, id_offre);
     res.render('html/candidature_confirmation', { user: req.session.user });
@@ -97,9 +108,8 @@ router.get('/informations_personnelles', function (req, res) {
   res.render('html/informations_personnelles');
 });
 
-router.get('/profil_candidat', async function (req, res, next) {
+router.get('/profil_candidat', isCandidat, async function (req, res, next) {
   try {
-    if (!req.session.user) return res.redirect('/connection');
     const id = req.session.user.id_user;
 
     const [candidatures, documents] = await Promise.all([
@@ -114,9 +124,8 @@ router.get('/profil_candidat', async function (req, res, next) {
 });
 
 /* Upload document (depuis le profil) */
-router.post('/upload', upload.single('document'), async function (req, res, next) {
+router.post('/upload', isCandidat, upload.single('document'), async function (req, res, next) {
   try {
-    if (!req.session.user) return res.redirect('/connection');
     if (!req.file) return res.redirect('/profil_candidat');
 
     await utilisateur.addDocument(req.session.user.id_user, req.file.filename);
@@ -210,7 +219,7 @@ router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/connection?error=credentials' }),
   function (req, res) {
     req.session.user = req.user;
-    res.redirect('/profil_candidat');
+    res.redirect(req.user.role === 'Admin' ? '/admin' : '/profil_candidat');
   }
 );
 
@@ -234,8 +243,41 @@ router.post('/login', async function (req, res, next) {
     req.session.regenerate(function (err) {
       if (err) return next(err);
       req.session.user = user;
-      res.redirect('/profil_candidat');
+      res.redirect(user.role === 'Admin' ? '/admin' : '/profil_candidat');
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* Admin */
+router.post('/admin/users/:id/role', isAdmin, async function (req, res, next) {
+  try {
+    await utilisateur.changeRole(req.params.id, req.body.role, req.body.newAdminId || null, req.session.user.id_user);
+    res.redirect('/admin');
+  } catch (err) {
+    if (err.status === 409) return res.redirect('/admin?error=' + encodeURIComponent(err.message));
+    next(err);
+  }
+});
+
+router.get('/admin/offres', isAdmin, async function (req, res, next) {
+  try {
+    const offres = await offre.readAll();
+    res.render('html/admin_offres', { user: req.session.user, offres });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/admin', isAdmin, async function (req, res, next) {
+  try {
+    const [users, offres, candidatures] = await Promise.all([
+      utilisateur.readAll(),
+      offre.readAll(),
+      candidature.readAll()
+    ]);
+    res.render('html/admin', { user: req.session.user, users, offres, candidatures });
   } catch (err) {
     next(err);
   }
