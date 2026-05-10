@@ -74,7 +74,19 @@ router.get('/responsable_recrutement', function (req, res) {
 
 /* Espace candidat */
 router.get('/candidature', function (req, res) {
-  res.render('html/candidature', { user: req.session.user || null });
+  if (!req.session.user) return res.redirect('/connection');
+  res.render('html/candidature', { user: req.session.user });
+});
+
+router.post('/candidature', async function (req, res, next) {
+  try {
+    if (!req.session.user) return res.redirect('/connection');
+    const { id_offre } = req.body;
+    await candidature.create(req.session.user.id_user, id_offre);
+    res.render('html/candidature_confirmation', { user: req.session.user });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.get('/profil_professionnel', function (req, res) {

@@ -38,14 +38,14 @@
         value="<%= typeof q !== 'undefined' ? q : '' %>" />
       <button type="submit" style="display: none;">Chercher</button>
     </form>
+    <% if (user) { %>
     <div class="navbar__user" id="user-menu">
       <div class="navbar__avatar">
         <% if (user.photo_profil) { %>
           <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
-          <% } else { %>
-            <%= user.prenom[0] %>
-              <%= user.nom[0] %>
-                <% } %>
+        <% } else { %>
+          <%= user.prenom[0] %><%= user.nom[0] %>
+        <% } %>
       </div>
       <span>Mon espace</span>
       <div class="user-dropdown" id="user-dropdown">
@@ -57,6 +57,9 @@
         </form>
       </div>
     </div>
+    <% } else { %>
+    <a href="/connection" class="btn btn--primary" style="white-space:nowrap">Se connecter</a>
+    <% } %>
   </nav>
 
   <!-- ── Filtres ─────────────────────────────────────────────── -->
