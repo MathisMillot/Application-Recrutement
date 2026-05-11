@@ -51,6 +51,19 @@ module.exports = {
       [id_candidature]
     );
     return result.affectedRows;
+  },
+
+  async readByOffre(id_offre) {
+    const [rows] = await db.query(`
+      SELECT c.id_candidature, c.date,
+             u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.photo_profil
+      FROM Candidature c
+      JOIN Candidat ca ON c.id_candidat = ca.id_user
+      JOIN Utilisateur u ON ca.id_user = u.id_user
+      WHERE c.id_offre = ?
+      ORDER BY c.date DESC
+    `, [id_offre]);
+    return rows;
   }
 
 };

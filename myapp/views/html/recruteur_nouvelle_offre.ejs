@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Nouvelle offre</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <style>
+    .offre-form {
+      max-width: 640px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-dark);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      border: 1.5px solid var(--color-border, #C8C8C8);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--color-dark);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--color-primary, #ECC023);
+    }
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .photo-preview {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 8px;
+      display: none;
+    }
+    .required { color: #e53935; }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Recruteur</div>
+      <a href="/recruteur">Dashboard</a>
+      <a href="/recruteur/offres/nouvelle" class="active">+ Nouvelle offre</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
+
+    <!-- Contenu -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Nouvelle offre d'emploi</h1>
+        <a href="/recruteur" style="font-size:14px; color:#888; text-decoration:none;">← Retour au dashboard</a>
+      </div>
+
+      <div class="section-card offre-form">
+        <form method="POST" action="/recruteur/offres/nouvelle" enctype="multipart/form-data">
+
+          <div class="form-group">
+            <label>Intitulé du poste <span class="required">*</span></label>
+            <input type="text" name="description" placeholder="ex: Développeur Full Stack" required />
+          </div>
+
+          <div class="form-group">
+            <label>Organisation <span class="required">*</span></label>
+            <select name="siren_organisation" required>
+              <option value="">— Choisir une organisation —</option>
+              <% orgs.forEach(function(org) { %>
+                <option value="<%= org.siren %>"><%= org.nom %> (SIREN : <%= org.siren %>)</option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Statut</label>
+              <select name="statut">
+                <option value="publiee">Publiée</option>
+                <option value="inactive">Inactive (brouillon)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date d'expiration <span class="required">*</span></label>
+              <input type="date" name="date_expiration" required />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Localisation</label>
+              <input type="text" name="localisation" placeholder="ex: Paris, Lyon..." />
+            </div>
+            <div class="form-group">
+              <label>Télétravail</label>
+              <select name="remote">
+                <option value="">Non précisé</option>
+                <option value="non">Non</option>
+                <option value="hybride">Hybride</option>
+                <option value="full">Full remote</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Type de contrat</label>
+              <select name="type_contrat">
+                <option value="">Non précisé</option>
+                <option value="CDI">CDI</option>
+                <option value="CDD">CDD</option>
+                <option value="Stage">Stage</option>
+                <option value="Alternance">Alternance</option>
+                <option value="Freelance">Freelance</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Salaire minimum (€/an)</label>
+              <input type="number" name="salaire_min" placeholder="ex: 35000" min="0" step="1000" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Photo de l'annonce</label>
+            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" id="photoInput" />
+            <img id="photoPreview" class="photo-preview" alt="Aperçu" />
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn btn--primary" style="height:44px; font-size:15px; padding:0 28px;">Publier l'offre</button>
+            <a href="/recruteur" class="btn" style="height:44px; font-size:15px; padding:0 20px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Annuler</a>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('photoInput').addEventListener('change', function () {
+      const preview = document.getElementById('photoPreview');
+      if (this.files && this.files[0]) {
+        preview.src = URL.createObjectURL(this.files[0]);
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+
+</html>

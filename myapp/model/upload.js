@@ -30,6 +30,14 @@ const fileFilter = function (req, file, cb) {
   }
 };
 
+const imageFilter = function (req, file, cb) {
+  const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowed.includes(ext)) cb(null, true);
+  else cb(new Error('Seuls les fichiers image sont acceptés'));
+};
+
+// User profile photo — one file per user (overwrite on update)
 const avatarStorage = multer.diskStorage({
   destination: function (req, file, cb) { cb(null, uploadDir); },
   filename: function (req, file, cb) {
@@ -38,13 +46,26 @@ const avatarStorage = multer.diskStorage({
   }
 });
 
-const avatarFilter = function (req, file, cb) {
-  const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (allowed.includes(ext)) cb(null, true);
-  else cb(new Error('Seuls les fichiers image sont acceptés'));
-};
+// Organisation logo — one file per org SIREN (overwrite on update)
+const orgStorage = multer.diskStorage({
+  destination: function (req, file, cb) { cb(null, uploadDir); },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, 'org-' + req.params.siren + ext);
+  }
+});
+
+// Offer photo — unique file per upload (timestamp-based)
+const offerStorage = multer.diskStorage({
+  destination: function (req, file, cb) { cb(null, uploadDir); },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, 'offer-' + Date.now() + '-' + Math.random().toString(36).slice(2) + ext);
+  }
+});
 
 const documentUpload = multer({ storage, fileFilter });
 module.exports = documentUpload;
-module.exports.avatar = multer({ storage: avatarStorage, fileFilter: avatarFilter });
+module.exports.avatar = multer({ storage: avatarStorage, fileFilter: imageFilter });
+module.exports.org    = multer({ storage: orgStorage,    fileFilter: imageFilter });
+module.exports.offer  = multer({ storage: offerStorage,  fileFilter: imageFilter });

@@ -24,42 +24,45 @@
     </a>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <div class="navbar__nav">
-      <a href="#">Trouver un job</a>
+      <a href="/offres">Trouver un job</a>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <a href="#">Trouver une entreprise</a>
+      <a href="/organisations">Trouver une entreprise</a>
     </div>
-    <form class="navbar__search" method="GET" action="/offres">
+    <form class="navbar__search" id="search-form" method="GET" action="/offres">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
-      <input type="text" name="q" placeholder="Chercher un job, une entreprise..."
-        value="<%= typeof q !== 'undefined' ? q : '' %>" />
-      <button type="submit" style="display: none;">Chercher</button>
+      <input type="text" id="search-input" name="q" placeholder="Chercher un job, une entreprise..." value="<%= q %>" />
+      <input type="hidden" name="localisation" id="hidden-localisation" value="<%= localisation %>" />
+      <input type="hidden" name="contrat" id="hidden-contrat" value="<%= contrat %>" />
+      <input type="hidden" name="salaire_min" id="hidden-salaire" value="<%= salaire_min %>" />
+      <button type="submit" style="display:none;">Chercher</button>
     </form>
     <% if (user) { %>
-    <div class="navbar__user" id="user-menu">
-      <div class="navbar__avatar">
-        <% if (user.photo_profil) { %>
-          <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
-        <% } else { %>
-          <%= user.prenom[0] %><%= user.nom[0] %>
+      <div class="navbar__user" id="user-menu">
+        <div class="navbar__avatar">
+          <% if (user.photo_profil) { %>
+            <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
+            <% } else { %>
+              <%= user.prenom[0] %>
+                <%= user.nom[0] %>
+                  <% } %>
+        </div>
+        <span>Mon espace</span>
+        <div class="user-dropdown" id="user-dropdown">
+          <a href="/profil_candidat">Mon profil</a>
+          <a href="/modifier_profil">Modifier mon profil</a>
+          <div class="dropdown-divider"></div>
+          <form method="POST" action="/logout" style="margin:0;padding:0">
+            <button type="submit" class="dropdown-logout">Se déconnecter</button>
+          </form>
+        </div>
+      </div>
+      <% } else { %>
+        <a href="/connection" class="btn btn--primary" style="white-space:nowrap">Se connecter</a>
         <% } %>
-      </div>
-      <span>Mon espace</span>
-      <div class="user-dropdown" id="user-dropdown">
-        <a href="/profil_candidat">Mon profil</a>
-        <a href="/modifier_profil">Modifier mon profil</a>
-        <div class="dropdown-divider"></div>
-        <form method="POST" action="/logout" style="margin:0;padding:0">
-          <button type="submit" class="dropdown-logout">Se déconnecter</button>
-        </form>
-      </div>
-    </div>
-    <% } else { %>
-    <a href="/connection" class="btn btn--primary" style="white-space:nowrap">Se connecter</a>
-    <% } %>
   </nav>
 
   <!-- ── Filtres ─────────────────────────────────────────────── -->
@@ -67,162 +70,255 @@
 
     <!-- Filtre : Salaire -->
     <div class="filter-wrapper">
-      <button class="filter-chip" data-target="dropdown-salaire">
+      <button type="button" class="filter-chip <%= salaire_min ? 'filter-chip--active' : '' %>"
+        data-target="dropdown-salaire">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="7" width="20" height="10" rx="2" />
           <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
         </svg>
-        Salaire
+        Salaire<% if (salaire_min) { %> · ≥ <%= salaire_min %>€<% } %>
       </button>
       <div class="filter-dropdown" id="dropdown-salaire">
-        <label>Salaire minimum (€)</label>
-        <input type="number" placeholder="Ex: 35000" />
-        <button class="btn btn--primary"
-          style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+        <label>Salaire minimum (€/an)</label>
+        <input type="number" id="input-salaire" placeholder="Ex: 35000" value="<%= salaire_min %>" min="0"
+          step="1000" />
+        <div style="display:flex;gap:8px;">
+          <button type="button" onclick="applyFilters()" class="btn btn--primary"
+            style="height:38px;flex:1;font-size:14px;border-radius:8px;">Appliquer</button>
+          <button type="button" onclick="clearFilter('salaire_min')" class="btn"
+            style="height:38px;padding:0 12px;font-size:13px;border-radius:8px;background:#eee;color:#555;">Effacer</button>
+        </div>
       </div>
     </div>
 
     <!-- Filtre : Localisation -->
     <div class="filter-wrapper">
-      <button class="filter-chip" data-target="dropdown-localisation">
+      <button type="button" class="filter-chip <%= localisation ? 'filter-chip--active' : '' %>"
+        data-target="dropdown-localisation">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        Localisation
+        Localisation<% if (localisation) { %> · <%= localisation %>
+            <% } %>
       </button>
       <div class="filter-dropdown" id="dropdown-localisation">
-        <label>Ville ou Code Postal</label>
-        <input type="text" placeholder="Ex: Paris, Lyon..." />
-        <button class="btn btn--primary"
-          style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+        <label>Ville ou région</label>
+        <input type="text" id="input-localisation" placeholder="Ex: Paris, Lyon..." value="<%= localisation %>" />
+        <div style="display:flex;gap:8px;">
+          <button type="button" onclick="applyFilters()" class="btn btn--primary"
+            style="height:38px;flex:1;font-size:14px;border-radius:8px;">Appliquer</button>
+          <button type="button" onclick="clearFilter('localisation')" class="btn"
+            style="height:38px;padding:0 12px;font-size:13px;border-radius:8px;background:#eee;color:#555;">Effacer</button>
+        </div>
       </div>
     </div>
 
     <!-- Filtre : Type de contrat -->
     <div class="filter-wrapper">
-      <button class="filter-chip" data-target="dropdown-contrat">
+      <button type="button" class="filter-chip <%= contrat ? 'filter-chip--active' : '' %>"
+        data-target="dropdown-contrat">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
           <line x1="16" y1="13" x2="8" y2="13"></line>
           <line x1="16" y1="17" x2="8" y2="17"></line>
-          <polyline points="10 9 9 9 8 9"></polyline>
         </svg>
-        Type de contrat
+        Contrat<% if (contrat) { %> · <%= contrat %>
+            <% } %>
       </button>
       <div class="filter-dropdown" id="dropdown-contrat">
-        <label>Contrat souhaité</label>
-        <select>
+        <label>Type de contrat</label>
+        <select id="input-contrat">
           <option value="">Tous les contrats</option>
-          <option value="CDI">CDI</option>
-          <option value="CDD">CDD</option>
-          <option value="Stage">Stage</option>
-          <option value="Alternance">Alternance</option>
+          <option value="CDI" <%=contrat==='CDI' ? 'selected' : '' %>>CDI</option>
+          <option value="CDD" <%=contrat==='CDD' ? 'selected' : '' %>>CDD</option>
+          <option value="Stage" <%=contrat==='Stage' ? 'selected' : '' %>>Stage</option>
+          <option value="Alternance" <%=contrat==='Alternance' ? 'selected' : '' %>>Alternance</option>
+          <option value="Freelance" <%=contrat==='Freelance' ? 'selected' : '' %>>Freelance</option>
         </select>
-        <button class="btn btn--primary"
-          style="height: 38px; width: 100%; font-size: 14px; border-radius: 8px;">Appliquer</button>
+        <div style="display:flex;gap:8px;">
+          <button type="button" onclick="applyFilters()" class="btn btn--primary"
+            style="height:38px;flex:1;font-size:14px;border-radius:8px;">Appliquer</button>
+          <button type="button" onclick="clearFilter('contrat')" class="btn"
+            style="height:38px;padding:0 12px;font-size:13px;border-radius:8px;background:#eee;color:#555;">Effacer</button>
+        </div>
       </div>
     </div>
 
-    <button class="filter-chip filter-chip--all">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="4" y1="6" x2="20" y2="6" />
-        <line x1="8" y1="12" x2="20" y2="12" />
-        <line x1="12" y1="18" x2="20" y2="18" />
-      </svg>
-      Tous les filtres
-    </button>
+    <% if (q || localisation || contrat || salaire_min) { %>
+      <a href="/offres" class="filter-chip" style="border-color:#e53935;color:#e53935;text-decoration:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+        Effacer les filtres
+      </a>
+      <% } %>
+
+  </div>
+
+  <!-- ── Compteur résultats ──────────────────────────────────── -->
+  <div style="max-width:1300px;margin:0 auto;padding:24px 48px 0;font-size:14px;color:#888;">
+    <strong style="color:#2D2D2D;">
+      <%= offres.length %>
+    </strong> offre<%= offres.length> 1 ? 's' : '' %> trouvée<%= offres.length> 1 ? 's' : '' %>
+        <% if (q || localisation || contrat || salaire_min) { %>
+          <span style="margin-left:8px;">—
+            <% if (q) { %><span class="tag" style="background:#f3f4f6;padding:2px 8px;border-radius:12px;">« <%= q %>
+                  »</span>
+              <% } %>
+                <% if (localisation) { %><span class="tag"
+                    style="background:#f3f4f6;padding:2px 8px;border-radius:12px;">📍 <%= localisation %></span>
+                  <% } %>
+                    <% if (contrat) { %><span class="tag"
+                        style="background:#f3f4f6;padding:2px 8px;border-radius:12px;">📄 <%= contrat %></span>
+                      <% } %>
+                        <% if (salaire_min) { %><span class="tag"
+                            style="background:#f3f4f6;padding:2px 8px;border-radius:12px;">💶 ≥ <%= salaire_min %>
+                              €</span>
+                          <% } %>
+          </span>
+          <% } %>
   </div>
 
   <!-- ── Grille d'offres ────────────────────────────────────── -->
   <section class="offers-section">
-    <div class="offers-grid">
-      <% offres.forEach(function(offre) { %>
-        <article class="offer-card" style="cursor:pointer" data-id="<%= offre.id_offre %>"
-          data-titre="<%= encodeURIComponent(offre.description || '') %>"
-          data-entreprise="<%= encodeURIComponent(offre.organisation || '') %>"
-          data-initiale="<%= encodeURIComponent((offre.organisation || '--').substring(0, 2).toUpperCase()) %>"
-          data-localisation="<%= encodeURIComponent(offre.localisation || '') %>"
-          data-remote="<%= encodeURIComponent(offre.remote || '') %>"
-          onclick="goToCandidature(this)">
-          <div class="offer-card__image-placeholder">Photo de l'entreprise</div>
-          <div class="offer-card__body">
-            <h2 class="offer-card__title">
-              <%= offre.description || 'Offre #' + offre.id_offre %>
-            </h2>
-            <div class="offer-card__company">
-              <div class="offer-card__company-logo-placeholder">
-                <%= offre.organisation.substring(0, 2).toUpperCase() %>
-              </div>
-              <span class="offer-card__company-name">
-                <%= offre.organisation %>
-              </span>
-            </div>
-            <div class="offer-card__tags">
-              <span class="tag">
-                <%= offre.statut %>
-              </span>
-            </div>
-          </div>
-          <div class="offer-card__footer">
-            <span class="offer-card__date">
-              Expire le <%= new Date(offre.date_expiration).toLocaleDateString('fr-FR') %>
-            </span>
-            <div class="offer-card__actions">
-              <button title="Voir l'offre">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </article>
-        <% }); %>
-    </div>
+    <% if (offres.length===0) { %>
+      <div style="text-align:center;padding:60px 0;color:#888;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"
+          style="display:block;margin:0 auto 16px;">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <p style="font-size:18px;font-weight:600;color:#555;">Aucune offre ne correspond à vos critères.</p>
+        <a href="/offres" style="display:inline-block;margin-top:16px;font-size:14px;color:var(--color-primary);">Voir
+          toutes les offres</a>
+      </div>
+      <% } else { %>
+        <div class="offers-grid">
+          <% offres.forEach(function(offre) { %>
+            <article class="offer-card" data-id="<%= offre.id_offre %>"
+              data-titre="<%= encodeURIComponent(offre.description || '') %>"
+              data-entreprise="<%= encodeURIComponent(offre.organisation || '') %>"
+              data-initiale="<%= encodeURIComponent((offre.organisation || '--').substring(0, 2).toUpperCase()) %>"
+              data-localisation="<%= encodeURIComponent(offre.localisation || '') %>"
+              data-remote="<%= encodeURIComponent(offre.remote || '') %>" onclick="goToCandidature(this)">
+
+              <!-- Image de l'annonce ou logo de l'organisation en bannière -->
+              <% if (offre.photo) { %>
+                <img src="/uploads/<%= offre.photo %>" alt="<%= offre.description %>" class="offer-card__image" />
+                <% } else if (offre.organisation_photo) { %>
+                  <div class="offer-card__image-placeholder" style="background:#f5f5f5;">
+                    <img src="/uploads/<%= offre.organisation_photo %>" alt="<%= offre.organisation %>"
+                      style="max-height:80px;max-width:60%;object-fit:contain;border-radius:8px;" />
+                  </div>
+                  <% } else { %>
+                    <div class="offer-card__image-placeholder"></div>
+                    <% } %>
+
+                      <div class="offer-card__body">
+                        <h2 class="offer-card__title">
+                          <%= offre.description || 'Offre #' + offre.id_offre %>
+                        </h2>
+
+                        <div class="offer-card__company">
+                          <% if (offre.organisation_photo) { %>
+                            <img src="/uploads/<%= offre.organisation_photo %>" alt="<%= offre.organisation %>"
+                              class="offer-card__company-logo" />
+                            <% } else { %>
+                              <div class="offer-card__company-logo-placeholder">
+                                <%= offre.organisation.substring(0, 2).toUpperCase() %>
+                              </div>
+                              <% } %>
+                                <span class="offer-card__company-name">
+                                  <%= offre.organisation %>
+                                </span>
+                        </div>
+
+                        <div class="offer-card__tags">
+                          <% if (offre.type_contrat) { %>
+                            <span class="tag">📄 <%= offre.type_contrat %></span>
+                            <% } %>
+                              <% if (offre.localisation) { %>
+                                <span class="tag">📍 <%= offre.localisation %></span>
+                                <% } %>
+                                  <% if (offre.remote && offre.remote !=='non' ) { %>
+                                    <span class="tag">🏠 <%= offre.remote==='full' ? 'Full remote' : 'Hybride' %></span>
+                                    <% } %>
+                                      <% if (offre.salaire_min) { %>
+                                        <span class="tag">💶 ≥ <%= offre.salaire_min.toLocaleString('fr-FR') %>€</span>
+                                        <% } %>
+                        </div>
+                      </div>
+
+                      <div class="offer-card__footer">
+                        <span class="offer-card__date">
+                          Expire le <%= new Date(offre.date_expiration).toLocaleDateString('fr-FR') %>
+                        </span>
+                        <div class="offer-card__actions">
+                          <button title="Postuler">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                              stroke-width="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+            </article>
+            <% }); %>
+        </div>
+        <% } %>
   </section>
 
   <script>
-    const filterButtons = document.querySelectorAll('.filter-chip[data-target]');
+    /* ── Filtres ── */
+    function applyFilters() {
+      const params = new URLSearchParams();
+      const q = document.getElementById('search-input').value.trim();
+      if (q) params.set('q', q);
+      const loc = document.getElementById('input-localisation').value.trim();
+      if (loc) params.set('localisation', loc);
+      const contrat = document.getElementById('input-contrat').value;
+      if (contrat) params.set('contrat', contrat);
+      const salaire = document.getElementById('input-salaire').value.trim();
+      if (salaire) params.set('salaire_min', salaire);
+      window.location = '/offres?' + params.toString();
+    }
 
-    // Gérer le clic sur les boutons
-    filterButtons.forEach(btn => {
+    function clearFilter(name) {
+      const params = new URLSearchParams(window.location.search);
+      params.delete(name);
+      window.location = '/offres?' + params.toString();
+    }
+
+    /* ── Dropdowns filtres ── */
+    document.querySelectorAll('.filter-chip[data-target]').forEach(btn => {
       btn.addEventListener('click', function (e) {
-        // Empêche le clic de se propager au document (pour ne pas fermer tout de suite)
         e.stopPropagation();
-
-        const targetId = this.getAttribute('data-target');
-        const targetDropdown = document.getElementById(targetId);
-        const isActive = this.classList.contains('filter-chip--active');
-
-        // 1. Fermer tous les menus et désactiver tous les boutons
-        document.querySelectorAll('.filter-dropdown').forEach(dd => dd.classList.remove('show'));
-        document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('filter-chip--active'));
-
-        // 2. Si le bouton cliqué n'était pas déjà actif, on l'ouvre
-        if (!isActive && targetDropdown) {
-          this.classList.add('filter-chip--active');
-          targetDropdown.classList.add('show');
-        }
+        const target = document.getElementById(this.dataset.target);
+        const wasOpen = target.classList.contains('show');
+        document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
+        if (!wasOpen) target.classList.add('show');
       });
     });
 
-    // Empêcher la fermeture quand on clique à l'intérieur du menu déroulant
-    document.querySelectorAll('.filter-dropdown').forEach(dropdown => {
-      dropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
+    document.querySelectorAll('.filter-dropdown').forEach(d => {
+      d.addEventListener('click', e => e.stopPropagation());
     });
 
-    // Fermer les menus si on clique n'importe où ailleurs sur la page
-    document.addEventListener('click', function () {
-      document.querySelectorAll('.filter-dropdown').forEach(dd => dd.classList.remove('show'));
-      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('filter-chip--active'));
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
     });
-  </script>
 
-  <script>
+    /* ── Soumettre avec Entrée dans les inputs filtres ── */
+    ['input-localisation', 'input-salaire'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
+    });
+
+    /* ── Candidature ── */
     function goToCandidature(el) {
       const params = new URLSearchParams({
         id: el.dataset.id,
@@ -234,16 +330,13 @@
       });
       window.location = '/candidature?' + params.toString();
     }
-  </script>
 
-  <script>
+    /* ── Dropdown user navbar ── */
     const menu = document.getElementById('user-menu');
     const dropdown = document.getElementById('user-dropdown');
     if (menu && dropdown) {
-      menu.addEventListener('click', () => dropdown.classList.toggle('open'));
-      document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target)) dropdown.classList.remove('open');
-      });
+      menu.addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('open'); });
+      document.addEventListener('click', () => dropdown.classList.remove('open'));
     }
   </script>
 

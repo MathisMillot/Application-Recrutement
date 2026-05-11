@@ -90,6 +90,12 @@
   color: var(--color-white);
 }
 
+.filter-chip--active {
+  background: var(--color-dark);
+  color: var(--color-white);
+  border-color: var(--color-dark);
+}
+
 .filter-chip svg { flex-shrink: 0; }
 
 .filter-chip--all {

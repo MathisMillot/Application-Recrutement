@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — <%= org.nom %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../CSS/base.css" />
+  <link rel="stylesheet" href="../CSS/components.css" />
+  <link rel="stylesheet" href="../CSS/offres.css" />
+  <style>
+    .org-header {
+      background: #fff;
+      border-bottom: 1px solid #E5E5E5;
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .org-header__logo {
+      width: 96px;
+      height: 96px;
+      border-radius: 20px;
+      object-fit: cover;
+      background: var(--color-light-bg, #f4f4f4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 28px;
+      color: #555;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .org-header__logo img { width: 100%; height: 100%; object-fit: cover; }
+    .org-header__info { display: flex; flex-direction: column; gap: 6px; }
+    .org-header__name { font-size: 28px; font-weight: 700; }
+    .org-header__meta { font-size: 14px; color: #888; display: flex; gap: 16px; flex-wrap: wrap; }
+    .org-header__meta span { display: flex; align-items: center; gap: 4px; }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="navbar__brand" href="/offres">
+      <img src="/images/logo_landr.png" alt="Landr logo" />
+      <span>Landr</span>
+    </a>
+    <div class="navbar__nav">
+      <a href="/offres">Trouver un job</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="/organisations">Trouver une entreprise</a>
+    </div>
+
+    <% if (user) { %>
+    <div class="navbar__user" id="user-menu" style="margin-left:auto;">
+      <div class="navbar__avatar">
+        <% if (user.photo_profil) { %>
+          <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
+        <% } else { %>
+          <%= user.prenom[0] %><%= user.nom[0] %>
+        <% } %>
+      </div>
+      <span>Mon espace</span>
+      <div class="user-dropdown" id="user-dropdown">
+        <a href="/profil_candidat">Mon profil</a>
+        <a href="/modifier_profil">Modifier mon profil</a>
+        <div class="dropdown-divider"></div>
+        <form method="POST" action="/logout" style="margin:0;padding:0">
+          <button type="submit" class="dropdown-logout">Se déconnecter</button>
+        </form>
+      </div>
+    </div>
+    <% } else { %>
+    <a href="/connection" class="btn btn--primary" style="white-space:nowrap;margin-left:auto;">Se connecter</a>
+    <% } %>
+  </nav>
+
+  <!-- Header organisation -->
+  <div class="org-header">
+    <div class="org-header__logo">
+      <% if (org.photo_profil) { %>
+        <img src="/uploads/<%= org.photo_profil %>" alt="<%= org.nom %>" />
+      <% } else { %>
+        <%= org.nom.substring(0,2).toUpperCase() %>
+      <% } %>
+    </div>
+    <div class="org-header__info">
+      <a href="/organisations" style="font-size:13px;color:#888;text-decoration:none;margin-bottom:4px;">← Toutes les entreprises</a>
+      <h1 class="org-header__name"><%= org.nom %></h1>
+      <div class="org-header__meta">
+        <% if (org.type) { %>
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            <%= org.type %>
+          </span>
+        <% } %>
+        <% if (org.siege_social) { %>
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <%= org.siege_social %>
+          </span>
+        <% } %>
+        <span>
+          <strong style="color:var(--color-primary, #ECC023)"><%= offres.length %></strong>
+          offre<%= offres.length > 1 ? 's' : '' %> disponible<%= offres.length > 1 ? 's' : '' %>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offres de l'organisation -->
+  <section style="max-width:1300px;margin:0 auto;padding:40px 48px;">
+    <h2 class="section-title">Offres d'emploi — <%= org.nom %></h2>
+
+    <% if (offres.length === 0) { %>
+      <div style="text-align:center;padding:60px 0;color:#888;">
+        <p style="font-size:16px;">Aucune offre publiée pour le moment.</p>
+        <a href="/offres" style="display:inline-block;margin-top:12px;font-size:14px;color:var(--color-primary);">Voir toutes les offres</a>
+      </div>
+    <% } else { %>
+      <div class="offers-grid">
+        <% offres.forEach(function(offre) { %>
+          <article class="offer-card" data-id="<%= offre.id_offre %>"
+            data-titre="<%= encodeURIComponent(offre.description || '') %>"
+            data-entreprise="<%= encodeURIComponent(offre.organisation || '') %>"
+            data-initiale="<%= encodeURIComponent((offre.organisation || '--').substring(0,2).toUpperCase()) %>"
+            data-localisation="<%= encodeURIComponent(offre.localisation || '') %>"
+            data-remote="<%= encodeURIComponent(offre.remote || '') %>"
+            onclick="goToCandidature(this)">
+
+            <% if (offre.photo) { %>
+              <img src="/uploads/<%= offre.photo %>" alt="<%= offre.description %>" class="offer-card__image" />
+            <% } else if (org.photo_profil) { %>
+              <div class="offer-card__image-placeholder" style="background:#f5f5f5;">
+                <img src="/uploads/<%= org.photo_profil %>" alt="<%= org.nom %>"
+                  style="max-height:80px;max-width:60%;object-fit:contain;border-radius:8px;" />
+              </div>
+            <% } else { %>
+              <div class="offer-card__image-placeholder"></div>
+            <% } %>
+
+            <div class="offer-card__body">
+              <h2 class="offer-card__title"><%= offre.description || 'Offre #' + offre.id_offre %></h2>
+              <div class="offer-card__company">
+                <% if (org.photo_profil) { %>
+                  <img src="/uploads/<%= org.photo_profil %>" alt="<%= org.nom %>" class="offer-card__company-logo" />
+                <% } else { %>
+                  <div class="offer-card__company-logo-placeholder"><%= org.nom.substring(0,2).toUpperCase() %></div>
+                <% } %>
+                <span class="offer-card__company-name"><%= org.nom %></span>
+              </div>
+              <div class="offer-card__tags">
+                <% if (offre.type_contrat) { %><span class="tag">📄 <%= offre.type_contrat %></span><% } %>
+                <% if (offre.localisation) { %><span class="tag">📍 <%= offre.localisation %></span><% } %>
+                <% if (offre.remote && offre.remote !== 'non') { %><span class="tag">🏠 <%= offre.remote === 'full' ? 'Full remote' : 'Hybride' %></span><% } %>
+                <% if (offre.salaire_min) { %><span class="tag">💶 ≥ <%= offre.salaire_min.toLocaleString('fr-FR') %>€</span><% } %>
+              </div>
+            </div>
+
+            <div class="offer-card__footer">
+              <span class="offer-card__date">Expire le <%= new Date(offre.date_expiration).toLocaleDateString('fr-FR') %></span>
+              <div class="offer-card__actions">
+                <button title="Postuler">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </section>
+
+  <script>
+    function goToCandidature(el) {
+      const params = new URLSearchParams({
+        id: el.dataset.id,
+        titre: decodeURIComponent(el.dataset.titre || ''),
+        entreprise: decodeURIComponent(el.dataset.entreprise || ''),
+        initiale: decodeURIComponent(el.dataset.initiale || ''),
+        localisation: decodeURIComponent(el.dataset.localisation || ''),
+        remote: decodeURIComponent(el.dataset.remote || '')
+      });
+      window.location = '/candidature?' + params.toString();
+    }
+
+    const menu = document.getElementById('user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+    if (menu && dropdown) {
+      menu.addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('open'); });
+      document.addEventListener('click', () => dropdown.classList.remove('open'));
+    }
+  </script>
+
+</body>
+</html>

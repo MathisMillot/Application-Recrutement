@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Espace recruteur</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Recruteur</div>
+      <a href="/recruteur" class="active">Dashboard</a>
+      <a href="/recruteur/offres/nouvelle">+ Nouvelle offre</a>
+      <a href="/recruteur/organisation/nouvelle">+ Demander une organisation</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
+
+    <!-- Contenu -->
+    <main class="admin-main">
+
+      <div class="admin-header">
+        <h1>Bonjour <%= user.prenom %> 👋</h1>
+        <span class="admin-header__user">Recruteur</span>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-chip">
+          <span class="stat-chip__label">Offres</span>
+          <span class="stat-chip__value"><%= offres.length %></span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__label">Publiées</span>
+          <span class="stat-chip__value"><%= offres.filter(o => o.statut === 'publiee').length %></span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip__label">Candidatures</span>
+          <span class="stat-chip__value"><%= offres.reduce((s, o) => s + Number(o.nb_candidatures || 0), 0) %></span>
+        </div>
+      </div>
+
+      <!-- Organisations -->
+      <% if (orgs.length > 0) { %>
+      <div class="section-card" style="margin-bottom: 24px;">
+        <h2 style="margin-bottom: 16px;">Mes organisations</h2>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <% orgs.forEach(function(org) { %>
+          <div style="background: var(--color-light-bg, #f4f4f4); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; min-width: 240px;">
+            <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; background:#ddd; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; color:#555;">
+              <% if (org.photo_profil) { %>
+                <img src="/uploads/<%= org.photo_profil %>" alt="<%= org.nom %>" style="width:100%;height:100%;object-fit:cover;" />
+              <% } else { %>
+                <%= org.nom.substring(0,2).toUpperCase() %>
+              <% } %>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <strong style="display:block; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= org.nom %></strong>
+              <span style="font-size:12px; color:#888;">SIREN : <%= org.siren %></span>
+              <span style="display:block; font-size:12px; margin-top:2px;">
+                <span class="badge badge--<%= org.validation === 'OUI' ? 'publiee' : org.validation === 'NON' ? 'expiree' : 'inactive' %>">
+                  <%= org.validation === 'OUI' ? 'Validée' : org.validation === 'NON' ? 'Refusée' : 'En attente' %>
+                </span>
+              </span>
+            </div>
+            <form method="POST" action="/recruteur/organisation/<%= org.siren %>/photo" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+              <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" style="font-size:11px; max-width:120px;" />
+              <button type="submit" class="btn btn--primary" style="height:28px; font-size:12px; padding:0 12px;">Changer logo</button>
+            </form>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Tableau des offres -->
+      <div class="section-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2>Offres de mes organisations</h2>
+          <a href="/recruteur/offres/nouvelle" class="btn btn--primary" style="height:36px; font-size:14px; padding:0 16px;">+ Nouvelle offre</a>
+        </div>
+
+        <% if (offres.length === 0) { %>
+          <p style="color: #888; padding: 16px 0;">Aucune offre postée pour l'instant.</p>
+        <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Annonce</th>
+              <th>Organisation</th>
+              <th>Localisation</th>
+              <th>Remote</th>
+              <th>Statut</th>
+              <th>Expire le</th>
+              <th>Candidatures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% offres.forEach(function(o) {
+              const expire = new Date(o.date_expiration) < new Date();
+            %>
+            <tr class="clickable-row" style="cursor:pointer;" onclick="window.location='/recruteur/offres/<%= o.id_offre %>/candidatures'">
+              <td class="text-muted">#<%= o.id_offre %></td>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <% if (o.photo) { %>
+                    <img src="/uploads/<%= o.photo %>" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;" />
+                  <% } %>
+                  <strong><%= o.description %></strong>
+                </div>
+              </td>
+              <td>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <% if (o.organisation_photo) { %>
+                    <img src="/uploads/<%= o.organisation_photo %>" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:50%;" />
+                  <% } %>
+                  <%= o.organisation %>
+                </div>
+              </td>
+              <td><%= o.localisation || '—' %></td>
+              <td><%= o.remote || '—' %></td>
+              <td><span class="badge badge--<%= expire ? 'expiree' : o.statut %>"><%= expire ? 'Expirée' : o.statut %></span></td>
+              <td class="<%= expire ? 'text-muted' : '' %>"><%= new Date(o.date_expiration).toLocaleDateString('fr-FR') %></td>
+              <td class="text-center">
+                <strong><%= o.nb_candidatures || 0 %></strong>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+
+    </main>
+  </div>
+</body>
+
+</html>

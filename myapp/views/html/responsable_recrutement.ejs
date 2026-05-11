@@ -155,34 +155,42 @@
   <div class="card">
     <h1 class="card__title">Responsable recrutement</h1>
 
-    <div class="form-row">
+    <form method="POST" action="/inscription_recruteur/etape2" style="display:flex;flex-direction:column;gap:28px;">
 
-      <div class="form-group">
-        <label>Prénom <span class="required">*</span></label>
-        <input type="text" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prénom <span class="required">*</span></label>
+          <input type="text" name="prenom" required />
+        </div>
+
+        <div class="form-group">
+          <label>Nom <span class="required">*</span></label>
+          <input type="text" name="nom" required />
+        </div>
+
+        <div class="form-group">
+          <label>Téléphone <span class="required">*</span></label>
+          <input type="tel" name="num_tel" required />
+        </div>
+
+        <div class="form-group">
+          <label>SIREN organisation <span class="required">*</span></label>
+          <input type="number" name="siren_organisation" placeholder="123456789" required />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Nom <span class="required">*</span></label>
-        <input type="text" />
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Nom de l'organisation <span class="required">*</span></label>
+        <input type="text" name="nom_organisation" placeholder="Nom affiché si nouvelle organisation" required style="max-width:100%" />
+        <span style="font-size:12px; color:#888; margin-top:4px;">Si le SIREN existe déjà, ce champ est ignoré.</span>
       </div>
 
-      <div class="form-group">
-        <label>Poste <span class="required">*</span></label>
-        <input type="text" />
+      <div class="form-actions">
+        <a href="/inscription_recruteur" class="btn btn--yellow">Retour</a>
+        <button type="submit" class="btn btn--dark">Créer mon compte</button>
       </div>
 
-      <div class="form-group">
-        <label>Téléphone <span class="required">*</span></label>
-        <input type="tel" />
-      </div>
-
-    </div>
-
-    <div class="form-actions">
-      <a href="/inscription_recruteur" class="btn btn--yellow">Retour</a>
-      <a href="#" class="btn btn--dark">Créer mon Compte</a>
-    </div>
+    </form>
   </div>
 
 </body>

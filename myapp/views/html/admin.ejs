@@ -52,6 +52,56 @@
         </div>
       </div>
 
+      <!-- Demandes d'organisations en attente -->
+      <% if (pendingOrgs && pendingOrgs.length > 0) { %>
+      <div class="section-card" style="border-left: 4px solid #ECC023; margin-bottom: 24px;">
+        <h2 style="margin-bottom:16px;">
+          Demandes d'organisation en attente
+          <span style="background:#ECC023;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;"><%= pendingOrgs.length %></span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>SIREN</th>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Siège social</th>
+              <th>Demandé par</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pendingOrgs.forEach(function(org) { %>
+            <tr>
+              <td class="text-muted"><%= org.siren %></td>
+              <td><strong><%= org.nom %></strong></td>
+              <td><%= org.type || '—' %></td>
+              <td><%= org.siege_social || '—' %></td>
+              <td>
+                <% if (org.recruteur_prenom) { %>
+                  <%= org.recruteur_prenom %> <%= org.recruteur_nom %>
+                  <span style="display:block;font-size:11px;color:#aaa;"><%= org.recruteur_email %></span>
+                <% } else { %>
+                  —
+                <% } %>
+              </td>
+              <td>
+                <div style="display:flex;gap:8px;">
+                  <form method="POST" action="/admin/organisations/<%= org.siren %>/valider" style="margin:0;">
+                    <button type="submit" class="btn btn--primary" style="height:30px;font-size:12px;padding:0 12px;">Valider</button>
+                  </form>
+                  <form method="POST" action="/admin/organisations/<%= org.siren %>/rejeter" style="margin:0;">
+                    <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Rejeter</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+
       <!-- Table utilisateurs -->
       <div class="section-card">
         <h2>Utilisateurs</h2>
@@ -93,10 +143,20 @@
           <form id="role-form" method="POST">
             <input type="hidden" name="role" id="modal-role-input" />
             <input type="hidden" name="newAdminId" id="modal-new-admin-input" />
+            <input type="hidden" name="siren_organisation" id="modal-siren-input" />
             <div class="role-modal__actions">
               <button type="button" onclick="selectRole('Candidat')" class="role-btn" id="btn-Candidat">Candidat</button>
               <button type="button" onclick="selectRole('Recruteur')" class="role-btn" id="btn-Recruteur">Recruteur</button>
               <button type="button" onclick="selectRole('Admin')" class="role-btn" id="btn-Admin">Admin</button>
+            </div>
+            <div id="recruiter-org-section" class="role-modal__reassign">
+              <label class="role-modal__reassign-label">Rattacher à une organisation :</label>
+              <select id="recruiter-org-select" class="role-modal__select">
+                <option value="">— Choisir une organisation —</option>
+                <% organisations.forEach(function(org) { %>
+                <option value="<%= org.siren %>"><%= org.nom %> (SIREN : <%= org.siren %>)</option>
+                <% }); %>
+              </select>
             </div>
             <div id="reassign-section" class="role-modal__reassign">
               <label class="role-modal__reassign-label">Réassigner les organisations à :</label>
@@ -128,7 +188,9 @@
       currentAdminRole = currentRole;
       document.getElementById('modal-role-input').value = currentRole;
       document.getElementById('modal-new-admin-input').value = '';
+      document.getElementById('modal-siren-input').value = '';
       document.getElementById('reassign-select').value = '';
+      document.getElementById('recruiter-org-select').value = '';
       ['Candidat', 'Recruteur', 'Admin'].forEach(r => {
         document.getElementById('btn-' + r).classList.toggle('selected', r === currentRole);
       });
@@ -136,6 +198,7 @@
         opt.disabled = opt.value === id;
       });
       document.getElementById('reassign-section').style.display = 'none';
+      document.getElementById('recruiter-org-section').style.display = 'none';
       modal.style.display = 'flex';
     }
 
@@ -148,10 +211,15 @@
       });
       const needsReassign = currentAdminRole === 'Admin' && role !== 'Admin';
       document.getElementById('reassign-section').style.display = needsReassign ? 'flex' : 'none';
+      document.getElementById('recruiter-org-section').style.display = role === 'Recruteur' ? 'flex' : 'none';
     }
 
     document.getElementById('reassign-select').addEventListener('change', function () {
       document.getElementById('modal-new-admin-input').value = this.value;
+    });
+
+    document.getElementById('recruiter-org-select').addEventListener('change', function () {
+      document.getElementById('modal-siren-input').value = this.value;
     });
 
     modal.addEventListener('click', e => { if (e.target === modal) closeRoleModal(); });

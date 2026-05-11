@@ -149,6 +149,29 @@ module.exports = {
     return result.affectedRows;
   },
 
+  async createRecruteur(nom, prenom, email, mdp, num_tel, siren_organisation, nom_organisation) {
+    const hash = await bcrypt.hash(mdp, 10);
+    const [result] = await db.query(
+      'INSERT INTO Utilisateur (nom, prenom, email, mdp, num_tel, statut) VALUES (?, ?, ?, ?, ?, ?)',
+      [nom, prenom, email, hash, num_tel, 'ACTIF']
+    );
+    const id_user = result.insertId;
+    const [[firstAdmin]] = await db.query('SELECT id_user FROM Admin LIMIT 1');
+    const validateur = firstAdmin ? firstAdmin.id_user : null;
+    await db.query('INSERT INTO Recruteur (id_user, id_admin_validateur) VALUES (?, ?)', [id_user, validateur]);
+    if (siren_organisation) {
+      const [existing] = await db.query('SELECT siren FROM Organisation WHERE siren = ?', [siren_organisation]);
+      if (!existing.length && nom_organisation) {
+        await db.query(
+          'INSERT INTO Organisation (siren, nom, type, siege_social, validation, id_admin_createur) VALUES (?, ?, ?, ?, ?, ?)',
+          [siren_organisation, nom_organisation, 'Entreprise', '', 'ATTENTE', validateur]
+        );
+      }
+      await db.query('INSERT INTO Appartient (id_recruteur, siren_organisation) VALUES (?, ?)', [id_user, siren_organisation]);
+    }
+    return id_user;
+  },
+
   async changeRole(id_user, newRole, newAdminId, validatorAdminId) {
     const [orgs] = await db.query('SELECT COUNT(*) AS n FROM Organisation WHERE id_admin_createur = ?', [id_user]);
     const [recs] = await db.query('SELECT COUNT(*) AS n FROM Recruteur WHERE id_admin_validateur = ?', [id_user]);
@@ -163,6 +186,7 @@ module.exports = {
       if (recs[0].n > 0)
         await db.query('UPDATE Recruteur SET id_admin_validateur = ? WHERE id_admin_validateur = ?', [newAdminId, id_user]);
     }
+    await db.query('DELETE FROM Candidature WHERE id_candidat = ?', [id_user]);
     await db.query('DELETE FROM Appartient WHERE id_recruteur = ?', [id_user]);
     await db.query('DELETE FROM Admin WHERE id_user = ?', [id_user]);
     await db.query('DELETE FROM Recruteur WHERE id_user = ?', [id_user]);
