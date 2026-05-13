@@ -20,7 +20,7 @@ function isRecruteur(req, res, next) {
   next();
 }
 
-/* Middleware candidat — bloque les admins et les recruteurs */
+/* Middleware candidat bloque les admins et les recruteurs */
 function isCandidat(req, res, next) {
   if (!req.session.user) return res.redirect('/connection');
   if (req.session.user.role === 'Admin') return res.redirect('/admin');
@@ -305,6 +305,16 @@ router.post('/login', async function (req, res, next) {
 });
 
 /* Admin */
+router.post('/admin/users/:id/statut', isAdmin, async function (req, res, next) {
+  try {
+    const target = await utilisateur.read(req.params.id);
+    if (!target) return res.status(404).send('Utilisateur introuvable');
+    const newStatut = target.statut === 'ACTIF' ? 'INACTIF' : 'ACTIF';
+    await utilisateur.setStatut(req.params.id, newStatut);
+    res.redirect('/admin');
+  } catch (err) { next(err); }
+});
+
 router.post('/admin/users/:id/role', isAdmin, async function (req, res, next) {
   try {
     await utilisateur.changeRole(req.params.id, req.body.role, req.body.newAdminId || null, req.session.user.id_user);

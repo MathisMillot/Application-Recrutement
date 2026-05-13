@@ -37,7 +37,7 @@ const imageFilter = function (req, file, cb) {
   else cb(new Error('Seuls les fichiers image sont acceptés'));
 };
 
-// User profile photo — one file per user (overwrite on update)
+// User profile photo  one file per user (overwrite on update)
 const avatarStorage = multer.diskStorage({
   destination: function (req, file, cb) { cb(null, uploadDir); },
   filename: function (req, file, cb) {
@@ -46,7 +46,7 @@ const avatarStorage = multer.diskStorage({
   }
 });
 
-// Organisation logo — one file per org SIREN (overwrite on update)
+// Organisation logo one file per org SIREN (overwrite on update)
 const orgStorage = multer.diskStorage({
   destination: function (req, file, cb) { cb(null, uploadDir); },
   filename: function (req, file, cb) {
@@ -55,7 +55,7 @@ const orgStorage = multer.diskStorage({
   }
 });
 
-// Offer photo — unique file per upload (timestamp-based)
+// Offer photo unique file per upload (timestamp-based)
 const offerStorage = multer.diskStorage({
   destination: function (req, file, cb) { cb(null, uploadDir); },
   filename: function (req, file, cb) {

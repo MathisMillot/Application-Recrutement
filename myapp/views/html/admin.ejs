@@ -113,6 +113,7 @@
               <th>Téléphone</th>
               <th>Rôle</th>
               <th>Statut</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -126,7 +127,14 @@
               <td><%= u.email %></td>
               <td><%= u.num_tel || '—' %></td>
               <td><span class="badge badge--<%= u.role.toLowerCase() %>"><%= u.role %></span></td>
-              <td><%= u.statut %></td>
+              <td><span class="badge badge--<%= u.statut === 'ACTIF' ? 'actif' : 'inactif' %>"><%= u.statut %></span></td>
+              <td onclick="event.stopPropagation()">
+                <form method="POST" action="/admin/users/<%= u.id_user %>/statut" style="margin:0;">
+                  <button type="submit" class="btn" style="height:28px;font-size:12px;padding:0 10px;background:<%= u.statut === 'ACTIF' ? '#fee2e2' : '#dcfce7' %>;color:<%= u.statut === 'ACTIF' ? '#b91c1c' : '#15803d' %>;">
+                    <%= u.statut === 'ACTIF' ? 'Désactiver' : 'Réactiver' %>
+                  </button>
+                </form>
+              </td>
             </tr>
             <% }); %>
           </tbody>
