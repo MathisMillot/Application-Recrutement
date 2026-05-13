@@ -397,6 +397,42 @@ router.post('/recruteur/offres/nouvelle', isRecruteur, upload.offer.single('phot
   } catch (err) { next(err); }
 });
 
+router.get('/recruteur/offres/:id/modifier', isRecruteur, async function (req, res, next) {
+  try {
+    const offreData = await offre.read(req.params.id);
+    if (!offreData) return res.status(404).send('Offre introuvable');
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirensAutorisés = orgs.map(o => String(o.siren));
+    if (!sirensAutorisés.includes(String(offreData.siren_organisation))) return res.status(403).send('Accès refusé');
+    res.render('html/recruteur_modifier_offre', { user: req.session.user, offre: offreData });
+  } catch (err) { next(err); }
+});
+
+router.post('/recruteur/offres/:id/modifier', isRecruteur, async function (req, res, next) {
+  try {
+    const offreData = await offre.read(req.params.id);
+    if (!offreData) return res.status(404).send('Offre introuvable');
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirensAutorisés = orgs.map(o => String(o.siren));
+    if (!sirensAutorisés.includes(String(offreData.siren_organisation))) return res.status(403).send('Accès refusé');
+    const { statut, date_expiration, description, localisation, remote, type_contrat, salaire_min } = req.body;
+    await offre.update(req.params.id, statut, date_expiration, description, localisation, remote, type_contrat, salaire_min);
+    res.redirect('/recruteur');
+  } catch (err) { next(err); }
+});
+
+router.post('/recruteur/offres/:id/supprimer', isRecruteur, async function (req, res, next) {
+  try {
+    const offreData = await offre.read(req.params.id);
+    if (!offreData) return res.status(404).send('Offre introuvable');
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirensAutorisés = orgs.map(o => String(o.siren));
+    if (!sirensAutorisés.includes(String(offreData.siren_organisation))) return res.status(403).send('Accès refusé');
+    await offre.delete(req.params.id);
+    res.redirect('/recruteur');
+  } catch (err) { next(err); }
+});
+
 router.get('/recruteur/offres/:id/candidatures', isRecruteur, async function (req, res, next) {
   try {
     const offreData = await offre.read(req.params.id);

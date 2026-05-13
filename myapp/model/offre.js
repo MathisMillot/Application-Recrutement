@@ -86,19 +86,18 @@ module.exports = {
     return result.insertId;
   },
 
-  async update(id_offre, statut, date_expiration, description) {
+  async update(id_offre, statut, date_expiration, description, localisation, remote, type_contrat, salaire_min) {
     const [result] = await db.query(
-      'UPDATE OffreEmploi SET statut = ?, date_expiration = ?, description = ? WHERE id_offre = ?',
-      [statut, date_expiration, description, id_offre]
+      'UPDATE OffreEmploi SET statut=?, date_expiration=?, description=?, localisation=?, remote=?, type_contrat=?, salaire_min=? WHERE id_offre=?',
+      [statut, date_expiration, description, localisation || null, remote || null, type_contrat || null, salaire_min || null, id_offre]
     );
     return result.affectedRows;
   },
 
   async delete(id_offre) {
-    const [result] = await db.query(
-      'DELETE FROM OffreEmploi WHERE id_offre = ?',
-      [id_offre]
-    );
+    await db.query('DELETE dc FROM DocumentsCandidature dc JOIN Candidature c ON dc.id_candidature = c.id_candidature WHERE c.id_offre = ?', [id_offre]);
+    await db.query('DELETE FROM Candidature WHERE id_offre = ?', [id_offre]);
+    const [result] = await db.query('DELETE FROM OffreEmploi WHERE id_offre = ?', [id_offre]);
     return result.affectedRows;
   },
 

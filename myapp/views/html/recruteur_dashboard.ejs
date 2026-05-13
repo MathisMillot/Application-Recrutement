@@ -105,6 +105,7 @@
               <th>Statut</th>
               <th>Expire le</th>
               <th>Candidatures</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -135,6 +136,21 @@
               <td class="<%= expire ? 'text-muted' : '' %>"><%= new Date(o.date_expiration).toLocaleDateString('fr-FR') %></td>
               <td class="text-center">
                 <strong><%= o.nb_candidatures || 0 %></strong>
+              </td>
+              <td onclick="event.stopPropagation()" style="white-space:nowrap;">
+                <div style="display:flex; gap:6px;">
+                  <a href="/recruteur/offres/<%= o.id_offre %>/modifier"
+                     class="btn" style="height:28px;font-size:12px;padding:0 10px;background:#e0f2fe;color:#0369a1;text-decoration:none;">
+                    Modifier
+                  </a>
+                  <form method="POST" action="/recruteur/offres/<%= o.id_offre %>/supprimer" style="margin:0;"
+                        onsubmit="return confirm('Supprimer cette offre ?')">
+                    <button type="submit" class="btn"
+                            style="height:28px;font-size:12px;padding:0 10px;background:#fee2e2;color:#b91c1c;">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
             <% }); %>
