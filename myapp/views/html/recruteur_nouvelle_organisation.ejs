@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Landr — Demande d'organisation</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/admin.css" />
@@ -13,17 +14,20 @@
     .org-form {
       max-width: 560px;
     }
+
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 8px;
       margin-bottom: 20px;
     }
+
     .form-group label {
       font-weight: 600;
       font-size: 14px;
       color: var(--color-dark);
     }
+
     .form-group input,
     .form-group select {
       border: 1.5px solid var(--color-border, #C8C8C8);
@@ -38,16 +42,21 @@
       width: 100%;
       box-sizing: border-box;
     }
+
     .form-group input:focus,
     .form-group select:focus {
       border-color: var(--color-primary, #ECC023);
     }
+
     .form-hint {
       font-size: 12px;
       color: #aaa;
       margin-top: -4px;
     }
-    .required { color: #e53935; }
+
+    .required {
+      color: #e53935;
+    }
   </style>
 </head>
 
@@ -57,9 +66,12 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="admin-sidebar__title">Landr Recruteur</div>
-      <a href="/recruteur">Dashboard</a>
+      <a href="/recruteur" class="active">Dashboard</a>
+      <a href="/recruteur/fiches">Mes fiches de poste</a>
+      <a href="/recruteur/fiches/nouvelle">+ Nouvelle fiche</a>
       <a href="/recruteur/offres/nouvelle">+ Nouvelle offre</a>
-      <a href="/recruteur/organisation/nouvelle" class="active">+ Demander une organisation</a>
+      <a href="/recruteur/organisation/rejoindre">Rejoindre une organisation</a>
+      <a href="/recruteur/organisation/nouvelle">+ Créer une organisation</a>
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
@@ -75,58 +87,61 @@
         <a href="/recruteur" style="font-size:14px; color:#888; text-decoration:none;">← Retour au dashboard</a>
       </div>
 
-      <% if (error === 'siren') { %>
+      <% if (error==='siren' ) { %>
         <div class="admin-error" style="display:block; margin-bottom:16px;">Ce SIREN est déjà enregistré.</div>
-      <% } %>
+        <% } %>
 
-      <div class="section-card org-form">
-        <p style="color:#888; font-size:14px; margin-bottom:24px; line-height:1.6;">
-          Votre demande sera examinée par un administrateur avant d'être activée.
-          Une fois validée, vous pourrez publier des offres au nom de cette organisation.
-        </p>
+          <div class="section-card org-form">
+            <p style="color:#888; font-size:14px; margin-bottom:24px; line-height:1.6;">
+              Votre demande sera examinée par un administrateur avant d'être activée.
+              Une fois validée, vous pourrez publier des offres au nom de cette organisation.
+            </p>
 
-        <form method="POST" action="/recruteur/organisation/nouvelle">
+            <form method="POST" action="/recruteur/organisation/nouvelle">
 
-          <div class="form-group">
-            <label>SIREN <span class="required">*</span></label>
-            <input type="text" name="siren" required pattern="[0-9]{9}" maxlength="9" placeholder="9 chiffres" />
-            <span class="form-hint">Le numéro SIREN unique de votre entreprise (9 chiffres).</span>
+              <div class="form-group">
+                <label>SIREN <span class="required">*</span></label>
+                <input type="text" name="siren" required pattern="[0-9]{9}" maxlength="9" placeholder="9 chiffres" />
+                <span class="form-hint">Le numéro SIREN unique de votre entreprise (9 chiffres).</span>
+              </div>
+
+              <div class="form-group">
+                <label>Nom de l'organisation <span class="required">*</span></label>
+                <input type="text" name="nom" required placeholder="ex : Acme Corp" />
+              </div>
+
+              <div class="form-group">
+                <label>Type</label>
+                <select name="type">
+                  <option value="">— Non renseigné —</option>
+                  <option value="SA">SA</option>
+                  <option value="SAS">SAS</option>
+                  <option value="SASU">SASU</option>
+                  <option value="SARL">SARL</option>
+                  <option value="EURL">EURL</option>
+                  <option value="SNC">SNC</option>
+                  <option value="Association">Association</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Siège social</label>
+                <input type="text" name="siege_social" placeholder="ex : Paris, France" />
+              </div>
+
+              <div style="display:flex; gap:12px; margin-top:8px;">
+                <button type="submit" class="btn btn--primary"
+                  style="height:44px; font-size:15px; padding:0 28px;">Envoyer la demande</button>
+                <a href="/recruteur" class="btn"
+                  style="height:44px; font-size:15px; padding:0 20px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Annuler</a>
+              </div>
+
+            </form>
           </div>
-
-          <div class="form-group">
-            <label>Nom de l'organisation <span class="required">*</span></label>
-            <input type="text" name="nom" required placeholder="ex : Acme Corp" />
-          </div>
-
-          <div class="form-group">
-            <label>Type</label>
-            <select name="type">
-              <option value="">— Non renseigné —</option>
-              <option value="SA">SA</option>
-              <option value="SAS">SAS</option>
-              <option value="SASU">SASU</option>
-              <option value="SARL">SARL</option>
-              <option value="EURL">EURL</option>
-              <option value="SNC">SNC</option>
-              <option value="Association">Association</option>
-              <option value="Autre">Autre</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Siège social</label>
-            <input type="text" name="siege_social" placeholder="ex : Paris, France" />
-          </div>
-
-          <div style="display:flex; gap:12px; margin-top:8px;">
-            <button type="submit" class="btn btn--primary" style="height:44px; font-size:15px; padding:0 28px;">Envoyer la demande</button>
-            <a href="/recruteur" class="btn" style="height:44px; font-size:15px; padding:0 20px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Annuler</a>
-          </div>
-
-        </form>
-      </div>
 
     </main>
   </div>
 </body>
+
 </html>
