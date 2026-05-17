@@ -102,6 +102,48 @@
       </div>
       <% } %>
 
+      <!-- Demandes d'adhésion à une organisation -->
+      <% if (pendingJoins && pendingJoins.length > 0) { %>
+      <div class="section-card" style="border-left: 4px solid #3b82f6; margin-bottom: 24px;">
+        <h2 style="margin-bottom:16px;">
+          Demandes d'adhésion en attente
+          <span style="background:#3b82f6;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;"><%= pendingJoins.length %></span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Organisation</th>
+              <th>Type</th>
+              <th>Recruteur</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pendingJoins.forEach(function(j) { %>
+            <tr>
+              <td><strong><%= j.org_nom %></strong><span style="display:block;font-size:11px;color:#aaa;">SIREN <%= j.siren_organisation %></span></td>
+              <td><%= j.org_type || '—' %></td>
+              <td><%= j.recruteur_prenom %> <%= j.recruteur_nom %></td>
+              <td style="font-size:13px;color:#666;"><%= j.recruteur_email %></td>
+              <td>
+                <div style="display:flex;gap:8px;">
+                  <form method="POST" action="/admin/adhesions/<%= j.siren_organisation %>/<%= j.id_recruteur %>/accepter" style="margin:0;">
+                    <button type="submit" class="btn btn--primary" style="height:30px;font-size:12px;padding:0 12px;">Accepter</button>
+                  </form>
+                  <form method="POST" action="/admin/adhesions/<%= j.siren_organisation %>/<%= j.id_recruteur %>/rejeter" style="margin:0;"
+                        onsubmit="return confirm('Rejeter cette demande ?')">
+                    <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Rejeter</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+
       <!-- Table utilisateurs -->
       <div class="section-card">
         <h2>Utilisateurs</h2>

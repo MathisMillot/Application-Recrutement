@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Nouvelle fiche de poste</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <style>
+    .fiche-form { max-width: 680px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .form-group label { font-weight: 600; font-size: 14px; color: var(--color-dark); }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      border: 1.5px solid var(--color-border, #C8C8C8);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--color-dark);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--color-primary, #ECC023); }
+    .form-group textarea { min-height: 120px; resize: vertical; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .photo-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-top: 8px; display: none; }
+    .required { color: #e53935; }
+    .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin: 28px 0 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Recruteur</div>
+      <a href="/recruteur">Dashboard</a>
+      <a href="/recruteur/fiches" class="active">Mes fiches de poste</a>
+      <a href="/recruteur/fiches/nouvelle">+ Nouvelle fiche</a>
+      <a href="/recruteur/offres/nouvelle">+ Nouvelle offre</a>
+      <a href="/recruteur/organisation/nouvelle">+ Demander une organisation</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Nouvelle fiche de poste</h1>
+        <a href="/recruteur/fiches" style="font-size:14px; color:#888; text-decoration:none;">← Retour aux fiches</a>
+      </div>
+
+      <% if (orgs.length === 0) { %>
+        <div class="section-card" style="color:#888; text-align:center; padding:32px;">
+          <p>Vous n'avez pas encore d'organisation validée.</p>
+          <a href="/recruteur/organisation/nouvelle" class="btn btn--primary" style="margin-top:12px; display:inline-block;">Demander une organisation</a>
+        </div>
+      <% } else { %>
+      <div class="section-card fiche-form">
+        <form method="POST" action="/recruteur/fiches/nouvelle" enctype="multipart/form-data">
+
+          <p class="section-label">Identification du poste</p>
+
+          <div class="form-group">
+            <label>Intitulé du poste <span class="required">*</span></label>
+            <input type="text" name="intitule" placeholder="ex: Développeur Full Stack Senior" required />
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Nom interne du poste <span class="required">*</span></label>
+              <input type="text" name="nom_poste" placeholder="ex: Software Engineer L3" required />
+            </div>
+            <div class="form-group">
+              <label>Responsable / Manager <span class="required">*</span></label>
+              <input type="text" name="responsable" placeholder="ex: Jean Dupont" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Organisation <span class="required">*</span></label>
+            <select name="siren_organisation" required>
+              <option value="">— Choisir une organisation —</option>
+              <% orgs.forEach(function(org) { %>
+                <option value="<%= org.siren %>"><%= org.nom %> (SIREN : <%= org.siren %>)</option>
+              <% }); %>
+            </select>
+          </div>
+
+          <p class="section-label">Conditions du poste</p>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Lieu <span class="required">*</span></label>
+              <input type="text" name="lieu" placeholder="ex: Paris, Lyon..." required />
+            </div>
+            <div class="form-group">
+              <label>Télétravail</label>
+              <select name="remote">
+                <option value="">Non précisé</option>
+                <option value="non">Non</option>
+                <option value="hybride">Hybride</option>
+                <option value="full">Full remote</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Type de contrat</label>
+              <select name="type_contrat">
+                <option value="">Non précisé</option>
+                <option value="CDI">CDI</option>
+                <option value="CDD">CDD</option>
+                <option value="Stage">Stage</option>
+                <option value="Alternance">Alternance</option>
+                <option value="Freelance">Freelance</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:end;">
+              <div>
+                <label>Salaire min (€/an) <span class="required">*</span></label>
+                <input type="number" name="salaire_min" placeholder="ex: 35000" min="0" step="1000" required />
+              </div>
+              <div>
+                <label>Salaire max (€/an) <span class="required">*</span></label>
+                <input type="number" name="salaire_max" placeholder="ex: 50000" min="0" step="1000" required />
+              </div>
+            </div>
+          </div>
+
+          <p class="section-label">Description</p>
+
+          <div class="form-group">
+            <label>Description du poste</label>
+            <textarea name="description" placeholder="Décrivez les missions, les compétences requises, les avantages..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Photo / Illustration</label>
+            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" id="photoInput" />
+            <img id="photoPreview" class="photo-preview" alt="Aperçu" />
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn btn--primary" style="height:44px; font-size:15px; padding:0 28px;">Créer la fiche</button>
+            <a href="/recruteur/fiches" class="btn" style="height:44px; font-size:15px; padding:0 20px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Annuler</a>
+          </div>
+
+        </form>
+      </div>
+      <% } %>
+
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('photoInput').addEventListener('change', function () {
+      const preview = document.getElementById('photoPreview');
+      if (this.files && this.files[0]) {
+        preview.src = URL.createObjectURL(this.files[0]);
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+
+</html>

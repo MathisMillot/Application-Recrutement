@@ -1,37 +1,25 @@
 const db = require('./db');
 
-db.query('ALTER TABLE OffreEmploi ADD COLUMN localisation VARCHAR(255) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE OffreEmploi ADD COLUMN remote VARCHAR(50) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE OffreEmploi ADD COLUMN photo VARCHAR(255) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE OffreEmploi ADD COLUMN type_contrat VARCHAR(50) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE OffreEmploi ADD COLUMN salaire_min INT DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE OffreEmploi ADD COLUMN id_fiche INT DEFAULT NULL').catch(() => {});
 
 module.exports = {
 
   async readAll() {
     const [rows] = await db.query(`
-      SELECT o.id_offre, o.statut, o.date_expiration, o.description,
-             o.nb_prises_demandes, o.localisation, o.remote, o.photo,
-             o.type_contrat, o.salaire_min,
+      SELECT o.id_offre, o.statut, o.date_expiration, o.nb_prises_demandes, o.siren_organisation, o.id_fiche,
+             COALESCE(f.intitule, o.description) AS intitule,
+             COALESCE(f.lieu, o.localisation) AS lieu,
+             COALESCE(f.remote, o.remote) AS remote,
+             COALESCE(f.type_contrat, o.type_contrat) AS type_contrat,
+             COALESCE(f.salaire_min, o.salaire_min) AS salaire_min,
+             f.salaire_max,
+             COALESCE(f.photo, o.photo) AS photo,
              org.nom AS organisation, org.photo_profil AS organisation_photo
       FROM OffreEmploi o
+      LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
       JOIN Organisation org ON o.siren_organisation = org.siren
       WHERE org.validation = 'OUI'
     `);
-    return rows;
-  },
-
-  async searchOffres(keyword) {
-    const searchTerm = `%${keyword}%`;
-    const [rows] = await db.query(`
-      SELECT o.id_offre, o.statut, o.date_expiration, o.description,
-             o.nb_prises_demandes, o.localisation, o.remote, o.photo,
-             o.type_contrat, o.salaire_min,
-             org.nom AS organisation, org.photo_profil AS organisation_photo
-      FROM OffreEmploi o
-      JOIN Organisation org ON o.siren_organisation = org.siren
-      WHERE o.description LIKE ? OR org.nom LIKE ?
-    `, [searchTerm, searchTerm]);
     return rows;
   },
 
@@ -39,28 +27,35 @@ module.exports = {
     const conditions = ["org.validation = 'OUI'"];
     const params = [];
     if (q) {
-      conditions.push('(o.description LIKE ? OR org.nom LIKE ?)');
+      conditions.push('(COALESCE(f.intitule, o.description) LIKE ? OR org.nom LIKE ?)');
       params.push(`%${q}%`, `%${q}%`);
     }
     if (localisation) {
-      conditions.push('o.localisation LIKE ?');
+      conditions.push('COALESCE(f.lieu, o.localisation) LIKE ?');
       params.push(`%${localisation}%`);
     }
     if (contrat) {
-      conditions.push('o.type_contrat = ?');
+      conditions.push('COALESCE(f.type_contrat, o.type_contrat) = ?');
       params.push(contrat);
     }
-    if (salaire_min) {
-      conditions.push('o.salaire_min >= ?');
-      params.push(Number(salaire_min));
+    const salaire = parseInt(salaire_min, 10);
+    if (!isNaN(salaire) && salaire > 0) {
+      conditions.push('COALESCE(f.salaire_min, o.salaire_min) >= ?');
+      params.push(salaire);
     }
     const where = 'WHERE ' + conditions.join(' AND ');
     const [rows] = await db.query(`
-      SELECT o.id_offre, o.statut, o.date_expiration, o.description,
-             o.nb_prises_demandes, o.localisation, o.remote, o.photo,
-             o.type_contrat, o.salaire_min,
+      SELECT o.id_offre, o.statut, o.date_expiration, o.nb_prises_demandes, o.siren_organisation, o.id_fiche,
+             COALESCE(f.intitule, o.description) AS intitule,
+             COALESCE(f.lieu, o.localisation) AS lieu,
+             COALESCE(f.remote, o.remote) AS remote,
+             COALESCE(f.type_contrat, o.type_contrat) AS type_contrat,
+             COALESCE(f.salaire_min, o.salaire_min) AS salaire_min,
+             f.salaire_max,
+             COALESCE(f.photo, o.photo) AS photo,
              org.nom AS organisation, org.photo_profil AS organisation_photo
       FROM OffreEmploi o
+      LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
       JOIN Organisation org ON o.siren_organisation = org.siren
       ${where}
     `, params);
@@ -69,27 +64,31 @@ module.exports = {
 
   async read(id_offre) {
     const [rows] = await db.query(
-      `SELECT o.*, org.nom AS organisation
+      `SELECT o.id_offre, o.statut, o.date_expiration, o.nb_prises_demandes, o.siren_organisation, o.id_fiche,
+              f.intitule, f.lieu, f.remote, f.type_contrat, f.salaire_min, f.salaire_max, f.photo,
+              f.nom_poste, f.responsable, f.description AS fiche_description,
+              org.nom AS organisation
        FROM OffreEmploi o
-       JOIN Organisation org ON o.siren_organisation = org.siren
+       LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
+       LEFT JOIN Organisation org ON o.siren_organisation = org.siren
        WHERE o.id_offre = ?`,
       [id_offre]
     );
     return rows[0];
   },
 
-  async create(statut, date_expiration, description, siren_organisation) {
+  async create(statut, date_expiration, id_fiche, siren_organisation) {
     const [result] = await db.query(
-      'INSERT INTO OffreEmploi (statut, date_expiration, description, siren_organisation) VALUES (?, ?, ?, ?)',
-      [statut, date_expiration, description, siren_organisation]
+      'INSERT INTO OffreEmploi (statut, date_expiration, id_fiche, siren_organisation) VALUES (?, ?, ?, ?)',
+      [statut, date_expiration, id_fiche, siren_organisation]
     );
     return result.insertId;
   },
 
-  async update(id_offre, statut, date_expiration, description, localisation, remote, type_contrat, salaire_min) {
+  async update(id_offre, statut, date_expiration) {
     const [result] = await db.query(
-      'UPDATE OffreEmploi SET statut=?, date_expiration=?, description=?, localisation=?, remote=?, type_contrat=?, salaire_min=? WHERE id_offre=?',
-      [statut, date_expiration, description, localisation || null, remote || null, type_contrat || null, salaire_min || null, id_offre]
+      'UPDATE OffreEmploi SET statut=?, date_expiration=? WHERE id_offre=?',
+      [statut, date_expiration, id_offre]
     );
     return result.affectedRows;
   },
@@ -105,12 +104,16 @@ module.exports = {
     if (!sirens.length) return [];
     const placeholders = sirens.map(() => '?').join(',');
     const [rows] = await db.query(`
-      SELECT o.id_offre, o.statut, o.date_expiration, o.description,
-             o.nb_prises_demandes, o.localisation, o.remote, o.photo,
+      SELECT o.id_offre, o.statut, o.date_expiration, o.nb_prises_demandes, o.siren_organisation, o.id_fiche,
+             COALESCE(f.intitule, o.description) AS intitule,
+             COALESCE(f.lieu, o.localisation) AS lieu,
+             COALESCE(f.remote, o.remote) AS remote,
+             COALESCE(f.type_contrat, o.type_contrat) AS type_contrat,
+             f.photo,
              org.nom AS organisation, org.photo_profil AS organisation_photo,
-             o.siren_organisation,
              COUNT(c.id_candidature) AS nb_candidatures
       FROM OffreEmploi o
+      LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
       JOIN Organisation org ON o.siren_organisation = org.siren
       LEFT JOIN Candidature c ON c.id_offre = o.id_offre
       WHERE o.siren_organisation IN (${placeholders})
@@ -118,14 +121,6 @@ module.exports = {
       ORDER BY o.date_expiration DESC
     `, sirens);
     return rows;
-  },
-
-  async createFull(statut, date_expiration, description, localisation, remote, siren_organisation, photo, type_contrat, salaire_min) {
-    const [result] = await db.query(
-      'INSERT INTO OffreEmploi (statut, date_expiration, description, localisation, remote, siren_organisation, photo, type_contrat, salaire_min) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [statut, date_expiration, description, localisation, remote, siren_organisation, photo || null, type_contrat || null, salaire_min || null]
-    );
-    return result.insertId;
   }
 
 };

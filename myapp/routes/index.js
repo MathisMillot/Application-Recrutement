@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var passport = require('passport');
 const offre = require('../model/offre');
+const ficheDePoste = require('../model/fiche_de_poste');
 const organisation = require('../model/organisation');
 const candidature = require('../model/candidature');
 const utilisateur = require('../model/utilisateur');
@@ -9,7 +10,8 @@ const upload = require('../model/upload');
 
 /* Middleware admin */
 function isAdmin(req, res, next) {
-  if (req.session.user && req.session.user.role === 'Admin') return next();
+  if (!req.session.user) return res.redirect('/connection');
+  if (req.session.user.role === 'Admin') return next();
   res.status(403).send('Accès refusé');
 }
 
@@ -144,7 +146,10 @@ router.get('/candidature', isCandidat, function (req, res) {
 
 router.post('/candidature', isCandidat, async function (req, res, next) {
   try {
-    const { id_offre } = req.body;
+    const id_offre = parseInt(req.body.id_offre, 10);
+    if (!id_offre || id_offre <= 0) return res.redirect('/offres');
+    const offreData = await offre.read(id_offre);
+    if (!offreData) return res.redirect('/offres');
     await candidature.create(req.session.user.id_user, id_offre);
     res.render('html/candidature_confirmation', { user: req.session.user });
   } catch (err) {
@@ -209,6 +214,7 @@ router.post('/inscription/etape1', async function (req, res, next) {
 });
 
 router.post('/inscription/etape2', function (req, res) {
+  if (!req.session.inscription) return res.redirect('/inscription_candidat');
   const { nom, prenom, num_tel } = req.body;
   req.session.inscription = { ...req.session.inscription, nom, prenom, num_tel };
   res.redirect('/profil_professionnel');
@@ -227,7 +233,7 @@ router.post('/inscription/etape3', upload.single('cv'), async function (req, res
     }
 
     req.session.inscription = null;
-    req.session.user = { id_user, nom, prenom, email, num_tel };
+    req.session.user = { id_user, nom, prenom, email, num_tel, role: 'Candidat', statut: 'ACTIF', photo_profil: null };
     res.redirect('/profil_candidat');
   } catch (err) {
     next(err);
@@ -246,7 +252,8 @@ router.post('/modifier_profil', async function (req, res, next) {
     const { nom, prenom, email, num_tel } = req.body;
     await utilisateur.update(req.session.user.id_user, nom, prenom, email, num_tel);
     req.session.user = { ...req.session.user, nom, prenom, email, num_tel };
-    res.redirect('/profil_candidat');
+    const dest = { Admin: '/admin', Recruteur: '/recruteur' }[req.session.user.role] || '/profil_candidat';
+    res.redirect(dest);
   } catch (err) {
     next(err);
   }
@@ -288,7 +295,7 @@ router.post('/logout', function (req, res, next) {
 router.post('/login', async function (req, res, next) {
   try {
     const { email, mdp } = req.body;
-    const user = await utilisateur.findByCredentials(email, mdp);
+    const user = await utilisateur.findAndCheckByCredentials(email, mdp); //TODO juste email
 
     if (!user) return res.redirect('/connection?error=credentials');
 
@@ -339,17 +346,32 @@ router.get('/admin/offres', isAdmin, async function (req, res, next) {
 
 router.get('/admin', isAdmin, async function (req, res, next) {
   try {
-    const [users, offres, candidatures, organisations, pendingOrgs] = await Promise.all([
+    const [users, offres, candidatures, organisations, pendingOrgs, pendingJoins] = await Promise.all([
       utilisateur.readAll(),
       offre.readAll(),
       candidature.readAll(),
       organisation.readAll(),
-      organisation.readPending()
+      organisation.readPending(),
+      organisation.readPendingJoins()
     ]);
-    res.render('html/admin', { user: req.session.user, users, offres, candidatures, organisations, pendingOrgs });
+    res.render('html/admin', { user: req.session.user, users, offres, candidatures, organisations, pendingOrgs, pendingJoins });
   } catch (err) {
     next(err);
   }
+});
+
+router.post('/admin/adhesions/:siren/:id_recruteur/accepter', isAdmin, async function (req, res, next) {
+  try {
+    await organisation.approveJoin(req.params.siren, req.params.id_recruteur);
+    res.redirect('/admin');
+  } catch (err) { next(err); }
+});
+
+router.post('/admin/adhesions/:siren/:id_recruteur/rejeter', isAdmin, async function (req, res, next) {
+  try {
+    await organisation.rejectJoin(req.params.siren, req.params.id_recruteur);
+    res.redirect('/admin');
+  } catch (err) { next(err); }
 });
 
 router.post('/admin/organisations/:siren/valider', isAdmin, async function (req, res, next) {
@@ -370,29 +392,103 @@ router.post('/admin/organisations/:siren/rejeter', isAdmin, async function (req,
 router.get('/recruteur', isRecruteur, async function (req, res, next) {
   try {
     const id = req.session.user.id_user;
-    const orgs = await organisation.readByRecruteur(id);
-    const sirens = orgs.map(o => o.siren);
+    const orgsAll = await organisation.readAllByRecruteur(id);
+    const sirens = orgsAll.filter(o => o.adhesion_statut === 'ACCEPTEE').map(o => o.siren);
     const offres = await offre.readByOrganisations(sirens);
-    res.render('html/recruteur_dashboard', { user: req.session.user, orgs, offres });
+    res.render('html/recruteur_dashboard', { user: req.session.user, orgs: orgsAll, offres });
   } catch (err) { next(err); }
 });
 
-router.get('/recruteur/offres/nouvelle', isRecruteur, async function (req, res, next) {
+/* ── Fiches de poste ── */
+router.get('/recruteur/fiches', isRecruteur, async function (req, res, next) {
+  try {
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirens = orgs.map(o => o.siren);
+    const fiches = await ficheDePoste.readByOrganisations(sirens);
+    res.render('html/recruteur_fiches', { user: req.session.user, fiches, error: req.query.error || null });
+  } catch (err) { next(err); }
+});
+
+router.get('/recruteur/fiches/nouvelle', isRecruteur, async function (req, res, next) {
   try {
     const allOrgs = await organisation.readByRecruteur(req.session.user.id_user);
     const orgs = allOrgs.filter(o => o.validation === 'OUI');
-    res.render('html/recruteur_nouvelle_offre', { user: req.session.user, orgs });
+    res.render('html/recruteur_nouvelle_fiche', { user: req.session.user, orgs });
   } catch (err) { next(err); }
 });
 
-router.post('/recruteur/offres/nouvelle', isRecruteur, upload.offer.single('photo'), async function (req, res, next) {
+router.post('/recruteur/fiches/nouvelle', isRecruteur, upload.offer.single('photo'), async function (req, res, next) {
   try {
-    const { statut, date_expiration, description, localisation, remote, siren_organisation, type_contrat, salaire_min } = req.body;
+    const { intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, siren_organisation } = req.body;
     const orgs = await organisation.readByRecruteur(req.session.user.id_user);
     const sirensAutorisés = orgs.map(o => String(o.siren));
     if (!sirensAutorisés.includes(String(siren_organisation))) return res.status(403).send('Accès refusé');
     const photo = req.file ? req.file.filename : null;
-    await offre.createFull(statut, date_expiration, description, localisation, remote, siren_organisation, photo, type_contrat, salaire_min);
+    await ficheDePoste.create(intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, photo, siren_organisation);
+    res.redirect('/recruteur/fiches');
+  } catch (err) { next(err); }
+});
+
+router.get('/recruteur/fiches/:id/modifier', isRecruteur, async function (req, res, next) {
+  try {
+    const ficheData = await ficheDePoste.read(req.params.id);
+    if (!ficheData) return res.status(404).send('Fiche introuvable');
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirensAutorisés = orgs.map(o => String(o.siren));
+    if (!sirensAutorisés.includes(String(ficheData.siren_organisation))) return res.status(403).send('Accès refusé');
+    res.render('html/recruteur_modifier_fiche', { user: req.session.user, fiche: ficheData });
+  } catch (err) { next(err); }
+});
+
+router.post('/recruteur/fiches/:id/modifier', isRecruteur, async function (req, res, next) {
+  try {
+    const ficheData = await ficheDePoste.read(req.params.id);
+    if (!ficheData) return res.status(404).send('Fiche introuvable');
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirensAutorisés = orgs.map(o => String(o.siren));
+    if (!sirensAutorisés.includes(String(ficheData.siren_organisation))) return res.status(403).send('Accès refusé');
+    const { intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote } = req.body;
+    await ficheDePoste.update(req.params.id, intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote);
+    res.redirect('/recruteur/fiches');
+  } catch (err) { next(err); }
+});
+
+router.post('/recruteur/fiches/:id/supprimer', isRecruteur, async function (req, res, next) {
+  try {
+    const ficheData = await ficheDePoste.read(req.params.id);
+    if (!ficheData) return res.status(404).send('Fiche introuvable');
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirensAutorisés = orgs.map(o => String(o.siren));
+    if (!sirensAutorisés.includes(String(ficheData.siren_organisation))) return res.status(403).send('Accès refusé');
+    await ficheDePoste.delete(req.params.id);
+    res.redirect('/recruteur/fiches');
+  } catch (err) {
+    if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.redirect('/recruteur/fiches?error=fiche-liee');
+    }
+    next(err);
+  }
+});
+
+/* ── Offres d'emploi (recruteur) ── */
+router.get('/recruteur/offres/nouvelle', isRecruteur, async function (req, res, next) {
+  try {
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirens = orgs.filter(o => o.validation === 'OUI').map(o => o.siren);
+    const fiches = await ficheDePoste.readByOrganisations(sirens);
+    res.render('html/recruteur_nouvelle_offre', { user: req.session.user, fiches });
+  } catch (err) { next(err); }
+});
+
+router.post('/recruteur/offres/nouvelle', isRecruteur, async function (req, res, next) {
+  try {
+    const { id_fiche, statut, date_expiration } = req.body;
+    const ficheData = await ficheDePoste.read(id_fiche);
+    if (!ficheData) return res.status(404).send('Fiche introuvable');
+    const orgs = await organisation.readByRecruteur(req.session.user.id_user);
+    const sirensAutorisés = orgs.map(o => String(o.siren));
+    if (!sirensAutorisés.includes(String(ficheData.siren_organisation))) return res.status(403).send('Accès refusé');
+    await offre.create(statut, date_expiration, id_fiche, ficheData.siren_organisation);
     res.redirect('/recruteur');
   } catch (err) { next(err); }
 });
@@ -415,8 +511,8 @@ router.post('/recruteur/offres/:id/modifier', isRecruteur, async function (req, 
     const orgs = await organisation.readByRecruteur(req.session.user.id_user);
     const sirensAutorisés = orgs.map(o => String(o.siren));
     if (!sirensAutorisés.includes(String(offreData.siren_organisation))) return res.status(403).send('Accès refusé');
-    const { statut, date_expiration, description, localisation, remote, type_contrat, salaire_min } = req.body;
-    await offre.update(req.params.id, statut, date_expiration, description, localisation, remote, type_contrat, salaire_min);
+    const { statut, date_expiration } = req.body;
+    await offre.update(req.params.id, statut, date_expiration);
     res.redirect('/recruteur');
   } catch (err) { next(err); }
 });
@@ -443,6 +539,33 @@ router.get('/recruteur/offres/:id/candidatures', isRecruteur, async function (re
     const candidatures = await candidature.readByOffre(req.params.id);
     res.render('html/recruteur_candidatures_offre', { user: req.session.user, offre: offreData, candidatures });
   } catch (err) { next(err); }
+});
+
+router.get('/recruteur/organisation/rejoindre', isRecruteur, async function (req, res, next) {
+  try {
+    const availableOrgs = await organisation.readValidatedExcluding(req.session.user.id_user);
+    res.render('html/recruteur_rejoindre_organisation', { user: req.session.user, orgs: availableOrgs, error: req.query.error || null });
+  } catch (err) { next(err); }
+});
+
+router.post('/recruteur/organisation/:siren/quitter', isRecruteur, async function (req, res, next) {
+  try {
+    await organisation.rejectJoin(req.params.siren, req.session.user.id_user);
+    res.redirect('/recruteur');
+  } catch (err) { next(err); }
+});
+
+router.post('/recruteur/organisation/rejoindre', isRecruteur, async function (req, res, next) {
+  try {
+    const { siren } = req.body;
+    const org = await organisation.read(siren);
+    if (!org || org.validation !== 'OUI') return res.redirect('/recruteur/organisation/rejoindre?error=org');
+    await organisation.requestJoin(siren, req.session.user.id_user);
+    res.redirect('/recruteur');
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') return res.redirect('/recruteur/organisation/rejoindre?error=deja');
+    next(err);
+  }
 });
 
 router.get('/recruteur/organisation/nouvelle', isRecruteur, function (req, res) {

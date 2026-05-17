@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Rejoindre une organisation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <style>
+    .join-form { max-width: 560px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .form-group label { font-weight: 600; font-size: 14px; color: var(--color-dark); }
+    .form-group select, .form-group input {
+      border: 1.5px solid var(--color-border, #C8C8C8);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--color-dark);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-group select:focus, .form-group input:focus { border-color: var(--color-primary, #ECC023); }
+    .org-preview {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 4px;
+      font-size: 14px;
+      display: none;
+    }
+    .org-preview strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: #1e40af;
+      margin-bottom: 24px;
+    }
+    .error-box {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #b91c1c;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Recruteur</div>
+      <a href="/recruteur">Dashboard</a>
+      <a href="/recruteur/fiches">Mes fiches de poste</a>
+      <a href="/recruteur/fiches/nouvelle">+ Nouvelle fiche</a>
+      <a href="/recruteur/offres/nouvelle">+ Nouvelle offre</a>
+      <a href="/recruteur/organisation/rejoindre" class="active">Rejoindre une organisation</a>
+      <a href="/recruteur/organisation/nouvelle">+ Créer une organisation</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Rejoindre une organisation</h1>
+        <a href="/recruteur" style="font-size:14px; color:#888; text-decoration:none;">← Retour au dashboard</a>
+      </div>
+
+      <% if (error === 'deja') { %>
+        <div class="error-box">Vous avez déjà une demande en cours ou êtes déjà membre de cette organisation.</div>
+      <% } else if (error === 'org') { %>
+        <div class="error-box">Organisation introuvable ou non validée.</div>
+      <% } %>
+
+      <% if (orgs.length === 0) { %>
+        <div class="section-card" style="text-align:center; padding:40px; color:#888;">
+          <p style="font-size:16px; font-weight:600; margin-bottom:8px;">Aucune organisation disponible</p>
+          <p style="font-size:14px;">Vous êtes déjà membre de toutes les organisations validées, ou aucune organisation n'est encore validée.</p>
+          <a href="/recruteur/organisation/nouvelle" class="btn btn--primary" style="display:inline-block; margin-top:16px;">Créer une nouvelle organisation</a>
+        </div>
+      <% } else { %>
+      <div class="section-card join-form">
+        <div class="info-box">
+          Votre demande sera examinée par un administrateur. Vous serez ajouté à l'organisation uniquement après validation.
+        </div>
+
+        <form method="POST" action="/recruteur/organisation/rejoindre">
+
+          <div class="form-group">
+            <label>Organisation <span style="color:#e53935;">*</span></label>
+            <select name="siren" required onchange="updatePreview(this)">
+              <option value="">— Rechercher une organisation —</option>
+              <% orgs.forEach(function(org) { %>
+                <option value="<%= org.siren %>"
+                        data-nom="<%= org.nom %>"
+                        data-type="<%= org.type || '' %>"
+                        data-siege="<%= org.siege_social || '' %>">
+                  <%= org.nom %> (SIREN : <%= org.siren %>)
+                </option>
+              <% }); %>
+            </select>
+
+            <div class="org-preview" id="orgPreview">
+              <strong id="previewNom"></strong>
+              <span id="previewType" style="color:#888; font-size:13px;"></span>
+              <div id="previewSiege" style="font-size:13px; margin-top:4px; color:#666;"></div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn btn--primary" style="height:44px; font-size:15px; padding:0 28px;">Envoyer la demande</button>
+            <a href="/recruteur" class="btn" style="height:44px; font-size:15px; padding:0 20px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Annuler</a>
+          </div>
+
+        </form>
+      </div>
+      <% } %>
+
+    </main>
+  </div>
+
+  <script>
+    function updatePreview(select) {
+      const opt = select.options[select.selectedIndex];
+      const preview = document.getElementById('orgPreview');
+      if (!opt.value) { preview.style.display = 'none'; return; }
+      document.getElementById('previewNom').textContent = opt.dataset.nom;
+      document.getElementById('previewType').textContent = opt.dataset.type || '';
+      document.getElementById('previewSiege').textContent = opt.dataset.siege ? '📍 ' + opt.dataset.siege : '';
+      preview.style.display = 'block';
+    }
+  </script>
+</body>
+
+</html>

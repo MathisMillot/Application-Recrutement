@@ -10,22 +10,10 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/admin.css" />
   <style>
-    .offre-form {
-      max-width: 640px;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    .form-group label {
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--color-dark);
-    }
+    .offre-form { max-width: 580px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .form-group label { font-weight: 600; font-size: 14px; color: var(--color-dark); }
     .form-group input,
-    .form-group textarea,
     .form-group select {
       border: 1.5px solid var(--color-border, #C8C8C8);
       border-radius: 10px;
@@ -39,39 +27,36 @@
       width: 100%;
     }
     .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      border-color: var(--color-primary, #ECC023);
-    }
-    .form-group textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-    .form-row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .photo-preview {
-      width: 100%;
-      max-height: 180px;
-      object-fit: cover;
+    .form-group select:focus { border-color: var(--color-primary, #ECC023); }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .required { color: #e53935; }
+    .fiche-preview {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
       border-radius: 10px;
-      margin-top: 8px;
+      padding: 14px 16px;
+      margin-top: 4px;
+      font-size: 14px;
+      color: #555;
       display: none;
     }
-    .required { color: #e53935; }
+    .fiche-preview strong { display: block; font-size: 15px; color: #1a1a1a; margin-bottom: 6px; }
+    .fiche-preview .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .fiche-preview .tag { background: #e5e7eb; border-radius: 20px; padding: 2px 10px; font-size: 12px; color: #555; }
+    .empty-state { text-align:center; padding:32px; color:#888; }
   </style>
 </head>
 
 <body>
   <div class="admin-layout">
 
-    <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="admin-sidebar__title">Landr Recruteur</div>
       <a href="/recruteur">Dashboard</a>
+      <a href="/recruteur/fiches">Mes fiches de poste</a>
+      <a href="/recruteur/fiches/nouvelle">+ Nouvelle fiche</a>
       <a href="/recruteur/offres/nouvelle" class="active">+ Nouvelle offre</a>
+      <a href="/recruteur/organisation/nouvelle">+ Demander une organisation</a>
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
@@ -79,29 +64,51 @@
       </form>
     </aside>
 
-    <!-- Contenu -->
     <main class="admin-main">
       <div class="admin-header">
         <h1>Nouvelle offre d'emploi</h1>
         <a href="/recruteur" style="font-size:14px; color:#888; text-decoration:none;">← Retour au dashboard</a>
       </div>
 
+      <% if (fiches.length === 0) { %>
+        <div class="section-card empty-state">
+          <p style="font-size:16px; font-weight:600; margin-bottom:8px;">Aucune fiche de poste disponible</p>
+          <p style="font-size:14px;">Pour publier une offre, créez d'abord une fiche de poste qui décrit le poste à pourvoir.</p>
+          <a href="/recruteur/fiches/nouvelle" class="btn btn--primary" style="height:40px; padding:0 20px; font-size:14px; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px; margin-top:16px;">
+            Créer une fiche de poste
+          </a>
+        </div>
+      <% } else { %>
       <div class="section-card offre-form">
-        <form method="POST" action="/recruteur/offres/nouvelle" enctype="multipart/form-data">
+        <p style="font-size:14px; color:#666; margin-bottom:24px;">
+          Sélectionnez une fiche de poste et définissez les dates de publication. Les détails du poste sont gérés dans la fiche.
+        </p>
+
+        <form method="POST" action="/recruteur/offres/nouvelle">
 
           <div class="form-group">
-            <label>Intitulé du poste <span class="required">*</span></label>
-            <input type="text" name="description" placeholder="ex: Développeur Full Stack" required />
-          </div>
-
-          <div class="form-group">
-            <label>Organisation <span class="required">*</span></label>
-            <select name="siren_organisation" required>
-              <option value="">— Choisir une organisation —</option>
-              <% orgs.forEach(function(org) { %>
-                <option value="<%= org.siren %>"><%= org.nom %> (SIREN : <%= org.siren %>)</option>
+            <label>Fiche de poste <span class="required">*</span></label>
+            <select name="id_fiche" required onchange="updatePreview(this)">
+              <option value="">— Choisir une fiche de poste —</option>
+              <% fiches.forEach(function(f) { %>
+                <option value="<%= f.id_fiche %>"
+                        data-intitule="<%= f.intitule %>"
+                        data-org="<%= f.organisation %>"
+                        data-lieu="<%= f.lieu %>"
+                        data-contrat="<%= f.type_contrat || '' %>"
+                        data-remote="<%= f.remote || '' %>"
+                        data-salaire-min="<%= f.salaire_min || 0 %>"
+                        data-salaire-max="<%= f.salaire_max || 0 %>">
+                  <%= f.intitule %> — <%= f.organisation %>
+                </option>
               <% }); %>
             </select>
+
+            <div class="fiche-preview" id="fichePreview">
+              <strong id="previewIntitule"></strong>
+              <span id="previewOrg" style="color:#888; font-size:13px;"></span>
+              <div class="tags" id="previewTags"></div>
+            </div>
           </div>
 
           <div class="form-row-2">
@@ -118,67 +125,50 @@
             </div>
           </div>
 
-          <div class="form-row-2">
-            <div class="form-group">
-              <label>Localisation</label>
-              <input type="text" name="localisation" placeholder="ex: Paris, Lyon..." />
-            </div>
-            <div class="form-group">
-              <label>Télétravail</label>
-              <select name="remote">
-                <option value="">Non précisé</option>
-                <option value="non">Non</option>
-                <option value="hybride">Hybride</option>
-                <option value="full">Full remote</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row-2">
-            <div class="form-group">
-              <label>Type de contrat</label>
-              <select name="type_contrat">
-                <option value="">Non précisé</option>
-                <option value="CDI">CDI</option>
-                <option value="CDD">CDD</option>
-                <option value="Stage">Stage</option>
-                <option value="Alternance">Alternance</option>
-                <option value="Freelance">Freelance</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Salaire minimum (€/an)</label>
-              <input type="number" name="salaire_min" placeholder="ex: 35000" min="0" step="1000" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Photo de l'annonce</label>
-            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" id="photoInput" />
-            <img id="photoPreview" class="photo-preview" alt="Aperçu" />
-          </div>
-
           <div style="display:flex; gap:12px; margin-top:8px;">
             <button type="submit" class="btn btn--primary" style="height:44px; font-size:15px; padding:0 28px;">Publier l'offre</button>
             <a href="/recruteur" class="btn" style="height:44px; font-size:15px; padding:0 20px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Annuler</a>
           </div>
 
         </form>
+
+        <p style="margin-top:20px; font-size:13px; color:#888;">
+          Besoin de modifier les détails d'un poste ?
+          <a href="/recruteur/fiches" style="color:var(--color-primary, #ECC023);">Gérer les fiches de poste →</a>
+        </p>
       </div>
+      <% } %>
 
     </main>
   </div>
 
   <script>
-    document.getElementById('photoInput').addEventListener('change', function () {
-      const preview = document.getElementById('photoPreview');
-      if (this.files && this.files[0]) {
-        preview.src = URL.createObjectURL(this.files[0]);
-        preview.style.display = 'block';
-      } else {
-        preview.style.display = 'none';
+    function updatePreview(select) {
+      const opt = select.options[select.selectedIndex];
+      const preview = document.getElementById('fichePreview');
+      if (!opt.value) { preview.style.display = 'none'; return; }
+
+      document.getElementById('previewIntitule').textContent = opt.dataset.intitule;
+      document.getElementById('previewOrg').textContent = opt.dataset.org;
+
+      const tags = [];
+      if (opt.dataset.lieu) tags.push('📍 ' + opt.dataset.lieu);
+      if (opt.dataset.contrat) tags.push('📄 ' + opt.dataset.contrat);
+      if (opt.dataset.remote === 'full') tags.push('🏠 Full remote');
+      else if (opt.dataset.remote === 'hybride') tags.push('🏠 Hybride');
+      const sMin = parseInt(opt.dataset.salaireMin);
+      const sMax = parseInt(opt.dataset.salaireMax);
+      if (sMin > 0) {
+        const sLabel = sMax > sMin
+          ? '💶 ' + sMin.toLocaleString('fr-FR') + '€ – ' + sMax.toLocaleString('fr-FR') + '€'
+          : '💶 ≥ ' + sMin.toLocaleString('fr-FR') + '€';
+        tags.push(sLabel);
       }
-    });
+
+      const tagsEl = document.getElementById('previewTags');
+      tagsEl.innerHTML = tags.map(t => `<span class="tag">${t}</span>`).join('');
+      preview.style.display = 'block';
+    }
   </script>
 </body>
 

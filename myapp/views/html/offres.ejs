@@ -199,15 +199,15 @@
         <div class="offers-grid">
           <% offres.forEach(function(offre) { %>
             <article class="offer-card" data-id="<%= offre.id_offre %>"
-              data-titre="<%= encodeURIComponent(offre.description || '') %>"
+              data-titre="<%= encodeURIComponent(offre.intitule || '') %>"
               data-entreprise="<%= encodeURIComponent(offre.organisation || '') %>"
               data-initiale="<%= encodeURIComponent((offre.organisation || '--').substring(0, 2).toUpperCase()) %>"
-              data-localisation="<%= encodeURIComponent(offre.localisation || '') %>"
+              data-localisation="<%= encodeURIComponent(offre.lieu || '') %>"
               data-remote="<%= encodeURIComponent(offre.remote || '') %>" onclick="goToCandidature(this)">
 
               <!-- Image de l'annonce ou logo de l'organisation en bannière -->
               <% if (offre.photo) { %>
-                <img src="/uploads/<%= offre.photo %>" alt="<%= offre.description %>" class="offer-card__image" />
+                <img src="/uploads/<%= offre.photo %>" alt="<%= offre.intitule %>" class="offer-card__image" />
                 <% } else if (offre.organisation_photo) { %>
                   <div class="offer-card__image-placeholder" style="background:#f5f5f5;">
                     <img src="/uploads/<%= offre.organisation_photo %>" alt="<%= offre.organisation %>"
@@ -219,7 +219,7 @@
 
                       <div class="offer-card__body">
                         <h2 class="offer-card__title">
-                          <%= offre.description || 'Offre #' + offre.id_offre %>
+                          <%= offre.intitule || 'Offre #' + offre.id_offre %>
                         </h2>
 
                         <div class="offer-card__company">
@@ -240,8 +240,8 @@
                           <% if (offre.type_contrat) { %>
                             <span class="tag">📄 <%= offre.type_contrat %></span>
                             <% } %>
-                              <% if (offre.localisation) { %>
-                                <span class="tag">📍 <%= offre.localisation %></span>
+                              <% if (offre.lieu) { %>
+                                <span class="tag">📍 <%= offre.lieu %></span>
                                 <% } %>
                                   <% if (offre.remote && offre.remote !=='non' ) { %>
                                     <span class="tag">🏠 <%= offre.remote==='full' ? 'Full remote' : 'Hybride' %></span>

@@ -2,8 +2,8 @@ const db = require('./db');
 
 db.query('ALTER TABLE Organisation ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(() => {});
 db.query('ALTER TABLE Organisation MODIFY COLUMN id_admin_createur INT DEFAULT NULL').catch(() => {});
-// Orgs created by an admin before the approval flow existed: auto-validate them
 db.query("UPDATE Organisation SET validation = 'OUI' WHERE validation = 'ATTENTE' AND id_admin_createur IS NOT NULL").catch(() => {});
+db.query("ALTER TABLE Appartient ADD COLUMN statut VARCHAR(10) NOT NULL DEFAULT 'ACCEPTEE'").catch(() => {});
 
 module.exports = {
 
@@ -71,9 +71,68 @@ module.exports = {
       SELECT org.*
       FROM Organisation org
       JOIN Appartient a ON org.siren = a.siren_organisation
-      WHERE a.id_recruteur = ?
+      WHERE a.id_recruteur = ? AND a.statut = 'ACCEPTEE'
     `, [id_recruteur]);
     return rows;
+  },
+
+  async readAllByRecruteur(id_recruteur) {
+    const [rows] = await db.query(`
+      SELECT org.*, a.statut AS adhesion_statut
+      FROM Organisation org
+      JOIN Appartient a ON org.siren = a.siren_organisation
+      WHERE a.id_recruteur = ?
+      ORDER BY FIELD(a.statut, 'ACCEPTEE', 'ATTENTE') ASC, org.nom ASC
+    `, [id_recruteur]);
+    return rows;
+  },
+
+  async readValidatedExcluding(id_recruteur) {
+    const [rows] = await db.query(`
+      SELECT org.*
+      FROM Organisation org
+      WHERE org.validation = 'OUI'
+        AND org.siren NOT IN (
+          SELECT siren_organisation FROM Appartient WHERE id_recruteur = ?
+        )
+      ORDER BY org.nom ASC
+    `, [id_recruteur]);
+    return rows;
+  },
+
+  async requestJoin(siren, id_recruteur) {
+    await db.query(
+      "INSERT INTO Appartient (id_recruteur, siren_organisation, statut) VALUES (?, ?, 'ATTENTE')",
+      [id_recruteur, siren]
+    );
+  },
+
+  async readPendingJoins() {
+    const [rows] = await db.query(`
+      SELECT a.id_recruteur, a.siren_organisation,
+             org.nom AS org_nom, org.type AS org_type,
+             u.nom AS recruteur_nom, u.prenom AS recruteur_prenom, u.email AS recruteur_email
+      FROM Appartient a
+      JOIN Organisation org ON a.siren_organisation = org.siren
+      JOIN Utilisateur u ON a.id_recruteur = u.id_user
+      WHERE a.statut = 'ATTENTE'
+      ORDER BY org.nom ASC
+    `);
+    return rows;
+  },
+
+  async approveJoin(siren, id_recruteur) {
+    await db.query(
+      "UPDATE Appartient SET statut='ACCEPTEE' WHERE siren_organisation=? AND id_recruteur=?",
+      [siren, id_recruteur]
+    );
+  },
+
+  async rejectJoin(siren, id_recruteur) {
+    await db.query(
+      'DELETE FROM Appartient WHERE siren_organisation=? AND id_recruteur=?',
+      [siren, id_recruteur]
+    );
   },
 
   async setPhoto(siren, filename) {
@@ -82,7 +141,7 @@ module.exports = {
 
   async addRecruteur(siren, id_recruteur) {
     await db.query(
-      'INSERT IGNORE INTO Appartient (id_recruteur, siren_organisation) VALUES (?, ?)',
+      "INSERT INTO Appartient (id_recruteur, siren_organisation, statut) VALUES (?, ?, 'ACCEPTEE') ON DUPLICATE KEY UPDATE statut='ACCEPTEE'",
       [id_recruteur, siren]
     );
   }

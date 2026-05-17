@@ -70,9 +70,9 @@
             %>
             <tr>
               <td class="text-muted">#<%= o.id_offre %></td>
-              <td><strong><%= o.description %></strong></td>
+              <td><strong><%= o.intitule || '—' %></strong></td>
               <td><%= o.organisation %></td>
-              <td><%= o.localisation || '—' %></td>
+              <td><%= o.lieu || '—' %></td>
               <td><%= o.remote || '—' %></td>
               <td><span class="badge badge--<%= expire ? 'expiree' : o.statut %>"><%= expire ? 'Expirée' : o.statut %></span></td>
               <td class="<%= expire ? 'text-muted' : '' %>"><%= new Date(o.date_expiration).toLocaleDateString('fr-FR') %></td>

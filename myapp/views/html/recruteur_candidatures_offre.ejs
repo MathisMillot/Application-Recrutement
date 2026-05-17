@@ -82,14 +82,14 @@
       <!-- Bannière offre -->
       <div class="offre-banner">
         <% if (offre.photo) { %>
-          <img src="/uploads/<%= offre.photo %>" alt="<%= offre.description %>" class="offre-banner__img" />
+          <img src="/uploads/<%= offre.photo %>" alt="<%= offre.intitule %>" class="offre-banner__img" />
         <% } else { %>
           <div class="offre-banner__placeholder"></div>
         <% } %>
         <div>
-          <h2 style="font-size:20px; font-weight:700; margin-bottom:4px;"><%= offre.description %></h2>
+          <h2 style="font-size:20px; font-weight:700; margin-bottom:4px;"><%= offre.intitule || '—' %></h2>
           <span style="font-size:14px; color:#888;"><%= offre.organisation %></span>
-          <% if (offre.localisation) { %><span style="font-size:14px; color:#888;"> · <%= offre.localisation %></span><% } %>
+          <% if (offre.lieu) { %><span style="font-size:14px; color:#888;"> · <%= offre.lieu %></span><% } %>
           <div style="margin-top:6px;">
             <% const expire = new Date(offre.date_expiration) < new Date(); %>
             <span class="badge badge--<%= expire ? 'expiree' : offre.statut %>"><%= expire ? 'Expirée' : offre.statut %></span>

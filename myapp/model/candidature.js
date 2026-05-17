@@ -6,11 +6,12 @@ module.exports = {
     const [rows] = await db.query(`
       SELECT c.id_candidature, c.date,
              u.nom, u.prenom, u.email,
-             o.id_offre, o.description AS offre_description
+             o.id_offre, COALESCE(f.intitule, o.description) AS offre_description
       FROM Candidature c
       JOIN Candidat ca  ON c.id_candidat = ca.id_user
       JOIN Utilisateur u ON ca.id_user = u.id_user
       LEFT JOIN OffreEmploi o ON c.id_offre = o.id_offre
+      LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
     `);
     return rows;
   },
@@ -18,10 +19,11 @@ module.exports = {
   async readByCandidat(id_candidat) {
     const [rows] = await db.query(
       `SELECT c.id_candidature, c.date, c.id_candidat, c.id_offre,
-              o.description AS offre_description, o.statut,
+              COALESCE(f.intitule, o.description) AS offre_description, o.statut,
               org.nom AS organisation
        FROM Candidature c
        LEFT JOIN OffreEmploi o ON c.id_offre = o.id_offre
+       LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
        LEFT JOIN Organisation org ON o.siren_organisation = org.siren
        WHERE c.id_candidat = ?`,
       [id_candidat]

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Mes fiches de poste</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__title">Landr Recruteur</div>
+      <a href="/recruteur">Dashboard</a>
+      <a href="/recruteur/fiches" class="active">Mes fiches de poste</a>
+      <a href="/recruteur/fiches/nouvelle">+ Nouvelle fiche</a>
+      <a href="/recruteur/offres/nouvelle">+ Nouvelle offre</a>
+      <a href="/recruteur/organisation/nouvelle">+ Demander une organisation</a>
+      <hr class="admin-sidebar__divider" />
+      <a href="/offres">← Retour au site</a>
+      <form method="POST" action="/logout" class="admin-sidebar__form">
+        <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
+      </form>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Fiches de poste</h1>
+        <span class="admin-header__user">Recruteur</span>
+      </div>
+
+      <% if (error === 'fiche-liee') { %>
+        <div style="background:#fee2e2; border:1px solid #fca5a5; border-radius:10px; padding:12px 16px; margin-bottom:20px; color:#b91c1c; font-size:14px;">
+          Impossible de supprimer cette fiche : des offres y sont encore liées. Supprimez d'abord les offres associées.
+        </div>
+      <% } %>
+
+      <div class="section-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2>Mes fiches de poste (<%= fiches.length %>)</h2>
+          <a href="/recruteur/fiches/nouvelle" class="btn btn--primary" style="height:36px; font-size:14px; padding:0 16px;">+ Nouvelle fiche</a>
+        </div>
+
+        <% if (fiches.length === 0) { %>
+          <div style="text-align:center; padding:40px 0; color:#888;">
+            <p style="margin-bottom:16px;">Aucune fiche de poste créée pour l'instant.</p>
+            <p style="font-size:13px;">Les fiches de poste décrivent les détails d'un emploi (intitulé, lieu, salaire, contrat...). <br/>Créez d'abord une fiche, puis publiez une offre en la sélectionnant.</p>
+            <a href="/recruteur/fiches/nouvelle" class="btn btn--primary" style="margin-top:16px; display:inline-block;">Créer ma première fiche</a>
+          </div>
+        <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Intitulé</th>
+              <th>Organisation</th>
+              <th>Lieu</th>
+              <th>Contrat</th>
+              <th>Télétravail</th>
+              <th>Salaire</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% fiches.forEach(function(f) { %>
+            <tr>
+              <td class="text-muted">#<%= f.id_fiche %></td>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <% if (f.photo) { %>
+                    <img src="/uploads/<%= f.photo %>" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0;" />
+                  <% } %>
+                  <div>
+                    <strong><%= f.intitule %></strong>
+                    <div style="font-size:12px; color:#888;"><%= f.nom_poste %></div>
+                  </div>
+                </div>
+              </td>
+              <td><%= f.organisation %></td>
+              <td><%= f.lieu %></td>
+              <td><%= f.type_contrat || '—' %></td>
+              <td><%= f.remote ? (f.remote === 'full' ? 'Full remote' : f.remote === 'hybride' ? 'Hybride' : 'Non') : '—' %></td>
+              <td>
+                <% if (f.salaire_min || f.salaire_max) { %>
+                  <%= (f.salaire_min || 0).toLocaleString('fr-FR') %>€
+                  <% if (f.salaire_max && f.salaire_max !== f.salaire_min) { %> – <%= f.salaire_max.toLocaleString('fr-FR') %>€<% } %>
+                <% } else { %>
+                  —
+                <% } %>
+              </td>
+              <td style="white-space:nowrap;">
+                <div style="display:flex; gap:6px;">
+                  <a href="/recruteur/fiches/<%= f.id_fiche %>/modifier"
+                     class="btn" style="height:28px;font-size:12px;padding:0 10px;background:#e0f2fe;color:#0369a1;text-decoration:none;">
+                    Modifier
+                  </a>
+                  <form method="POST" action="/recruteur/fiches/<%= f.id_fiche %>/supprimer" style="margin:0;"
+                        onsubmit="return confirm('Supprimer cette fiche de poste ?')">
+                    <button type="submit" class="btn"
+                            style="height:28px;font-size:12px;padding:0 10px;background:#fee2e2;color:#b91c1c;">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+
+    </main>
+  </div>
+</body>
+
+</html>

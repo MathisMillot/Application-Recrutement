@@ -18,8 +18,11 @@
     <aside class="admin-sidebar">
       <div class="admin-sidebar__title">Landr Recruteur</div>
       <a href="/recruteur" class="active">Dashboard</a>
+      <a href="/recruteur/fiches">Mes fiches de poste</a>
+      <a href="/recruteur/fiches/nouvelle">+ Nouvelle fiche</a>
       <a href="/recruteur/offres/nouvelle">+ Nouvelle offre</a>
-      <a href="/recruteur/organisation/nouvelle">+ Demander une organisation</a>
+      <a href="/recruteur/organisation/rejoindre">Rejoindre une organisation</a>
+      <a href="/recruteur/organisation/nouvelle">+ Créer une organisation</a>
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
@@ -54,10 +57,13 @@
       <!-- Organisations -->
       <% if (orgs.length > 0) { %>
       <div class="section-card" style="margin-bottom: 24px;">
-        <h2 style="margin-bottom: 16px;">Mes organisations</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2>Mes organisations</h2>
+          <a href="/recruteur/organisation/rejoindre" class="btn" style="height:32px; font-size:13px; padding:0 14px; background:#e0f2fe; color:#0369a1; text-decoration:none; display:inline-flex; align-items:center; border-radius:8px;">Rejoindre une org</a>
+        </div>
         <div style="display: flex; gap: 16px; flex-wrap: wrap;">
           <% orgs.forEach(function(org) { %>
-          <div style="background: var(--color-light-bg, #f4f4f4); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; min-width: 240px;">
+          <div style="background: var(--color-light-bg, #f4f4f4); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; min-width: 240px; <%= org.adhesion_statut === 'ATTENTE' ? 'opacity:0.75; border:1.5px dashed #d1d5db;' : '' %>">
             <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; background:#ddd; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; color:#555;">
               <% if (org.photo_profil) { %>
                 <img src="/uploads/<%= org.photo_profil %>" alt="<%= org.nom %>" style="width:100%;height:100%;object-fit:cover;" />
@@ -68,18 +74,40 @@
             <div style="flex:1; min-width:0;">
               <strong style="display:block; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= org.nom %></strong>
               <span style="font-size:12px; color:#888;">SIREN : <%= org.siren %></span>
-              <span style="display:block; font-size:12px; margin-top:2px;">
-                <span class="badge badge--<%= org.validation === 'OUI' ? 'publiee' : org.validation === 'NON' ? 'expiree' : 'inactive' %>">
-                  <%= org.validation === 'OUI' ? 'Validée' : org.validation === 'NON' ? 'Refusée' : 'En attente' %>
-                </span>
+              <span style="display:block; font-size:12px; margin-top:4px; display:flex; gap:6px; flex-wrap:wrap;">
+                <% if (org.adhesion_statut === 'ATTENTE') { %>
+                  <span class="badge badge--inactive">Adhésion en attente</span>
+                <% } else { %>
+                  <span class="badge badge--<%= org.validation === 'OUI' ? 'publiee' : org.validation === 'NON' ? 'expiree' : 'inactive' %>">
+                    <%= org.validation === 'OUI' ? 'Validée' : org.validation === 'NON' ? 'Refusée' : 'En attente' %>
+                  </span>
+                <% } %>
               </span>
             </div>
-            <form method="POST" action="/recruteur/organisation/<%= org.siren %>/photo" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-              <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" style="font-size:11px; max-width:120px;" />
-              <button type="submit" class="btn btn--primary" style="height:28px; font-size:12px; padding:0 12px;">Changer logo</button>
-            </form>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+              <% if (org.adhesion_statut === 'ACCEPTEE') { %>
+              <form method="POST" action="/recruteur/organisation/<%= org.siren %>/photo" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" style="font-size:11px; max-width:120px;" />
+                <button type="submit" class="btn btn--primary" style="height:28px; font-size:12px; padding:0 12px;">Changer logo</button>
+              </form>
+              <% } %>
+              <form method="POST" action="/recruteur/organisation/<%= org.siren %>/quitter" style="margin:0;"
+                    onsubmit="return confirm('<%= org.adhesion_statut === 'ATTENTE' ? 'Annuler la demande ?' : 'Quitter cette organisation ?' %>')">
+                <button type="submit" class="btn" style="height:28px; font-size:12px; padding:0 10px; background:#fee2e2; color:#b91c1c;">
+                  <%= org.adhesion_statut === 'ATTENTE' ? 'Annuler' : 'Quitter' %>
+                </button>
+              </form>
+            </div>
           </div>
           <% }); %>
+        </div>
+      </div>
+      <% } else { %>
+      <div class="section-card" style="margin-bottom:24px; text-align:center; padding:32px; color:#888;">
+        <p style="margin-bottom:12px;">Vous n'êtes membre d'aucune organisation.</p>
+        <div style="display:flex; gap:12px; justify-content:center;">
+          <a href="/recruteur/organisation/rejoindre" class="btn btn--primary" style="height:36px; font-size:14px; padding:0 16px; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Rejoindre une organisation</a>
+          <a href="/recruteur/organisation/nouvelle" class="btn" style="height:36px; font-size:14px; padding:0 16px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">Créer une organisation</a>
         </div>
       </div>
       <% } %>
@@ -119,7 +147,7 @@
                   <% if (o.photo) { %>
                     <img src="/uploads/<%= o.photo %>" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;" />
                   <% } %>
-                  <strong><%= o.description %></strong>
+                  <strong><%= o.intitule || '—' %></strong>
                 </div>
               </td>
               <td>
@@ -130,7 +158,7 @@
                   <%= o.organisation %>
                 </div>
               </td>
-              <td><%= o.localisation || '—' %></td>
+              <td><%= o.lieu || '—' %></td>
               <td><%= o.remote || '—' %></td>
               <td><span class="badge badge--<%= expire ? 'expiree' : o.statut %>"><%= expire ? 'Expirée' : o.statut %></span></td>
               <td class="<%= expire ? 'text-muted' : '' %>"><%= new Date(o.date_expiration).toLocaleDateString('fr-FR') %></td>
