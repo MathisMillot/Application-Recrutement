@@ -67,7 +67,7 @@ module.exports = {
       `SELECT o.id_offre, o.statut, o.date_expiration, o.nb_prises_demandes, o.siren_organisation, o.id_fiche,
               f.intitule, f.lieu, f.remote, f.type_contrat, f.salaire_min, f.salaire_max, f.photo,
               f.nom_poste, f.responsable, f.description AS fiche_description,
-              org.nom AS organisation
+              org.nom AS organisation, org.photo_profil AS organisation_photo
        FROM OffreEmploi o
        LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
        LEFT JOIN Organisation org ON o.siren_organisation = org.siren

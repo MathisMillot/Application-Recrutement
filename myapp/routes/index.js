@@ -140,8 +140,16 @@ router.post('/inscription_recruteur/etape2', async function (req, res, next) {
 });
 
 /* Espace candidat */
-router.get('/candidature', isCandidat, function (req, res) {
-  res.render('html/candidature', { user: req.session.user });
+router.get('/candidature', isCandidat, async function (req, res, next) {
+  try {
+    const id = parseInt(req.query.id, 10);
+    if (!id || id <= 0) return res.redirect('/offres');
+    const offreData = await offre.read(id);
+    if (!offreData) return res.redirect('/offres');
+    res.render('html/candidature', { user: req.session.user, offre: offreData });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.post('/candidature', isCandidat, async function (req, res, next) {

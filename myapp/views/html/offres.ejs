@@ -320,15 +320,7 @@
 
     /* ── Candidature ── */
     function goToCandidature(el) {
-      const params = new URLSearchParams({
-        id: el.dataset.id,
-        titre: decodeURIComponent(el.dataset.titre || ''),
-        entreprise: decodeURIComponent(el.dataset.entreprise || ''),
-        initiale: decodeURIComponent(el.dataset.initiale || ''),
-        localisation: decodeURIComponent(el.dataset.localisation || ''),
-        remote: decodeURIComponent(el.dataset.remote || '')
-      });
-      window.location = '/candidature?' + params.toString();
+      window.location = '/candidature?id=' + el.dataset.id;
     }
 
     /* ── Dropdown user navbar ── */

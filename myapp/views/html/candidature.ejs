@@ -7,8 +7,7 @@
   <title>Landr — Postuler à une offre</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../CSS/base.css" />
   <link rel="stylesheet" href="../CSS/components.css" />
   <link rel="stylesheet" href="../CSS/candidature.css" />
@@ -17,7 +16,6 @@
 
 <body>
 
-  <!-- ── Navbar ──────────────────────────────────────────────── -->
   <nav class="navbar">
     <a class="navbar__brand" href="/offres">
       <img src="/images/logo_landr.png" alt="Landr logo" />
@@ -35,18 +33,16 @@
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
-      <input type="text" name="q" placeholder="Chercher un job, une entreprise..."
-        value="<%= typeof q !== 'undefined' ? q : '' %>" />
-      <button type="submit" style="display: none;">Chercher</button>
+      <input type="text" name="q" placeholder="Chercher un job, une entreprise..." />
+      <button type="submit" style="display:none;">Chercher</button>
     </form>
     <div class="navbar__user" id="user-menu">
       <div class="navbar__avatar">
         <% if (user.photo_profil) { %>
           <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
-          <% } else { %>
-            <%= user.prenom[0] %>
-              <%= user.nom[0] %>
-                <% } %>
+        <% } else { %>
+          <%= user.prenom[0] %><%= user.nom[0] %>
+        <% } %>
       </div>
       <span>Mon espace</span>
       <div class="user-dropdown" id="user-dropdown">
@@ -60,69 +56,82 @@
     </div>
   </nav>
 
-  <!-- ── Contenu principal ───────────────────────────────────── -->
   <div class="apply-page">
 
-    <!-- Sidebar : résumé de l'offre -->
-    <aside class="apply-page__sidebar">
-      <div class="offer-card__company">
-        <div class="offer-card__company-logo-placeholder" id="sidebar-initiale">--</div>
-        <span class="offer-card__company-name" id="sidebar-entreprise">--</span>
+    <!-- Description du poste -->
+    <aside class="apply-page__sidebar" style="gap:16px;">
+      <a href="/offres" style="font-size:13px; color:var(--color-medium); text-decoration:none;">← Retour aux offres</a>
+
+      <div class="offer-card__company" style="margin-top:4px;">
+        <% if (offre.organisation_photo) { %>
+          <img src="/uploads/<%= offre.organisation_photo %>" alt="<%= offre.organisation %>"
+               style="width:40px;height:40px;object-fit:cover;border-radius:8px;flex-shrink:0;" />
+        <% } else { %>
+          <div class="offer-card__company-logo-placeholder">
+            <%= offre.organisation ? offre.organisation.substring(0,2).toUpperCase() : '??' %>
+          </div>
+        <% } %>
+        <span class="offer-card__company-name"><%= offre.organisation || '—' %></span>
       </div>
-      <h3 id="sidebar-titre">--</h3>
-      <div class="tag">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-        <span id="sidebar-localisation">--</span>
+
+      <h2 style="font-size:20px; font-weight:700; margin:0;"><%= offre.intitule || offre.nom_poste || '—' %></h2>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <% if (offre.lieu) { %>
+        <span class="tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <%= offre.lieu %>
+        </span>
+        <% } %>
+        <% if (offre.type_contrat) { %>
+        <span class="tag"><%= offre.type_contrat %></span>
+        <% } %>
+        <% if (offre.remote) { %>
+        <span class="tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <%= offre.remote %>
+        </span>
+        <% } %>
+        <% if (offre.salaire_min) { %>
+        <span class="tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <%= offre.salaire_min %>k<% if (offre.salaire_max) { %> – <%= offre.salaire_max %>k<% } %>
+        </span>
+        <% } %>
       </div>
-      <div class="tag">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="3" width="20" height="14" rx="2" />
-          <line x1="8" y1="21" x2="16" y2="21" />
-          <line x1="12" y1="17" x2="12" y2="21" />
-        </svg>
-        <span id="sidebar-remote">--</span>
-      </div>
-      <hr style="border: none; border-top: 1px solid #E5E5E5;" />
-      <a href="/offres" style="font-size:14px; color: var(--color-medium); text-decoration: none;">← Retour aux
-        offres</a>
+
+      <% if (offre.date_expiration) { %>
+      <p style="font-size:12px; color:#aaa; margin:0;">Expire le <%= new Date(offre.date_expiration).toLocaleDateString('fr-FR') %></p>
+      <% } %>
+
+      <hr style="border:none; border-top:1px solid #E5E5E5; margin:0;" />
+
+      <% if (offre.fiche_description) { %>
+      <div style="font-size:14px; color:#444; line-height:1.6; white-space:pre-wrap;"><%= offre.fiche_description %></div>
+      <% } else { %>
+      <p style="font-size:14px; color:#aaa; font-style:italic;">Aucune description disponible.</p>
+      <% } %>
     </aside>
 
     <!-- Formulaire de candidature -->
     <main class="apply-page__main">
       <div class="apply-page__offer-card">
-        <h3 class="mb-24">Formulaire de candidature</h3>
+        <h3 class="mb-24">Confirmer ma candidature</h3>
 
-        <form class="form" style="width:100%; max-width:600px;" action="/candidature" method="POST">
-          <input type="hidden" name="id_offre" id="hidden-id-offre" />
+        <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:16px 20px; margin-bottom:24px;">
+          <p style="margin:0 0 4px; font-size:13px; color:#888;">Vous postulez en tant que</p>
+          <p style="margin:0; font-size:15px; font-weight:600;"><%= user.prenom %> <%= user.nom %></p>
+          <p style="margin:4px 0 0; font-size:13px; color:#666;"><%= user.email %></p>
+          <% if (user.num_tel) { %><p style="margin:2px 0 0; font-size:13px; color:#666;"><%= user.num_tel %></p><% } %>
+        </div>
 
-          <div class="form__row">
-            <div class="form__group">
-              <label for="prenom">Prénom *</label>
-              <input class="form__input" type="text" id="prenom" placeholder="Jean" />
-            </div>
-            <div class="form__group">
-              <label for="nom">Nom *</label>
-              <input class="form__input" type="text" id="nom" placeholder="Dupont" />
-            </div>
-          </div>
-
-          <div class="form__group">
-            <label for="email">Email *</label>
-            <input class="form__input" type="email" id="email" placeholder="prenom.nom@email.com" />
-          </div>
-
-          <div class="form__group">
-            <label for="tel">Téléphone</label>
-            <input class="form__input" type="tel" id="tel" placeholder="+33 6 00 00 00 00" />
-          </div>
+        <form class="form" style="width:100%; max-width:480px;" action="/candidature" method="POST">
+          <input type="hidden" name="id_offre" value="<%= offre.id_offre %>" />
 
           <div class="form__group">
             <label>CV (PDF, DOC) *</label>
             <div class="file-upload">
-              <input type="file" id="cv" accept=".pdf,.doc,.docx" onchange="updateFileName('cv','cv-name')" />
+              <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" onchange="updateFileName('cv','cv-name')" />
               <label class="file-upload__label" for="cv">
                 <span class="file-upload__btn">Choisir un fichier</span>
                 <span class="file-upload__name" id="cv-name">Aucun fichier sélectionné</span>
@@ -133,8 +142,7 @@
           <div class="form__group">
             <label>Lettre de motivation</label>
             <div class="file-upload">
-              <input type="file" id="motivation" accept=".pdf,.doc,.docx"
-                onchange="updateFileName('motivation','motivation-name')" />
+              <input type="file" id="motivation" name="motivation" accept=".pdf,.doc,.docx" onchange="updateFileName('motivation','motivation-name')" />
               <label class="file-upload__label" for="motivation">
                 <span class="file-upload__btn">Choisir un fichier</span>
                 <span class="file-upload__name" id="motivation-name">Aucun fichier sélectionné</span>
@@ -144,7 +152,7 @@
 
           <div class="form__group">
             <label for="dispo">Disponibilité *</label>
-            <select class="form__select" id="dispo">
+            <select class="form__select" id="dispo" name="dispo">
               <option value="" disabled selected>Choisir une disponibilité</option>
               <option>Immédiatement</option>
               <option>Dans 1 mois</option>
@@ -154,22 +162,11 @@
           </div>
 
           <button type="submit" class="btn btn--primary-full mt-8">Envoyer ma candidature</button>
-
         </form>
       </div>
     </main>
 
   </div>
-
-  <script>
-    const p = new URLSearchParams(window.location.search);
-    document.getElementById('sidebar-titre').textContent = p.get('titre') || '';
-    document.getElementById('sidebar-entreprise').textContent = p.get('entreprise') || '';
-    document.getElementById('sidebar-initiale').textContent = p.get('initiale') || '';
-    document.getElementById('sidebar-localisation').textContent = p.get('localisation') || '';
-    document.getElementById('sidebar-remote').textContent = p.get('remote') || '';
-    document.getElementById('hidden-id-offre').value = p.get('id') || '';
-  </script>
 
   <script>
     function updateFileName(inputId, nameId) {
