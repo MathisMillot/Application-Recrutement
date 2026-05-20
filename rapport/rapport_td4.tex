@@ -1,0 +1,296 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\geometry{margin=2.5cm}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codekey}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{163,21,21}
+\definecolor{codecomment}{RGB}{0,128,0}
+
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekey}\bfseries,
+  stringstyle=\color{codestr},
+  commentstyle=\color{codecomment}\itshape,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{gray!40},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  tabsize=2,
+  showstringspaces=false,
+  language=JavaScript
+}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\title{\textbf{Rapport TD4 -- SR10}\\
+\large Formulaires POST, Enregistrement de données et Gestion de sessions\\[4pt]
+\normalsize Projet \textit{Landr} -- Plateforme de recrutement}
+\author{Mathis Millot}
+\date{Avril 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+{\large\bfseries Table des matières}\\[1em]
+\noindent\textbf{Partie 4 -- Formulaires POST et enregistrement des données}\dotfill\textbf{2}\\[2pt]
+\noindent\hspace{1.5em}Configuration d'Express pour les formulaires\dotfill 2\\[2pt]
+\noindent\hspace{1.5em}Inscription en plusieurs étapes\dotfill 2\\[2pt]
+\noindent\hspace{1.5em}Upload de fichiers avec Multer\dotfill 3\\[2pt]
+\noindent\hspace{1.5em}Patron PRG (Post-Redirect-Get)\dotfill 4\\[2pt]
+\noindent\hspace{1.5em}Couche modèle et requêtes SQL paramétrées\dotfill 4\\[6pt]
+\noindent\textbf{Partie 5 -- Sessions et authentification}\dotfill\textbf{5}\\[2pt]
+\noindent\hspace{1.5em}Configuration des sessions\dotfill 5\\[2pt]
+\noindent\hspace{1.5em}Connexion et création de session\dotfill 6\\[2pt]
+\noindent\hspace{1.5em}Middlewares de contrôle d'accès\dotfill 6\\[2pt]
+\noindent\hspace{1.5em}Déconnexion\dotfill 7\\[2pt]
+\noindent\hspace{1.5em}Authentification Google OAuth\dotfill 7\\[2pt]
+\noindent\hspace{1.5em}Persistance de la session entre les pages\dotfill 8\\[6pt]
+\noindent\textbf{Conclusion}\dotfill\textbf{8}
+\newpage
+
+% ─────────────────────────────────────────────────────────────────
+\section{Partie 4 -- Formulaires POST et enregistrement des données}
+
+\subsection{Configuration d'Express pour les formulaires}
+
+Pour qu'Express puisse décoder les corps de requête envoyés par les formulaires HTML (\texttt{application/x-www-form-urlencoded}), le middleware suivant est enregistré dans \texttt{app.js} :
+
+\begin{lstlisting}
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+\end{lstlisting}
+
+Sans ce middleware, \texttt{req.body} serait \texttt{undefined}. L'option \texttt{extended: true} permet de parser des objets imbriqués grâce à la bibliothèque \texttt{qs}.
+
+\subsection{Inscription en plusieurs étapes}
+
+L'inscription d'un candidat illustre le traitement de formulaires en plusieurs étapes. Les données intermédiaires sont stockées en session entre les requêtes :
+
+\begin{lstlisting}
+// Etape 1 : POST /inscription_candidat
+router.post('/inscription_candidat', async (req, res) => {
+  const { nom, prenom, email, num_tel, password } = req.body;
+  req.session.inscription = { nom, prenom, email, num_tel, password };
+  res.redirect('/inscription/etape2');
+});
+
+// Etape 2 : POST /inscription/etape2
+router.post('/inscription/etape2', async (req, res) => {
+  if (!req.session.inscription) return res.redirect('/inscription_candidat');
+  const data = { ...req.session.inscription, ...req.body };
+  const hash = await bcrypt.hash(data.password, 10);
+  const id = await utilisateur.createCandidat({ ...data, password: hash });
+  req.session.user = { id_user: id, nom: data.nom, prenom: data.prenom,
+                       email: data.email, role: 'Candidat', statut: 'ACTIF' };
+  delete req.session.inscription;
+  res.redirect('/profil_candidat');
+});
+\end{lstlisting}
+
+Le mot de passe est haché avec \texttt{bcrypt} avant insertion, ce qui évite de stocker des données sensibles en clair.
+
+\subsection{Upload de fichiers avec Multer}
+
+La soumission d'une candidature peut inclure des documents (CV, lettre de motivation). Le middleware \textbf{Multer} gère l'upload :
+
+\begin{lstlisting}
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'public/uploads/'),
+  filename:    (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
+
+router.post('/candidature', isCandidat, upload.array('documents', 5),
+  async (req, res) => {
+    const id_offre = parseInt(req.body.id_offre, 10);
+    if (isNaN(id_offre)) return res.redirect('/offres');
+    const offre = await offreModel.read(id_offre);
+    if (!offre) return res.redirect('/offres');
+
+    const id_cand = await candidature.create(req.session.user.id_user, id_offre);
+    for (const file of req.files) {
+      await documentsCandidature.create(id_cand, file.filename);
+    }
+    res.redirect('/candidature/confirmation');
+  }
+);
+\end{lstlisting}
+
+Chaque fichier reçoit un nom unique (timestamp + entier aléatoire) pour éviter les collisions. La validation de \texttt{id\_offre} via \texttt{parseInt} + \texttt{isNaN} protège contre les injections ou données malformées.
+
+\subsection{Patron PRG (Post-Redirect-Get)}
+
+Tous les formulaires appliquent le patron \textbf{PRG} : après un POST réussi, le serveur répond avec un \texttt{302 Redirect} vers une page GET. Cela empêche la resoumission du formulaire lors d'un rafraîchissement navigateur.
+
+\begin{lstlisting}
+res.redirect('/candidature/confirmation'); // PRG apres POST /candidature
+res.redirect('/profil_candidat');          // PRG apres POST /modifier_profil
+\end{lstlisting}
+
+\subsection{Couche modèle et requêtes SQL paramétrées}
+
+Les insertions en base passent systématiquement par des requêtes paramétrées pour prévenir les injections SQL :
+
+\begin{lstlisting}
+// model/candidature.js
+async create(id_user, id_offre) {
+  const [result] = await db.query(
+    'INSERT INTO Candidature (id_user, id_offre, date, statut) VALUES (?, ?, NOW(), "EN_ATTENTE")',
+    [id_user, id_offre]
+  );
+  return result.insertId;
+}
+\end{lstlisting}
+
+Les \texttt{?} sont remplacés par le driver \texttt{mysql2} après échappement automatique des valeurs.
+
+% ─────────────────────────────────────────────────────────────────
+\section{Partie 5 -- Sessions et authentification}
+
+\subsection{Configuration des sessions}
+
+Les sessions sont gérées par \textbf{express-session} avec un store MySQL pour la persistance (les sessions survivent aux redémarrages du serveur) :
+
+\begin{lstlisting}
+// app.js
+const session     = require('express-session');
+const MySQLStore  = require('express-mysql-session')(session);
+const sessionStore = new MySQLStore({ /* memes config que db */ });
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24h
+}));
+\end{lstlisting}
+
+\texttt{saveUninitialized: false} évite de créer une session vide pour chaque visiteur anonyme.
+
+\subsection{Connexion et création de session}
+
+Lors de la connexion, le contrôleur vérifie les identifiants puis stocke les informations essentielles dans \texttt{req.session.user} :
+
+\begin{lstlisting}
+router.post('/connection', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await utilisateur.findByEmail(email);
+  if (!user || !(await bcrypt.compare(password, user.password)))
+    return res.render('html/connection', { error: 'Identifiants invalides' });
+  if (user.statut === 'INACTIF')
+    return res.render('html/connection', { error: 'Compte desactive' });
+
+  req.session.user = {
+    id_user: user.id_user, nom: user.nom, prenom: user.prenom,
+    email: user.email, role: user.role, statut: user.statut,
+    photo_profil: user.photo_profil
+  };
+  // Redirection selon le role
+  const dest = { Admin: '/admin', Recruteur: '/recruteur', Candidat: '/profil_candidat' };
+  res.redirect(dest[user.role] || '/offres');
+});
+\end{lstlisting}
+
+Seuls les champs nécessaires sont copiés en session (pas le hash du mot de passe).
+
+\subsection{Middlewares de contrôle d'accès}
+
+Trois middlewares protègent les routes selon le rôle stocké en session :
+
+\begin{lstlisting}
+function isAdmin(req, res, next) {
+  if (!req.session.user) return res.redirect('/connection');
+  if (req.session.user.role !== 'Admin') return res.redirect('/offres');
+  next();
+}
+
+function isRecruteur(req, res, next) {
+  if (!req.session.user) return res.redirect('/connection');
+  if (req.session.user.role !== 'Recruteur') return res.redirect('/offres');
+  next();
+}
+
+function isCandidat(req, res, next) {
+  if (!req.session.user) return res.redirect('/connection');
+  if (req.session.user.role !== 'Candidat') return res.redirect('/offres');
+  next();
+}
+\end{lstlisting}
+
+Ces middlewares sont appliqués directement sur les routes sensibles :
+
+\begin{lstlisting}
+router.get('/admin',           isAdmin,    adminController);
+router.get('/recruteur',       isRecruteur, recruteurController);
+router.post('/candidature',    isCandidat,  upload.array('documents', 5), ...);
+\end{lstlisting}
+
+\subsection{Déconnexion}
+
+La déconnexion détruit la session côté serveur et redirige vers la page de connexion :
+
+\begin{lstlisting}
+router.post('/logout', (req, res) => {
+  req.session.destroy(() => res.redirect('/connection'));
+});
+\end{lstlisting}
+
+\subsection{Authentification Google OAuth}
+
+En complément de la connexion locale, une authentification via \textbf{Google OAuth 2.0} est implémentée avec \texttt{passport} et \texttt{passport-google-oauth20}. La callback crée ou retrouve l'utilisateur en base (\texttt{findOrCreateByGoogle}), puis initialise la même structure de session que la connexion locale, assurant une cohérence complète du système d'autorisation quel que soit le mode d'authentification.
+
+\subsection{Persistance de la session entre les pages}
+
+La session persiste entre toutes les navigations grâce au cookie de session envoyé par le navigateur. Les vues EJS accèdent à \texttt{req.session.user} passé via \texttt{res.render} :
+
+\begin{lstlisting}
+// Exemple dans la route GET /profil_candidat
+router.get('/profil_candidat', isCandidat, async (req, res) => {
+  const candidatures = await candidatureModel.readByCandidat(
+    req.session.user.id_user
+  );
+  res.render('html/profil_candidat', {
+    user: req.session.user, candidatures
+  });
+});
+\end{lstlisting}
+
+% ─────────────────────────────────────────────────────────────────
+\section{Conclusion}
+
+Le projet Landr met en \oe{}uvre l'ensemble des concepts abordés dans le TD~4 :
+\begin{itemize}[noitemsep]
+  \item Traitement de formulaires POST avec \texttt{express.urlencoded} et \texttt{req.body}
+  \item Validation et sanitisation des données entrantes (parseInt, isNaN, bcrypt)
+  \item Upload de fichiers via Multer avec nommage sécurisé
+  \item Patron PRG pour éviter les doubles soumissions
+  \item Requêtes SQL paramétrées pour prévenir les injections
+  \item Sessions persistantes en MySQL avec \texttt{express-session} + \texttt{express-mysql-session}
+  \item Contrôle d'accès granulaire par rôle via des middlewares dédiés
+  \item Authentification locale (bcrypt) et OAuth (Google)
+\end{itemize}
+
+\end{document}

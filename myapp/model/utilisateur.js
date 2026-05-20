@@ -1,7 +1,8 @@
 const db = require('./db');
 const bcrypt = require('bcrypt');
 
-db.query('ALTER TABLE Utilisateur ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(() => { });
+db.query('ALTER TABLE Utilisateur ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(() => {});
+
 
 module.exports = {
 
@@ -54,7 +55,7 @@ module.exports = {
     return rows.length === 1 && rows[0].mdp === mdp;
   },
 
-  async findAndCheckByCredentials(email, mdp) {
+  async findByCredentials(email, mdp) {//change name
     const [rows] = await db.query(`
       SELECT u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.statut, u.photo_profil, u.mdp,
         CASE

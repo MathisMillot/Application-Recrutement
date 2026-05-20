@@ -102,6 +102,56 @@
       </div>
       <% } %>
 
+      <!-- Demandes pour devenir recruteur -->
+      <% if (pendingDemandes && pendingDemandes.length > 0) { %>
+      <div class="section-card" style="border-left: 4px solid #8b5cf6; margin-bottom: 24px;">
+        <h2 style="margin-bottom:16px;">
+          Demandes pour devenir recruteur
+          <span style="background:#8b5cf6;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;"><%= pendingDemandes.length %></span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Candidat</th>
+              <th>Email</th>
+              <th>SIREN</th>
+              <th>Organisation</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pendingDemandes.forEach(function(d) { %>
+            <tr>
+              <td><strong><%= d.prenom %> <%= d.nom %></strong></td>
+              <td style="font-size:13px;color:#666;"><%= d.email %></td>
+              <td class="text-muted"><%= d.siren %></td>
+              <td>
+                <% if (d.org_existante) { %>
+                  <span class="badge badge--publiee"><%= d.org_existante %></span>
+                <% } else { %>
+                  <span class="badge badge--inactive">À créer : <%= d.nom_organisation || '—' %></span>
+                <% } %>
+              </td>
+              <td class="text-muted"><%= new Date(d.date_demande).toLocaleDateString('fr-FR') %></td>
+              <td>
+                <div style="display:flex;gap:8px;">
+                  <form method="POST" action="/admin/demandes/<%= d.id_demande %>/accepter" style="margin:0;">
+                    <button type="submit" class="btn btn--primary" style="height:30px;font-size:12px;padding:0 12px;">Accepter</button>
+                  </form>
+                  <form method="POST" action="/admin/demandes/<%= d.id_demande %>/rejeter" style="margin:0;"
+                        onsubmit="return confirm('Rejeter cette demande ?')">
+                    <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Rejeter</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+
       <!-- Demandes d'adhésion à une organisation -->
       <% if (pendingJoins && pendingJoins.length > 0) { %>
       <div class="section-card" style="border-left: 4px solid #3b82f6; margin-bottom: 24px;">

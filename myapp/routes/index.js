@@ -7,6 +7,7 @@ const organisation = require('../model/organisation');
 const candidature = require('../model/candidature');
 const utilisateur = require('../model/utilisateur');
 const upload = require('../model/upload');
+const demandeRecruteur = require('../model/demande_recruteur');
 
 /* Middleware admin */
 function isAdmin(req, res, next) {
@@ -188,6 +189,44 @@ router.get('/profil_candidat', isCandidat, async function (req, res, next) {
   }
 });
 
+/* Devenir recruteur */
+router.get('/devenir_recruteur', isCandidat, function (req, res) {
+  res.render('html/devenir_recruteur', { user: req.session.user, error: null, success: null });
+});
+
+router.get('/api/organisation/check', async function (req, res) {
+  try {
+    const siren = (req.query.siren || '').trim();
+    if (!siren) return res.json({ exists: false });
+    const org = await organisation.read(siren);
+    if (org) return res.json({ exists: true, nom: org.nom });
+    return res.json({ exists: false });
+  } catch (err) {
+    res.status(500).json({ exists: false });
+  }
+});
+
+router.post('/devenir_recruteur', isCandidat, async function (req, res, next) {
+  try {
+    const id_candidat = req.session.user.id_user;
+    const siren = (req.body.siren || '').trim();
+    const org_existe = req.body.org_existe === '1';
+    const nom_organisation = (req.body.nom_organisation || '').trim() || null;
+
+    if (!siren) return res.render('html/devenir_recruteur', { user: req.session.user, error: 'Veuillez saisir un SIREN.', success: null });
+
+    const alreadyPending = await demandeRecruteur.hasPending(id_candidat);
+    if (alreadyPending) return res.render('html/devenir_recruteur', { user: req.session.user, error: 'Vous avez déjà une demande en attente.', success: null });
+
+    if (!org_existe && !nom_organisation) return res.render('html/devenir_recruteur', { user: req.session.user, error: 'Veuillez saisir le nom de l\'organisation à créer.', success: null });
+
+    await demandeRecruteur.create(id_candidat, siren, org_existe ? null : nom_organisation);
+    res.render('html/devenir_recruteur', { user: req.session.user, error: null, success: 'Votre demande a bien été envoyée. Un administrateur la traitera prochainement.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 /* Upload document (depuis le profil) */
 router.post('/upload', isCandidat, upload.single('document'), async function (req, res, next) {
   try {
@@ -354,18 +393,48 @@ router.get('/admin/offres', isAdmin, async function (req, res, next) {
 
 router.get('/admin', isAdmin, async function (req, res, next) {
   try {
-    const [users, offres, candidatures, organisations, pendingOrgs, pendingJoins] = await Promise.all([
+    const [users, offres, candidatures, organisations, pendingOrgs, pendingJoins, pendingDemandes] = await Promise.all([
       utilisateur.readAll(),
       offre.readAll(),
       candidature.readAll(),
       organisation.readAll(),
       organisation.readPending(),
-      organisation.readPendingJoins()
+      organisation.readPendingJoins(),
+      demandeRecruteur.readPending()
     ]);
-    res.render('html/admin', { user: req.session.user, users, offres, candidatures, organisations, pendingOrgs, pendingJoins });
+    res.render('html/admin', { user: req.session.user, users, offres, candidatures, organisations, pendingOrgs, pendingJoins, pendingDemandes });
   } catch (err) {
     next(err);
   }
+});
+
+router.post('/admin/demandes/:id/accepter', isAdmin, async function (req, res, next) {
+  try {
+    const demande = await demandeRecruteur.read(req.params.id);
+    if (!demande) return res.redirect('/admin');
+
+    // Créer l'org si elle n'existe pas encore
+    const orgExistante = await organisation.read(demande.siren);
+    if (!orgExistante && demande.nom_organisation) {
+      await organisation.create(demande.siren, demande.nom_organisation, '', '', req.session.user.id_user);
+    }
+
+    // Passer le candidat en recruteur
+    await utilisateur.changeRole(demande.id_candidat, 'Recruteur', null, req.session.user.id_user);
+
+    // Lier au SIREN avec statut ATTENTE (l'admin valide l'org séparément si besoin)
+    await organisation.addRecruteur(demande.siren, demande.id_candidat);
+
+    await demandeRecruteur.accept(req.params.id);
+    res.redirect('/admin');
+  } catch (err) { next(err); }
+});
+
+router.post('/admin/demandes/:id/rejeter', isAdmin, async function (req, res, next) {
+  try {
+    await demandeRecruteur.reject(req.params.id);
+    res.redirect('/admin');
+  } catch (err) { next(err); }
 });
 
 router.post('/admin/adhesions/:siren/:id_recruteur/accepter', isAdmin, async function (req, res, next) {

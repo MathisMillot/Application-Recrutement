@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Devenir recruteur</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+    .page-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 40px 48px;
+      width: 100%;
+      max-width: 520px;
+    }
+    .card h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .card p.subtitle { color: var(--color-medium); font-size: 15px; margin-bottom: 32px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .form-group label { font-weight: 600; font-size: 14px; }
+    .form-group input {
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+    }
+    .form-group input:focus { border-color: var(--color-primary); }
+    .siren-status {
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      display: none;
+    }
+    .siren-status.found    { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .siren-status.notfound { background: #fff7ed; color: #92400e; border: 1px solid #fed7aa; }
+    .siren-status.error    { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .section-nouvelle-org {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+      display: none;
+    }
+    .section-nouvelle-org h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #374151; }
+    .actions { display: flex; gap: 12px; margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="navbar__brand" href="/accueil">
+      <img src="/images/logo_landr.png" alt="Landr" />
+      <span>Landr</span>
+    </a>
+    <a href="/profil_candidat" style="font-size:14px; color:var(--color-medium); text-decoration:none;">← Retour au profil</a>
+  </nav>
+
+  <div class="page-center">
+    <div class="card">
+      <h2>Devenir recruteur</h2>
+      <p class="subtitle">Entrez le SIREN de votre organisation pour soumettre votre demande.</p>
+
+      <% if (error) { %>
+        <div class="siren-status error" style="display:block; margin-bottom:20px;"><%= error %></div>
+      <% } %>
+      <% if (success) { %>
+        <div class="siren-status found" style="display:block; margin-bottom:20px;"><%= success %></div>
+      <% } %>
+
+      <form id="form-demande" method="POST" action="/devenir_recruteur">
+        <input type="hidden" name="org_existe" id="org_existe" value="" />
+        <input type="hidden" name="org_nom_confirme" id="org_nom_confirme" value="" />
+
+        <div class="form-group">
+          <label for="siren">Numéro SIREN <span style="color:#e53935">*</span></label>
+          <input type="text" id="siren" name="siren" placeholder="ex: 123456789"
+                 maxlength="14" required autocomplete="off" />
+        </div>
+
+        <div class="siren-status" id="siren-status"></div>
+
+        <!-- Section si org trouvée -->
+        <div id="section-found" style="display:none; margin-top:12px; padding:12px 16px; background:#dcfce7; border-radius:10px; font-size:14px; color:#15803d;">
+          L'organisation <strong id="org-nom-display"></strong> a été trouvée. Votre demande sera soumise à l'administrateur.
+        </div>
+
+        <!-- Section si org non trouvée -->
+        <div id="section-notfound" class="section-nouvelle-org">
+          <h4>Organisation introuvable</h4>
+          <p style="font-size:13px; color:#6b7280; margin-bottom:14px;">
+            Vérifiez que votre SIREN est correct. Si c'est bien le bon numéro, vous pouvez demander la création de cette organisation en renseignant son nom.
+          </p>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="nom_organisation">Nom de l'organisation</label>
+            <input type="text" id="nom_organisation" name="nom_organisation"
+                   placeholder="ex: Acme Corp" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="btn-submit" class="btn btn--primary-full" style="height:44px; font-size:15px;" disabled>
+            Envoyer la demande
+          </button>
+          <a href="/profil_candidat" class="btn" style="height:44px; font-size:15px; padding:0 20px; background:#eee; color:#333; text-decoration:none; display:inline-flex; align-items:center; border-radius:10px;">
+            Annuler
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const sirenInput    = document.getElementById('siren');
+    const statusDiv     = document.getElementById('siren-status');
+    const sectionFound  = document.getElementById('section-found');
+    const sectionNot    = document.getElementById('section-notfound');
+    const orgNomDisplay = document.getElementById('org-nom-display');
+    const btnSubmit     = document.getElementById('btn-submit');
+    const orgExiste     = document.getElementById('org_existe');
+    const orgNomConf    = document.getElementById('org_nom_confirme');
+    const nomOrgInput   = document.getElementById('nom_organisation');
+
+    let checkTimeout = null;
+
+    sirenInput.addEventListener('input', function () {
+      clearTimeout(checkTimeout);
+      const siren = this.value.trim();
+      sectionFound.style.display = 'none';
+      sectionNot.style.display   = 'none';
+      statusDiv.style.display    = 'none';
+      statusDiv.className        = 'siren-status';
+      btnSubmit.disabled         = true;
+      orgExiste.value            = '';
+      orgNomConf.value           = '';
+
+      if (siren.length < 9) return;
+
+      checkTimeout = setTimeout(async () => {
+        statusDiv.textContent   = 'Vérification en cours…';
+        statusDiv.className     = 'siren-status';
+        statusDiv.style.display = 'block';
+
+        try {
+          const res  = await fetch('/api/organisation/check?siren=' + encodeURIComponent(siren));
+          const data = await res.json();
+
+          if (data.exists) {
+            statusDiv.style.display    = 'none';
+            orgNomDisplay.textContent  = data.nom;
+            sectionFound.style.display = 'block';
+            sectionNot.style.display   = 'none';
+            orgExiste.value            = '1';
+            orgNomConf.value           = data.nom;
+            btnSubmit.disabled         = false;
+          } else {
+            statusDiv.style.display  = 'none';
+            sectionFound.style.display = 'none';
+            sectionNot.style.display = 'block';
+            orgExiste.value          = '0';
+            btnSubmit.disabled       = false;
+          }
+        } catch (e) {
+          statusDiv.textContent   = 'Erreur lors de la vérification.';
+          statusDiv.className     = 'siren-status error';
+          statusDiv.style.display = 'block';
+        }
+      }, 500);
+    });
+  </script>
+
+</body>
+</html>
