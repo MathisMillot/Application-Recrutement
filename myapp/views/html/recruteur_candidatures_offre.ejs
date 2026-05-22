@@ -116,6 +116,9 @@
               <th>Candidat</th>
               <th>Email</th>
               <th>Téléphone</th>
+              <th>Disponibilité</th>
+              <th>CV</th>
+              <th>Lettre de motivation</th>
               <th>Date de candidature</th>
             </tr>
           </thead>
@@ -136,6 +139,21 @@
               </td>
               <td><a href="mailto:<%= c.email %>" style="color: var(--color-primary, #ECC023);"><%= c.email %></a></td>
               <td><%= c.num_tel || '—' %></td>
+              <td><%= c.dispo || '—' %></td>
+              <td>
+                <% if (c.cv) { %>
+                  <a href="/uploads/<%= c.cv %>" target="_blank" style="color: var(--color-primary, #ECC023); font-size:13px;">Télécharger</a>
+                <% } else { %>
+                  <span style="color:#bbb;">—</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (c.lm) { %>
+                  <a href="/uploads/<%= c.lm %>" target="_blank" style="color: var(--color-primary, #ECC023); font-size:13px;">Télécharger</a>
+                <% } else { %>
+                  <span style="color:#bbb;">—</span>
+                <% } %>
+              </td>
               <td><%= new Date(c.date).toLocaleDateString('fr-FR') %></td>
             </tr>
             <% }); %>

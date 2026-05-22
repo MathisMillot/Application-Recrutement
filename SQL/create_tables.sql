@@ -73,12 +73,25 @@ CREATE TABLE OffreEmploi (
 );
 
 CREATE TABLE Candidature (
-    id_candidature  INT     AUTO_INCREMENT PRIMARY KEY,
-    date_candidature DATE   NOT NULL,
-    id_candidat     INT     NOT NULL,
+    id_candidature  INT             AUTO_INCREMENT PRIMARY KEY,
+    date            DATE            NOT NULL,
+    id_candidat     INT             NOT NULL,
     id_offre        INT,
+    cv              VARCHAR(255),
+    lm              VARCHAR(255),
+    dispo           VARCHAR(100),
     FOREIGN KEY (id_candidat)   REFERENCES Candidat(id_user),
     FOREIGN KEY (id_offre)      REFERENCES OffreEmploi(id_offre)
+);
+
+CREATE TABLE DemandeSuppressionOrg (
+    id_demande          INT             AUTO_INCREMENT PRIMARY KEY,
+    siren_organisation  INT             NOT NULL,
+    id_recruteur        INT             NOT NULL,
+    date_demande        DATE            NOT NULL,
+    statut              VARCHAR(10)     NOT NULL DEFAULT 'ATTENTE' CHECK (statut IN ('ATTENTE', 'ACCEPTEE', 'REJETEE')),
+    FOREIGN KEY (siren_organisation) REFERENCES Organisation(siren),
+    FOREIGN KEY (id_recruteur)       REFERENCES Recruteur(id_user)
 );
 
 CREATE TABLE DocumentsCandidature (

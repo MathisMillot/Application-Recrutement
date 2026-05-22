@@ -20,10 +20,13 @@ const storage = multer.diskStorage({
   }
 });
 
+const DOCUMENT_MIMES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+const IMAGE_MIMES    = ['image/jpeg', 'image/png', 'image/webp'];
+
 const fileFilter = function (req, file, cb) {
   const allowed = ['.pdf', '.doc', '.docx'];
   const ext = path.extname(file.originalname).toLowerCase();
-  if (allowed.includes(ext)) {
+  if (allowed.includes(ext) && DOCUMENT_MIMES.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(new Error('Seuls les fichiers PDF et Word sont acceptés'));
@@ -33,7 +36,7 @@ const fileFilter = function (req, file, cb) {
 const imageFilter = function (req, file, cb) {
   const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
   const ext = path.extname(file.originalname).toLowerCase();
-  if (allowed.includes(ext)) cb(null, true);
+  if (allowed.includes(ext) && IMAGE_MIMES.includes(file.mimetype)) cb(null, true);
   else cb(new Error('Seuls les fichiers image sont acceptés'));
 };
 
@@ -64,8 +67,11 @@ const offerStorage = multer.diskStorage({
   }
 });
 
-const documentUpload = multer({ storage, fileFilter });
+const DOC_SIZE_LIMIT   = 10 * 1024 * 1024; // 10 MB
+const IMAGE_SIZE_LIMIT =  5 * 1024 * 1024; //  5 MB
+
+const documentUpload = multer({ storage, fileFilter, limits: { fileSize: DOC_SIZE_LIMIT } });
 module.exports = documentUpload;
-module.exports.avatar = multer({ storage: avatarStorage, fileFilter: imageFilter });
-module.exports.org    = multer({ storage: orgStorage,    fileFilter: imageFilter });
-module.exports.offer  = multer({ storage: offerStorage,  fileFilter: imageFilter });
+module.exports.avatar = multer({ storage: avatarStorage, fileFilter: imageFilter, limits: { fileSize: IMAGE_SIZE_LIMIT } });
+module.exports.org    = multer({ storage: orgStorage,    fileFilter: imageFilter, limits: { fileSize: IMAGE_SIZE_LIMIT } });
+module.exports.offer  = multer({ storage: offerStorage,  fileFilter: imageFilter, limits: { fileSize: IMAGE_SIZE_LIMIT } });

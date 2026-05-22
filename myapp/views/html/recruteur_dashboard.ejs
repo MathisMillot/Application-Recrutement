@@ -34,9 +34,19 @@
     <main class="admin-main">
 
       <div class="admin-header">
-        <h1>Bonjour <%= user.prenom %> 👋</h1>
+        <h1>Bonjour <%= user.prenom %></h1>
         <span class="admin-header__user">Recruteur</span>
       </div>
+
+      <% if (error === 'seul-membre') { %>
+        <div style="background:#fee2e2;color:#b91c1c;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:14px;">
+          Vous êtes le seul membre de cette organisation et ne pouvez pas la quitter. Demandez sa suppression à la place.
+        </div>
+      <% } else if (error === 'suppression-deja-demandee') { %>
+        <div style="background:#fff3cd;color:#856404;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:14px;">
+          Une demande de suppression est déjà en attente pour cette organisation.
+        </div>
+      <% } %>
 
       <!-- Stats -->
       <div class="stats-row">
@@ -97,6 +107,19 @@
                   <%= org.adhesion_statut === 'ATTENTE' ? 'Annuler' : 'Quitter' %>
                 </button>
               </form>
+              <% if (org.adhesion_statut === 'ACCEPTEE') { %>
+                <% const deletionPending = pendingDeletionSirens.includes(String(org.siren)); %>
+                <% if (deletionPending) { %>
+                  <span style="font-size:11px; color:#b91c1c; font-weight:600; padding:4px 8px; background:#fee2e2; border-radius:6px;">Suppression demandée</span>
+                <% } else { %>
+                  <form method="POST" action="/recruteur/organisation/<%= org.siren %>/demander-suppression" style="margin:0;"
+                        onsubmit="return confirm('Demander la suppression de cette organisation ? Un administrateur devra valider.')">
+                    <button type="submit" class="btn" style="height:28px; font-size:11px; padding:0 10px; background:#fff0f0; color:#b91c1c; border:1px solid #fca5a5;">
+                      Supprimer l'org
+                    </button>
+                  </form>
+                <% } %>
+              <% } %>
             </div>
           </div>
           <% }); %>

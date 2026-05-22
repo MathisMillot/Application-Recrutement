@@ -1,7 +1,9 @@
 const db = require('./db');
 const bcrypt = require('bcrypt');
 
-db.query('ALTER TABLE Utilisateur ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE Utilisateur ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch((err) => {
+  if (!err.message.includes('Duplicate column')) console.warn('Migration Utilisateur:', err.message);
+});
 
 
 module.exports = {
@@ -47,15 +49,7 @@ module.exports = {
     return rows[0]; // Retourne l'utilisateur s'il existe, sinon undefined
   },
 
-  async areValid(email, mdp) {
-    const [rows] = await db.query(
-      'SELECT mdp FROM Utilisateur WHERE email = ?',
-      [email]
-    );
-    return rows.length === 1 && rows[0].mdp === mdp;
-  },
-
-  async findByCredentials(email, mdp) {//change name
+  async findAndCheckByCredentials(email, mdp) {
     const [rows] = await db.query(`
       SELECT u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.statut, u.photo_profil, u.mdp,
         CASE
@@ -71,6 +65,7 @@ module.exports = {
     if (!rows[0]) return null;
     const valide = await bcrypt.compare(mdp, rows[0].mdp);
     if (!valide) return null;
+    if (rows[0].statut === 'INACTIF') return { inactive: true };
     const { mdp: _, ...user } = rows[0];
     return user;
   },
@@ -104,11 +99,10 @@ module.exports = {
   },
 
   async addDocument(id_user, filename) {
-    const docs = await this.getDocuments(id_user);
-    docs.push(filename);
     await db.query(
-      'INSERT INTO Candidat (id_user, documents) VALUES (?, ?) ON DUPLICATE KEY UPDATE documents = ?',
-      [id_user, JSON.stringify(docs), JSON.stringify(docs)]
+      `INSERT INTO Candidat (id_user, documents) VALUES (?, JSON_ARRAY(?))
+       ON DUPLICATE KEY UPDATE documents = JSON_ARRAY_APPEND(COALESCE(documents, '[]'), '$', ?)`,
+      [id_user, filename, filename]
     );
   },
 
@@ -126,12 +120,13 @@ module.exports = {
       LEFT JOIN Recruteur r ON u.id_user = r.id_user
       WHERE u.email = ?
     `, [email]);
-    if (rows[0]) return rows[0];
+    if (rows[0]) return rows[0].statut === 'INACTIF' ? { inactive: true } : rows[0];
     const nom = profile.name.familyName || '';
     const prenom = profile.name.givenName || '';
+    const randomHash = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
     const [result] = await db.query(
       'INSERT INTO Utilisateur (nom, prenom, email, mdp, num_tel, statut) VALUES (?, ?, ?, ?, ?, ?)',
-      [nom, prenom, email, '', '', 'ACTIF']
+      [nom, prenom, email, randomHash, '', 'ACTIF']
     );
     const id_user = result.insertId;
     await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
@@ -182,22 +177,33 @@ module.exports = {
         err.status = 409;
         throw err;
       }
-      if (orgs[0].n > 0)
-        await db.query('UPDATE Organisation SET id_admin_createur = ? WHERE id_admin_createur = ?', [newAdminId, id_user]);
-      if (recs[0].n > 0)
-        await db.query('UPDATE Recruteur SET id_admin_validateur = ? WHERE id_admin_validateur = ?', [newAdminId, id_user]);
     }
-    await db.query('DELETE FROM Candidature WHERE id_candidat = ?', [id_user]);
-    await db.query('DELETE FROM Appartient WHERE id_recruteur = ?', [id_user]);
-    await db.query('DELETE FROM Admin WHERE id_user = ?', [id_user]);
-    await db.query('DELETE FROM Recruteur WHERE id_user = ?', [id_user]);
-    await db.query('DELETE FROM Candidat WHERE id_user = ?', [id_user]);
-    if (newRole === 'Admin') {
-      await db.query('INSERT INTO Admin (id_user) VALUES (?)', [id_user]);
-    } else if (newRole === 'Recruteur') {
-      await db.query('INSERT INTO Recruteur (id_user, id_admin_validateur) VALUES (?, ?)', [id_user, validatorAdminId]);
-    } else {
-      await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
+
+    const conn = await db.getConnection();
+    await conn.beginTransaction();
+    try {
+      if (orgs[0].n > 0)
+        await conn.query('UPDATE Organisation SET id_admin_createur = ? WHERE id_admin_createur = ?', [newAdminId, id_user]);
+      if (recs[0].n > 0)
+        await conn.query('UPDATE Recruteur SET id_admin_validateur = ? WHERE id_admin_validateur = ?', [newAdminId, id_user]);
+      await conn.query('DELETE FROM Candidature WHERE id_candidat = ?', [id_user]);
+      await conn.query('DELETE FROM Appartient WHERE id_recruteur = ?', [id_user]);
+      await conn.query('DELETE FROM Admin WHERE id_user = ?', [id_user]);
+      await conn.query('DELETE FROM Recruteur WHERE id_user = ?', [id_user]);
+      await conn.query('DELETE FROM Candidat WHERE id_user = ?', [id_user]);
+      if (newRole === 'Admin') {
+        await conn.query('INSERT INTO Admin (id_user) VALUES (?)', [id_user]);
+      } else if (newRole === 'Recruteur') {
+        await conn.query('INSERT INTO Recruteur (id_user, id_admin_validateur) VALUES (?, ?)', [id_user, validatorAdminId]);
+      } else {
+        await conn.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
+      }
+      await conn.commit();
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
     }
   }
 

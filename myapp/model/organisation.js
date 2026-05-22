@@ -4,6 +4,15 @@ db.query('ALTER TABLE Organisation ADD COLUMN photo_profil VARCHAR(255) DEFAULT 
 db.query('ALTER TABLE Organisation MODIFY COLUMN id_admin_createur INT DEFAULT NULL').catch(() => {});
 db.query("UPDATE Organisation SET validation = 'OUI' WHERE validation = 'ATTENTE' AND id_admin_createur IS NOT NULL").catch(() => {});
 db.query("ALTER TABLE Appartient ADD COLUMN statut VARCHAR(10) NOT NULL DEFAULT 'ACCEPTEE'").catch(() => {});
+db.query(`CREATE TABLE IF NOT EXISTS DemandeSuppressionOrg (
+  id_demande         INT          AUTO_INCREMENT PRIMARY KEY,
+  siren_organisation INT          NOT NULL,
+  id_recruteur       INT          NOT NULL,
+  date_demande       DATE         NOT NULL,
+  statut             VARCHAR(10)  NOT NULL DEFAULT 'ATTENTE',
+  FOREIGN KEY (siren_organisation) REFERENCES Organisation(siren),
+  FOREIGN KEY (id_recruteur)       REFERENCES Recruteur(id_user)
+)`).catch(() => {});
 
 module.exports = {
 
@@ -144,6 +153,82 @@ module.exports = {
       "INSERT INTO Appartient (id_recruteur, siren_organisation, statut) VALUES (?, ?, 'ACCEPTEE') ON DUPLICATE KEY UPDATE statut='ACCEPTEE'",
       [id_recruteur, siren]
     );
+  },
+
+  async requestDeletion(siren, id_recruteur) {
+    await db.query(
+      "INSERT INTO DemandeSuppressionOrg (siren_organisation, id_recruteur, date_demande, statut) VALUES (?, ?, CURDATE(), 'ATTENTE')",
+      [siren, id_recruteur]
+    );
+  },
+
+  async hasPendingDeletion(siren, id_recruteur) {
+    const [rows] = await db.query(
+      "SELECT 1 FROM DemandeSuppressionOrg WHERE siren_organisation = ? AND id_recruteur = ? AND statut = 'ATTENTE' LIMIT 1",
+      [siren, id_recruteur]
+    );
+    return rows.length > 0;
+  },
+
+  async pendingDeletionSirens(id_recruteur) {
+    const [rows] = await db.query(
+      "SELECT siren_organisation FROM DemandeSuppressionOrg WHERE id_recruteur = ? AND statut = 'ATTENTE'",
+      [id_recruteur]
+    );
+    return rows.map(r => String(r.siren_organisation));
+  },
+
+  async readPendingDeletions() {
+    const [rows] = await db.query(`
+      SELECT d.id_demande, d.siren_organisation, d.date_demande,
+             org.nom AS org_nom, org.type AS org_type,
+             u.nom AS recruteur_nom, u.prenom AS recruteur_prenom, u.email AS recruteur_email
+      FROM DemandeSuppressionOrg d
+      JOIN Organisation org ON d.siren_organisation = org.siren
+      JOIN Utilisateur u   ON d.id_recruteur = u.id_user
+      WHERE d.statut = 'ATTENTE'
+      ORDER BY d.date_demande DESC
+    `);
+    return rows;
+  },
+
+  async acceptDeletion(id_demande) {
+    await db.query(
+      "UPDATE DemandeSuppressionOrg SET statut = 'ACCEPTEE' WHERE id_demande = ?",
+      [id_demande]
+    );
+  },
+
+  async rejectDeletion(id_demande) {
+    await db.query(
+      "UPDATE DemandeSuppressionOrg SET statut = 'REJETEE' WHERE id_demande = ?",
+      [id_demande]
+    );
+  },
+
+  async deleteOrg(siren) {
+    const conn = await db.getConnection();
+    await conn.beginTransaction();
+    try {
+      await conn.query(`DELETE dc FROM DocumentsCandidature dc
+        JOIN Candidature c ON dc.id_candidature = c.id_candidature
+        JOIN OffreEmploi o ON c.id_offre = o.id_offre
+        WHERE o.siren_organisation = ?`, [siren]);
+      await conn.query(`DELETE c FROM Candidature c
+        JOIN OffreEmploi o ON c.id_offre = o.id_offre
+        WHERE o.siren_organisation = ?`, [siren]);
+      await conn.query('DELETE FROM OffreEmploi WHERE siren_organisation = ?', [siren]);
+      await conn.query('DELETE FROM FicheDePoste WHERE siren_organisation = ?', [siren]);
+      await conn.query('DELETE FROM Appartient WHERE siren_organisation = ?', [siren]);
+      await conn.query('DELETE FROM DemandeSuppressionOrg WHERE siren_organisation = ?', [siren]);
+      await conn.query('DELETE FROM Organisation WHERE siren = ?', [siren]);
+      await conn.commit();
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
   }
 
 };

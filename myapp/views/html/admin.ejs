@@ -194,6 +194,89 @@
       </div>
       <% } %>
 
+      <!-- Demandes de suppression d'organisation -->
+      <% if (pendingDeletions && pendingDeletions.length > 0) { %>
+      <div class="section-card" style="border-left: 4px solid #ef4444; margin-bottom: 24px;">
+        <h2 style="margin-bottom:16px;">
+          Demandes de suppression d'organisation
+          <span style="background:#ef4444;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;"><%= pendingDeletions.length %></span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Organisation</th>
+              <th>SIREN</th>
+              <th>Type</th>
+              <th>Demandé par</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pendingDeletions.forEach(function(d) { %>
+            <tr>
+              <td><strong><%= d.org_nom %></strong></td>
+              <td class="text-muted"><%= d.siren_organisation %></td>
+              <td><%= d.org_type || '—' %></td>
+              <td>
+                <%= d.recruteur_prenom %> <%= d.recruteur_nom %>
+                <span style="display:block;font-size:11px;color:#aaa;"><%= d.recruteur_email %></span>
+              </td>
+              <td class="text-muted"><%= new Date(d.date_demande).toLocaleDateString('fr-FR') %></td>
+              <td>
+                <div style="display:flex;gap:8px;">
+                  <form method="POST" action="/admin/demandes-suppression/<%= d.id_demande %>/accepter" style="margin:0;"
+                        onsubmit="return confirm('Supprimer définitivement l\'organisation <%= d.org_nom %> ? Cette action est irréversible.')">
+                    <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Supprimer</button>
+                  </form>
+                  <form method="POST" action="/admin/demandes-suppression/<%= d.id_demande %>/rejeter" style="margin:0;">
+                    <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#f3f4f6;color:#374151;">Rejeter</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+
+      <!-- Organisations -->
+      <div class="section-card" style="margin-bottom: 24px;">
+        <h2 style="margin-bottom:16px;">Organisations</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>SIREN</th>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% organisations.forEach(function(org) { %>
+            <tr>
+              <td class="text-muted"><%= org.siren %></td>
+              <td><strong><%= org.nom %></strong></td>
+              <td><%= org.type || '—' %></td>
+              <td>
+                <span class="badge badge--<%= org.validation === 'OUI' ? 'publiee' : org.validation === 'NON' ? 'expiree' : 'inactive' %>">
+                  <%= org.validation === 'OUI' ? 'Validée' : org.validation === 'NON' ? 'Refusée' : 'En attente' %>
+                </span>
+              </td>
+              <td>
+                <form method="POST" action="/admin/organisations/<%= org.siren %>/supprimer" style="margin:0;"
+                      onsubmit="return confirm('Supprimer définitivement l\'organisation <%= org.nom %> ainsi que toutes ses offres et candidatures ? Cette action est irréversible.')">
+                  <button type="submit" class="btn" style="height:28px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Supprimer</button>
+                </form>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
       <!-- Table utilisateurs -->
       <div class="section-card">
         <h2>Utilisateurs</h2>

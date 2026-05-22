@@ -20,7 +20,11 @@ module.exports = {
     const [rows] = await db.query(
       `SELECT c.id_candidature, c.date, c.id_candidat, c.id_offre,
               COALESCE(f.intitule, o.description) AS offre_description, o.statut,
-              org.nom AS organisation
+              org.nom AS organisation, org.photo_profil AS organisation_photo,
+              COALESCE(f.photo, o.photo) AS photo,
+              COALESCE(f.lieu, o.localisation) AS lieu,
+              COALESCE(f.type_contrat, o.type_contrat) AS type_contrat,
+              COALESCE(f.remote, o.remote) AS remote
        FROM Candidature c
        LEFT JOIN OffreEmploi o ON c.id_offre = o.id_offre
        LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
@@ -39,10 +43,18 @@ module.exports = {
     return rows[0];
   },
 
-  async create(id_candidat, id_offre) {
-    const [result] = await db.query(
-      'INSERT INTO Candidature (date, id_candidat, id_offre) VALUES (CURDATE(), ?, ?)',
+  async existsForOffre(id_candidat, id_offre) {
+    const [rows] = await db.query(
+      'SELECT 1 FROM Candidature WHERE id_candidat = ? AND id_offre = ? LIMIT 1',
       [id_candidat, id_offre]
+    );
+    return rows.length > 0;
+  },
+
+  async create(id_candidat, id_offre, cv, lm, dispo) {
+    const [result] = await db.query(
+      'INSERT INTO Candidature (date, id_candidat, id_offre, cv, lm, dispo) VALUES (CURDATE(), ?, ?, ?, ?, ?)',
+      [id_candidat, id_offre, cv || null, lm || null, dispo || null]
     );
     return result.insertId;
   },
@@ -57,7 +69,7 @@ module.exports = {
 
   async readByOffre(id_offre) {
     const [rows] = await db.query(`
-      SELECT c.id_candidature, c.date,
+      SELECT c.id_candidature, c.date, c.cv, c.lm, c.dispo,
              u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.photo_profil
       FROM Candidature c
       JOIN Candidat ca ON c.id_candidat = ca.id_user

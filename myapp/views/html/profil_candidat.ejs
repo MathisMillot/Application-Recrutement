@@ -305,7 +305,7 @@
             <span style="font-size:13px; color:var(--color-medium)">Aucun document déposé</span>
             <% } else { %>
               <% documents.forEach(function(doc) { %>
-                <a href="/uploads/<%= doc %>" target="_blank">
+                <a href="/uploads/<%= doc %>" target="_blank" style="word-break:break-all; overflow-wrap:break-word;">
                   <%= doc %>
                 </a>
                 <% }); %>
@@ -360,28 +360,42 @@
             <div class="candidatures-grid">
               <% candidatures.forEach(function(c) { %>
                 <div class="job-card">
-                  <div class="job-card__img-placeholder"></div>
+                  <% if (c.photo) { %>
+                    <img src="/uploads/<%= c.photo %>" alt="<%= c.offre_description %>"
+                      style="width:100%; height:140px; object-fit:cover; display:block;" />
+                  <% } else { %>
+                    <div class="job-card__img-placeholder"></div>
+                  <% } %>
                   <div class="job-card__body">
                     <p class="job-card__title">
                       <%= c.offre_description || 'Offre #' + c.id_offre %>
                     </p>
                     <% if (c.organisation) { %>
                       <div class="job-card__company">
-                        <div class="company-logo">
-                          <%= c.organisation.substring(0,2).toUpperCase() %>
-                        </div>
-                        <span>
-                          <%= c.organisation %>
-                        </span>
+                        <% if (c.organisation_photo) { %>
+                          <img src="/uploads/<%= c.organisation_photo %>" alt="<%= c.organisation %>"
+                            style="width:22px;height:22px;border-radius:4px;object-fit:cover;flex-shrink:0;" />
+                        <% } else { %>
+                          <div class="company-logo">
+                            <%= c.organisation.substring(0,2).toUpperCase() %>
+                          </div>
+                        <% } %>
+                        <span><%= c.organisation %></span>
                       </div>
+                    <% } %>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:2px;">
+                      <% if (c.lieu) { %>
+                        <span class="tag" style="font-size:11px;">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          <%= c.lieu %>
+                        </span>
                       <% } %>
-                        <div class="job-card__tags">
-                          <% if (c.statut) { %><span class="tag">
-                              <%= c.statut %>
-                            </span>
-                            <% } %>
-                              <span class="tag">Postulé le <%= new Date(c.date).toLocaleDateString('fr-FR') %></span>
-                        </div>
+                      <% if (c.type_contrat) { %><span class="tag" style="font-size:11px;"><%= c.type_contrat %></span><% } %>
+                      <% if (c.remote) { %><span class="tag" style="font-size:11px;"><%= c.remote %></span><% } %>
+                    </div>
+                    <div class="job-card__tags">
+                      <span class="tag">Postulé le <%= new Date(c.date).toLocaleDateString('fr-FR') %></span>
+                    </div>
                   </div>
                 </div>
                 <% }); %>

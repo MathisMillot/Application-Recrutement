@@ -210,14 +210,20 @@
 
   <!-- Carte login -->
   <div class="login-card">
-    <% if (typeof error !=='undefined' && error==='credentials' ) { %>
-      <div
-        style="background-color: #ffcdd2; color: #c62828; padding: 12px; border-radius: 8px; font-weight: 500; font-size: 14px; text-align: center; margin-bottom: 16px;">
+    <% if (error === 'credentials') { %>
+      <div style="background-color:#ffcdd2; color:#c62828; padding:12px; border-radius:8px; font-weight:500; font-size:14px; text-align:center;">
         Adresse email ou mot de passe incorrect.
       </div>
-      <% } %>
+    <% } else if (error === 'inactive') { %>
+      <div style="background-color:#fff3cd; color:#856404; padding:12px; border-radius:8px; font-weight:500; font-size:14px; text-align:center;">
+        Votre compte est désactivé. Contactez un administrateur.
+      </div>
+    <% } else if (error === 'ratelimit') { %>
+      <div style="background-color:#ffcdd2; color:#c62828; padding:12px; border-radius:8px; font-weight:500; font-size:14px; text-align:center;">
+        Trop de tentatives de connexion. Réessayez dans 15 minutes.
+      </div>
+    <% } %>
         <form method="POST" action="/login">
-          <form method="POST" action="/login">
             <div class="form-group">
               <label for="email">Email</label>
               <input type="email" id="email" name="email" required />

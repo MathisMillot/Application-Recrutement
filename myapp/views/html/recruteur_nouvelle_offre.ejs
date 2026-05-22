@@ -166,7 +166,13 @@
       }
 
       const tagsEl = document.getElementById('previewTags');
-      tagsEl.innerHTML = tags.map(t => `<span class="tag">${t}</span>`).join('');
+      tagsEl.textContent = '';
+      tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.textContent = t;
+        tagsEl.appendChild(span);
+      });
       preview.style.display = 'block';
     }
   </script>

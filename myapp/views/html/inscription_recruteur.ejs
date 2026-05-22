@@ -147,6 +147,7 @@
       <p style="color:#e53935; font-size:14px; text-align:center;">
         <% if (error === 'mdp') { %>Les mots de passe ne correspondent pas.<% } %>
         <% if (error === 'email') { %>Cette adresse email est déjà utilisée.<% } %>
+        <% if (error === 'mdp-court') { %>Le mot de passe doit contenir au moins 8 caractères.<% } %>
       </p>
     <% } %>
 

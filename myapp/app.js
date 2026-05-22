@@ -30,7 +30,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
-  cookie: { httpOnly: true }
+  cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' }
 }));
 
 passport.use(new GoogleStrategy({
@@ -40,6 +40,7 @@ passport.use(new GoogleStrategy({
 }, async (_accessToken, _refreshToken, profile, done) => {
   try {
     const user = await utilisateur.findOrCreateByGoogle(profile);
+    if (user && user.inactive) return done(null, false);
     done(null, user);
   } catch (err) {
     done(err);
@@ -73,13 +74,21 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
+// Multer error handler (file too large, wrong type)
+app.use(function(err, req, res, next) {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).send('Fichier trop volumineux. Taille maximale : 10 Mo pour les documents, 5 Mo pour les images.');
+  }
+  if (err.message && (err.message.includes('PDF') || err.message.includes('image'))) {
+    return res.status(400).send(err.message);
+  }
+  next(err);
+});
+
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });

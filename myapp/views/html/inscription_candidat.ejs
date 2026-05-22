@@ -166,6 +166,8 @@
           Cet email est déjà utilisé par un autre compte.
         <% } else if (error === 'mdp') { %>
           Les mots de passe ne correspondent pas.
+        <% } else if (error === 'mdp-court') { %>
+          Le mot de passe doit contenir au moins 8 caractères.
         <% } %>
       </div>
     <% } %>
