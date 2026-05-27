@@ -3,7 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "jest"
+  },
+  "jest": {
+    "collectCoverage": true
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -15,10 +19,12 @@
     "express-mysql-session": "^3.0.3",
     "express-session": "^1.19.0",
     "http-errors": "~1.6.3",
+    "jest": "^30.4.2",
     "morgan": "~1.9.1",
     "multer": "^2.1.1",
     "mysql2": "^3.20.0",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "save-dev": "^0.0.1-security"
   }
 }
