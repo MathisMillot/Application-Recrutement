@@ -1,0 +1,453 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{colortbl}
+
+\geometry{margin=2.5cm}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codekey}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{163,21,21}
+\definecolor{codecomment}{RGB}{0,128,0}
+\definecolor{okgreen}{RGB}{0,150,0}
+\definecolor{warnred}{RGB}{180,0,0}
+\definecolor{rowgray}{RGB}{240,240,240}
+
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekey}\bfseries,
+  stringstyle=\color{codestr},
+  commentstyle=\color{codecomment}\itshape,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{gray!40},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  tabsize=2,
+  showstringspaces=false,
+  language=JavaScript
+}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\title{\textbf{Rapport TD5 -- SR10}\\
+\large Qualité de code -- Tests unitaires et tests de routes\\[4pt]
+\normalsize Projet \textit{Landr} -- Plateforme de recrutement}
+\author{Mathis Millot \& Romain Pierre}
+\date{Mai 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+{\large\bfseries Table des matières}\\[1em]
+\noindent\textbf{Exercice 1 -- Tests unitaires du modèle utilisateur}\dotfill\textbf{2}\\[2pt]
+\noindent\hspace{1.5em}Configuration et structure\dotfill 2\\[2pt]
+\noindent\hspace{1.5em}Méthodes testées\dotfill 2\\[2pt]
+\noindent\hspace{1.5em}Résultats de couverture\dotfill 3\\[6pt]
+\noindent\textbf{Exercice 2 -- Tests des routes avec supertest}\dotfill\textbf{4}\\[2pt]
+\noindent\hspace{1.5em}Routes publiques et API JSON\dotfill 4\\[2pt]
+\noindent\hspace{1.5em}Routes protégées par session\dotfill 4\\[2pt]
+\noindent\hspace{1.5em}Routes POST et flux multi-étapes\dotfill 5\\[2pt]
+\noindent\hspace{1.5em}CRUD recruteur et candidatures\dotfill 6\\[2pt]
+\noindent\hspace{1.5em}Rate limiting -- problème et solution\dotfill 7\\[6pt]
+\noindent\textbf{Bilan de couverture}\dotfill\textbf{7}\\[6pt]
+\noindent\textbf{Conclusion}\dotfill\textbf{8}
+\newpage
+
+% ─────────────────────────────────────────────────────────────────
+\section{Exercice 1 -- Tests unitaires du modèle utilisateur}
+
+\subsection{Configuration et structure}
+
+La configuration Jest dans \texttt{package.json} active la collecte de couverture et force la fermeture du processus après les tests :
+
+\begin{lstlisting}
+"scripts": { "test": "jest --forceExit" },
+"jest":    { "collectCoverage": true }
+\end{lstlisting}
+
+Les tests utilisent la vraie base de données. Un utilisateur de test est créé en \texttt{beforeAll} avec un email unique (horodaté) et supprimé en \texttt{afterAll} :
+
+\begin{lstlisting}
+const TS         = Date.now();
+const TEST_EMAIL = `jest_${TS}@jest.local`;
+let   testUserId = null;
+
+beforeAll(async () => {
+  testUserId = await utilisateur.create(
+    'TestNom', 'TestPrenom', TEST_EMAIL, 'TestMdp123!', '0600000000'
+  );
+});
+
+afterAll(async () => {
+  await DB.query('DELETE FROM Candidat    WHERE id_user = ?', [testUserId]);
+  await DB.query('DELETE FROM Utilisateur WHERE id_user = ?', [testUserId]);
+  await DB.end();
+});
+\end{lstlisting}
+
+\subsection{Méthodes testées}
+
+Pour chaque méthode, on teste le cas nominal et les cas d'erreur. Exemple avec \texttt{findAndCheckByCredentials} :
+
+\begin{lstlisting}
+describe('findAndCheckByCredentials', () => {
+  test('retourne null si email inexistant', async () => {
+    const result = await utilisateur.findAndCheckByCredentials(
+      'inconnu@jest.local', 'mdp'
+    );
+    expect(result).toBeNull();
+  });
+
+  test('retourne null si mot de passe incorrect', async () => {
+    expect(await utilisateur.findAndCheckByCredentials(
+      TEST_EMAIL, 'mauvaismdp'
+    )).toBeNull();
+  });
+
+  test('retourne { inactive: true } si compte INACTIF', async () => {
+    await utilisateur.setStatut(testUserId, 'INACTIF');
+    expect(await utilisateur.findAndCheckByCredentials(TEST_EMAIL, 'TestMdp123!'))
+      .toEqual({ inactive: true });
+    await utilisateur.setStatut(testUserId, 'ACTIF');
+  });
+});
+\end{lstlisting}
+
+Tableau récapitulatif des méthodes testées :
+
+\vspace{0.5em}
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Méthode} & \textbf{Cas testés} \\
+\midrule
+\rowcolor{rowgray}
+\texttt{readAll()} & tableau non vide, utilisateur présent \\
+\texttt{read(id)} & id valide, id inexistant \\
+\rowcolor{rowgray}
+\texttt{findByEmail()} & email existant, email inconnu \\
+\texttt{findAndCheckByCredentials()} & email inconnu, mauvais mdp, valide, inactif \\
+\rowcolor{rowgray}
+\texttt{update()} & mise à jour réussie, id inexistant \\
+\texttt{getDocuments() / addDocument()} & liste vide, ajout et récupération \\
+\rowcolor{rowgray}
+\texttt{setPhoto()} & mise à jour de la photo \\
+\texttt{setStatut()} & passage INACTIF puis ACTIF \\
+\rowcolor{rowgray}
+\texttt{findOrCreateByGoogle()} & création, récupération existant, inactif \\
+\texttt{createRecruteur()} & sans organisation, avec organisation \\
+\rowcolor{rowgray}
+\texttt{changeRole()} & vers Admin, vers Recruteur, réassignation FK \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Résultats de couverture}
+
+\vspace{0.5em}
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Fichier} & \textbf{Stmts} & \textbf{Branches} & \textbf{Fonctions} & \textbf{Lignes} \\
+\midrule
+\texttt{utilisateur.js} & 95\% & 85\% & \textcolor{okgreen}{\textbf{100\%}} & \textcolor{okgreen}{\textbf{96\%}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\newpage
+% ─────────────────────────────────────────────────────────────────
+\section{Exercice 2 -- Tests des routes avec supertest}
+
+Les tests de routes utilisent la vraie base de données. Après installation de \texttt{supertest}, les tests sont placés dans \texttt{test/route.test.js}. Trois utilisateurs de test (candidat, admin, recruteur) sont créés dans le \texttt{beforeAll} global et supprimés dans \texttt{afterAll}.
+
+\subsection{Routes publiques et API JSON}
+
+Les routes sans authentification sont testées directement avec \texttt{request(app)} :
+
+\begin{lstlisting}
+test('GET / repond 200 avec du HTML', async () => {
+  const res = await request(app).get('/');
+  expect(res.statusCode).toBe(200);
+  expect(res.headers['content-type']).toMatch(/html/);
+});
+
+describe('GET /offres', () => {
+  test('repond 200 sans filtre', async () => {
+    const res = await request(app).get('/offres');
+    expect(res.statusCode).toBe(200);
+  });
+  test('repond 200 avec filtre q', async () => {
+    const res = await request(app).get('/offres?q=developpeur');
+    expect(res.statusCode).toBe(200);
+  });
+});
+\end{lstlisting}
+
+Pour la route JSON \texttt{/api/organisation/check}, on vérifie le contenu du corps :
+
+\begin{lstlisting}
+test('retourne { exists: false } si aucun siren', async () => {
+  const res = await request(app).get('/api/organisation/check');
+  expect(res.headers['content-type']).toMatch(/json/);
+  expect(res.body).toEqual({ exists: false });
+});
+
+test('retourne { exists: true, nom } si organisation trouvee', async () => {
+  const res = await request(app)
+    .get(`/api/organisation/check?siren=${TEST_SIREN}`);
+  expect(res.body.exists).toBe(true);
+  expect(res.body.nom).toBe('OrgRouteTest');
+});
+\end{lstlisting}
+
+\subsection{Routes protégées par session}
+
+Sans session, les routes protégées renvoient une redirection :
+
+\begin{lstlisting}
+test('GET /admin redirige vers /connection', async () => {
+  const res = await request(app).get('/admin');
+  expect(res.statusCode).toBe(302);
+  expect(res.headers.location).toBe('/connection');
+});
+\end{lstlisting}
+
+Avec un mauvais rôle, \texttt{isAdmin} renvoie un 403 :
+
+\begin{lstlisting}
+test('GET /admin repond 403 pour un candidat connecte', async () => {
+  const res = await candidatAgent.get('/admin');
+  expect(res.statusCode).toBe(403);
+});
+\end{lstlisting}
+
+Pour tester les routes avec session, on utilise \texttt{request.agent(app)} qui maintient les cookies entre les requêtes :
+
+\begin{lstlisting}
+describe('Routes candidat avec session', () => {
+  test('GET /profil_candidat repond 200', async () => {
+    const res = await candidatAgent.get('/profil_candidat');
+    expect(res.statusCode).toBe(200);
+  });
+
+  test('POST /modifier_profil redirige vers /profil_candidat', async () => {
+    const res = await candidatAgent.post('/modifier_profil')
+      .type('form')
+      .send({ nom: 'Nouveau', prenom: 'Prenom',
+              email: CANDIDAT_EMAIL, num_tel: '0700000000' });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe('/profil_candidat');
+  });
+});
+\end{lstlisting}
+
+\subsection{Routes POST et flux multi-étapes}
+
+Les routes POST d'inscription testent la validation des données et les appels aux méthodes du modèle :
+
+\begin{lstlisting}
+describe('POST /inscription/etape1', () => {
+  test('redirige si mot de passe trop court', async () => {
+    const res = await request(app).post('/inscription/etape1')
+      .type('form').send({ email: 'a@a.fr', mdp: 'court', confirm: 'court' });
+    expect(res.headers.location).toContain('mdp-court');
+  });
+
+  test('redirige si email deja utilise (appelle findByEmail)', async () => {
+    const res = await request(app).post('/inscription/etape1')
+      .type('form')
+      .send({ email: CANDIDAT_EMAIL, mdp: 'mdp12345', confirm: 'mdp12345' });
+    expect(res.headers.location).toContain('error=email');
+  });
+
+  test('redirige vers /informations_personnelles si donnees valides', async () => {
+    const res = await request(app).post('/inscription/etape1')
+      .type('form')
+      .send({ email: `route_${TS}@jest.local`, mdp: 'mdp12345', confirm: 'mdp12345' });
+    expect(res.headers.location).toBe('/informations_personnelles');
+  });
+});
+\end{lstlisting}
+
+Le flux multi-étapes est testé avec un agent qui conserve la session entre les étapes :
+
+\begin{lstlisting}
+describe('Flux inscription candidat (etapes 2 et 3)', () => {
+  const agent = request.agent(app);
+  let createdUserId = null;
+
+  afterAll(async () => {
+    if (createdUserId) {
+      await DB.query('DELETE FROM Candidat    WHERE id_user = ?', [createdUserId]);
+      await DB.query('DELETE FROM Utilisateur WHERE id_user = ?', [createdUserId]);
+    }
+  });
+
+  test('etape2 stocke en session et redirige', async () => {
+    await agent.post('/inscription/etape1').type('form')
+      .send({ email: INS_EMAIL, mdp: 'mdp12345', confirm: 'mdp12345' });
+    const res = await agent.post('/inscription/etape2').type('form')
+      .send({ nom: 'Nom', prenom: 'Prenom', num_tel: '0600000000' });
+    expect(res.headers.location).toBe('/profil_professionnel');
+  });
+
+  test('etape3 cree l\'utilisateur et redirige', async () => {
+    const res = await agent.post('/inscription/etape3').type('form').send({});
+    expect(res.headers.location).toBe('/profil_candidat');
+    const user = await utilisateur.findByEmail(INS_EMAIL);
+    if (user) createdUserId = user.id_user;
+  });
+});
+\end{lstlisting}
+
+\subsection{CRUD recruteur et candidatures}
+
+Pour tester les routes recruteur de gestion de fiches et d'offres, une organisation de test est insérée directement en base dans le \texttt{beforeAll} :
+
+\begin{lstlisting}
+beforeAll(async () => {
+  await DB.query(
+    'INSERT INTO Organisation (siren, nom, type, siege_social, validation,
+     id_admin_createur) VALUES (?, ?, ?, ?, ?, ?)',
+    [SIREN_REC_CRUD, 'OrgRecCRUD', 'Entreprise', '', 'OUI', adminId]
+  );
+  await DB.query(
+    "INSERT INTO Appartient (siren_organisation, id_recruteur, statut)
+     VALUES (?, ?, 'ACCEPTEE')", [SIREN_REC_CRUD, recruteurId]
+  );
+});
+\end{lstlisting}
+
+Les tests CRUD s'enchaînent en réutilisant les IDs créés par les tests précédents :
+
+\begin{lstlisting}
+let ficheId = null;
+let offreId = null;
+
+test('POST /recruteur/fiches/nouvelle cree une fiche', async () => {
+  const res = await recruteurAgent.post('/recruteur/fiches/nouvelle')
+    .type('form').send({ intitule: 'Dev', ..., siren_organisation: SIREN_REC_CRUD });
+  expect(res.statusCode).toBe(302);
+  const [[fiche]] = await DB.query(
+    'SELECT id_fiche FROM FicheDePoste WHERE siren_organisation = ?
+     ORDER BY id_fiche DESC LIMIT 1', [SIREN_REC_CRUD]
+  );
+  ficheId = fiche.id_fiche;
+});
+
+test('GET /recruteur/fiches/:id/modifier repond 200', async () => {
+  expect(ficheId).not.toBeNull();
+  const res = await recruteurAgent.get(`/recruteur/fiches/${ficheId}/modifier`);
+  expect(res.statusCode).toBe(200);
+});
+\end{lstlisting}
+
+Pour la route \texttt{POST /candidature} qui utilise Multer, les données sont envoyées en multipart avec \texttt{.field()} :
+
+\begin{lstlisting}
+test('POST /candidature cree et affiche la confirmation', async () => {
+  const res = await candidatAgent.post('/candidature')
+    .field('id_offre', String(offreIdCand));
+  expect(res.statusCode).toBe(200);
+});
+
+test('POST /candidature redirige si deja candidate', async () => {
+  const res = await candidatAgent.post('/candidature')
+    .field('id_offre', String(offreIdCand));
+  expect(res.statusCode).toBe(302);
+  expect(res.headers.location).toBe('/profil_candidat');
+});
+\end{lstlisting}
+
+\subsection{Rate limiting -- problème et solution}
+
+La route \texttt{POST /login} bloque les connexions après 10 tentatives par IP sur 15 minutes. Avec plusieurs groupes de tests créant chacun leur propre agent et leur propre connexion, ce seuil était dépassé, causant des échecs en cascade (réponse \texttt{/connection?error=ratelimit}).
+
+La solution : trois agents partagés connectés une seule fois dans le \texttt{beforeAll} global, réutilisés par tous les groupes :
+
+\begin{lstlisting}
+const candidatAgent  = request.agent(app);
+const adminAgent     = request.agent(app);
+const recruteurAgent = request.agent(app);
+
+beforeAll(async () => {
+  // creation des utilisateurs...
+  await candidatAgent.post('/login').type('form')
+    .send({ email: CANDIDAT_EMAIL, mdp: TEST_MDP });
+  await adminAgent.post('/login').type('form')
+    .send({ email: ADMIN_EMAIL, mdp: TEST_MDP });
+  await recruteurAgent.post('/login').type('form')
+    .send({ email: REC_EMAIL, mdp: TEST_MDP });
+});
+\end{lstlisting}
+
+% ─────────────────────────────────────────────────────────────────
+\section{Bilan de couverture}
+
+Résultats après exécution de la suite complète (116 tests, tous passants) :
+
+\vspace{0.5em}
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Fichier} & \textbf{Stmts} & \textbf{Branches} & \textbf{Fonctions} & \textbf{Lignes} \\
+\midrule
+\rowcolor{rowgray}
+\texttt{utilisateur.js}       & 95\%  & 85\%  & \textcolor{okgreen}{\textbf{100\%}} & \textcolor{okgreen}{\textbf{96\%}}  \\
+\texttt{candidature.js}       & 100\% & 100\% & \textcolor{okgreen}{\textbf{100\%}} & \textcolor{okgreen}{\textbf{100\%}} \\
+\rowcolor{rowgray}
+\texttt{demande\_recruteur.js}& 100\% & 100\% & 85\%  & \textcolor{okgreen}{\textbf{100\%}} \\
+\texttt{organisation.js}      & 83\%  & 100\% & 64\%  & \textcolor{okgreen}{\textbf{84\%}}  \\
+\rowcolor{rowgray}
+\texttt{fiche\_de\_poste.js}  & 80\%  & 54\%  & 80\%  & \textcolor{okgreen}{\textbf{83\%}}  \\
+\texttt{offre.js}             & 89\%  & 69\%  & 100\% & \textcolor{okgreen}{\textbf{89\%}}  \\
+\rowcolor{rowgray}
+\texttt{routes/index.js}      & 73\%  & 71\%  & 81\%  & 79.9\%                              \\
+\texttt{upload.js}            & 46\%  & 10\%  & 0\%   & \textcolor{warnred}{47\%}           \\
+\rowcolor{rowgray}
+\texttt{app.js}               & 61\%  & 0\%   & 0\%   & \textcolor{warnred}{63\%}           \\
+\midrule
+\textbf{Total} & \textbf{76\%} & \textbf{67\%} & \textbf{74\%} & \textcolor{okgreen}{\textbf{80.5\%}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.5em}
+
+\texttt{upload.js} et \texttt{app.js} sont en dessous de 80\% : leurs lignes non couvertes sont des handlers de filtres Multer et des callbacks OAuth/Passport qui nécessiteraient un vrai flux d'upload ou d'authentification OAuth pour être déclenchés.
+
+\vspace{0.5em}
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+\textbf{Exercice} & \textbf{Fichier cible} & \textbf{Lignes} & \textbf{Objectif} \\
+\midrule
+Ex. 1 -- Modèle user & \texttt{model/utilisateur.js} & \textcolor{okgreen}{\textbf{96\%}} & $\geq$ 80\% \\
+Ex. 2 -- Routes      & \texttt{routes/index.js}      & 79.9\% & $\geq$ 80\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ─────────────────────────────────────────────────────────────────
+\section{Conclusion}
+
+La suite de tests mise en place couvre les deux niveaux demandés : 26 tests unitaires sur le modèle utilisateur (\texttt{model.test.js}) et 87 tests d'intégration sur les routes (\texttt{route.test.js}). Les points notables sont la gestion du rate limiting par partage d'agents, l'usage de \texttt{.field()} pour les routes Multer, et le nettoyage rigoureux des données de test par \texttt{afterAll} dans le bon ordre selon les contraintes de clé étrangère.
+
+\end{document}

@@ -326,3 +326,41 @@ describe('changeRole - admin avec organisations liées', () => {
     expect(org.id_admin_createur).toBe(otherAdmin.id_user);
   });
 });
+
+// ─── candidature.read & candidature.delete ────────────────────────────────────
+const candidature = require('../model/candidature');
+
+describe('candidature.read et candidature.delete', () => {
+  let candidatureId = null;
+
+  beforeAll(async () => {
+    const [[offre]] = await DB.query('SELECT id_offre FROM OffreEmploi LIMIT 1');
+    if (!offre) { console.warn('⚠️  Aucune offre en BDD — tests candidature ignorés'); return; }
+    candidatureId = await candidature.create(testUserId, offre.id_offre, null, null, null);
+  });
+
+  afterAll(async () => {
+    if (candidatureId) {
+      await DB.query('DELETE FROM Candidature WHERE id_candidature = ?', [candidatureId]);
+    }
+  });
+
+  test('read retourne la candidature correspondante', async () => {
+    if (!candidatureId) return;
+    const c = await candidature.read(candidatureId);
+    expect(c).toBeDefined();
+    expect(c.id_candidature).toBe(candidatureId);
+  });
+
+  test('read retourne undefined pour un id inexistant', async () => {
+    const c = await candidature.read(999999);
+    expect(c).toBeUndefined();
+  });
+
+  test('delete supprime la candidature et retourne 1', async () => {
+    if (!candidatureId) return;
+    const rows = await candidature.delete(candidatureId);
+    expect(rows).toBe(1);
+    candidatureId = null;
+  });
+});

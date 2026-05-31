@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "jest"
+    "test": "jest --forceExit"
   },
   "jest": {
     "collectCoverage": true
@@ -26,5 +26,8 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "save-dev": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2"
   }
 }
