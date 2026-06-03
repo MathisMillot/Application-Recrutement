@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landr — Modifier ma candidature</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/candidature.css" />
+  <link rel="stylesheet" href="/css/offres.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="navbar__brand" href="/offres">
+      <img src="/images/logo_landr.png" alt="Landr logo" />
+      <span>Landr</span>
+    </a>
+    <div class="navbar__nav">
+      <a href="/offres">Trouver un job</a>
+      <a href="/organisations">Trouver une entreprise</a>
+    </div>
+    <div class="navbar__user" id="user-menu">
+      <div class="navbar__avatar">
+        <% if (user.photo_profil) { %>
+          <img src="/uploads/<%= user.photo_profil %>" alt="avatar" />
+        <% } else { %>
+          <%= user.prenom[0] %><%= user.nom[0] %>
+        <% } %>
+      </div>
+      <span>Mon espace</span>
+      <div class="user-dropdown" id="user-dropdown">
+        <a href="/profil_candidat">Mon profil</a>
+        <a href="/modifier_profil">Modifier mon profil</a>
+        <div class="dropdown-divider"></div>
+        <form method="POST" action="/logout" style="margin:0;padding:0">
+          <button type="submit" class="dropdown-logout">Se déconnecter</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <div class="apply-page">
+
+    <aside class="apply-page__sidebar" style="gap:16px;">
+      <a href="/profil_candidat" style="font-size:13px; color:var(--color-medium); text-decoration:none;">← Retour à mes candidatures</a>
+      <h2 style="font-size:18px; font-weight:700; margin:0;"><%= offre.intitule || offre.nom_poste || '—' %></h2>
+      <p style="font-size:14px; color:#888; margin:0;"><%= offre.organisation || '' %></p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <% if (offre.lieu) { %><span class="tag">📍 <%= offre.lieu %></span><% } %>
+        <% if (offre.type_contrat) { %><span class="tag"><%= offre.type_contrat %></span><% } %>
+      </div>
+      <% if (offre.date_expiration) { %>
+        <p style="font-size:12px; color:#aaa; margin:0;">Expire le <%= new Date(offre.date_expiration).toLocaleDateString('fr-FR') %></p>
+      <% } %>
+    </aside>
+
+    <main class="apply-page__main">
+      <div class="apply-page__offer-card">
+        <h3 class="mb-24">Modifier ma candidature</h3>
+
+        <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:16px 20px; margin-bottom:24px;">
+          <p style="margin:0 0 4px; font-size:13px; color:#888;">Candidature de</p>
+          <p style="margin:0; font-size:15px; font-weight:600;"><%= user.prenom %> <%= user.nom %></p>
+          <p style="margin:4px 0 0; font-size:13px; color:#666;"><%= user.email %></p>
+        </div>
+
+        <form class="form" style="width:100%; max-width:480px;" action="/candidature/<%= cand.id_candidature %>/modifier" method="POST" enctype="multipart/form-data">
+
+          <div class="form__group">
+            <label>CV (PDF, DOC) — laisser vide pour conserver l'actuel</label>
+            <div class="file-upload">
+              <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" onchange="updateFileName('cv','cv-name')" />
+              <label class="file-upload__label" for="cv">
+                <span class="file-upload__btn">Choisir un fichier</span>
+                <span class="file-upload__name" id="cv-name"><%= cand.cv || 'Aucun fichier sélectionné' %></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label>Lettre de motivation — laisser vide pour conserver l'actuelle</label>
+            <div class="file-upload">
+              <input type="file" id="motivation" name="motivation" accept=".pdf,.doc,.docx" onchange="updateFileName('motivation','motivation-name')" />
+              <label class="file-upload__label" for="motivation">
+                <span class="file-upload__btn">Choisir un fichier</span>
+                <span class="file-upload__name" id="motivation-name"><%= cand.lm || 'Aucun fichier sélectionné' %></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="dispo">Disponibilité</label>
+            <select class="form__select" id="dispo" name="dispo">
+              <option value="" <%= !cand.dispo ? 'selected' : '' %>>Non précisée</option>
+              <option <%= cand.dispo === 'Immédiatement' ? 'selected' : '' %>>Immédiatement</option>
+              <option <%= cand.dispo === 'Dans 1 mois' ? 'selected' : '' %>>Dans 1 mois</option>
+              <option <%= cand.dispo === 'Dans 2 mois' ? 'selected' : '' %>>Dans 2 mois</option>
+              <option <%= cand.dispo === 'Dans 3 mois ou plus' ? 'selected' : '' %>>Dans 3 mois ou plus</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn btn--primary-full mt-8" style="flex:1;">Enregistrer les modifications</button>
+            <a href="/profil_candidat" class="btn btn--primary-full mt-8"
+               style="flex:0.5; background:#eee; color:#333; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+              Annuler
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    function updateFileName(inputId, nameId) {
+      const input = document.getElementById(inputId);
+      const label = document.getElementById(nameId);
+      label.textContent = input.files.length ? input.files[0].name : label.textContent;
+    }
+    const menu = document.getElementById('user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+    menu.addEventListener('click', () => dropdown.classList.toggle('open'));
+    document.addEventListener('click', (e) => { if (!menu.contains(e.target)) dropdown.classList.remove('open'); });
+  </script>
+</body>
+</html>

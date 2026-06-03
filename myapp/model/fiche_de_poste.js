@@ -16,13 +16,17 @@ db.query(`CREATE TABLE IF NOT EXISTS FicheDePoste (
 db.query('ALTER TABLE FicheDePoste ADD COLUMN type_contrat VARCHAR(50) DEFAULT NULL').catch(() => {});
 db.query('ALTER TABLE FicheDePoste ADD COLUMN remote VARCHAR(50) DEFAULT NULL').catch(() => {});
 db.query('ALTER TABLE FicheDePoste ADD COLUMN photo VARCHAR(255) DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE FicheDePoste ADD COLUMN statut_poste VARCHAR(50) DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE FicheDePoste ADD COLUMN type_metier VARCHAR(100) DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE FicheDePoste ADD COLUMN rythme VARCHAR(100) DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE FicheDePoste ADD COLUMN pieces_demandees TEXT DEFAULT NULL').catch(() => {});
 
 module.exports = {
 
-  async create(intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, photo, siren_organisation) {
+  async create(intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, photo, siren_organisation, statut_poste, type_metier, rythme, pieces_demandees) {
     const [result] = await db.query(
-      'INSERT INTO FicheDePoste (intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, photo, siren_organisation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [intitule, nom_poste, responsable, lieu, salaire_min || 0, salaire_max || 0, description || null, type_contrat || null, remote || null, photo || null, siren_organisation]
+      'INSERT INTO FicheDePoste (intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, photo, siren_organisation, statut_poste, type_metier, rythme, pieces_demandees) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [intitule, nom_poste, responsable, lieu, salaire_min || 0, salaire_max || 0, description || null, type_contrat || null, remote || null, photo || null, siren_organisation, statut_poste || null, type_metier || null, rythme || null, pieces_demandees || null]
     );
     return result.insertId;
   },
@@ -52,10 +56,10 @@ module.exports = {
     return rows;
   },
 
-  async update(id_fiche, intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote) {
+  async update(id_fiche, intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, statut_poste, type_metier, rythme, pieces_demandees) {
     const [result] = await db.query(
-      'UPDATE FicheDePoste SET intitule=?, nom_poste=?, responsable=?, lieu=?, salaire_min=?, salaire_max=?, description=?, type_contrat=?, remote=? WHERE id_fiche=?',
-      [intitule, nom_poste, responsable, lieu, salaire_min || 0, salaire_max || 0, description || null, type_contrat || null, remote || null, id_fiche]
+      'UPDATE FicheDePoste SET intitule=?, nom_poste=?, responsable=?, lieu=?, salaire_min=?, salaire_max=?, description=?, type_contrat=?, remote=?, statut_poste=?, type_metier=?, rythme=?, pieces_demandees=? WHERE id_fiche=?',
+      [intitule, nom_poste, responsable, lieu, salaire_min || 0, salaire_max || 0, description || null, type_contrat || null, remote || null, statut_poste || null, type_metier || null, rythme || null, pieces_demandees || null, id_fiche]
     );
     return result.affectedRows;
   },

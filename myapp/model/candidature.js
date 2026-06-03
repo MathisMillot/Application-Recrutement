@@ -59,6 +59,18 @@ module.exports = {
     return result.insertId;
   },
 
+  async update(id_candidature, cv, lm, dispo) {
+    const sets = [];
+    const vals = [];
+    if (cv !== undefined) { sets.push('cv = ?'); vals.push(cv || null); }
+    if (lm !== undefined) { sets.push('lm = ?'); vals.push(lm || null); }
+    if (dispo !== undefined) { sets.push('dispo = ?'); vals.push(dispo || null); }
+    if (!sets.length) return 0;
+    vals.push(id_candidature);
+    const [result] = await db.query(`UPDATE Candidature SET ${sets.join(', ')} WHERE id_candidature = ?`, vals);
+    return result.affectedRows;
+  },
+
   async delete(id_candidature) {
     const [result] = await db.query(
       'DELETE FROM Candidature WHERE id_candidature = ?',

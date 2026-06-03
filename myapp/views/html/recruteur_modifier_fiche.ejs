@@ -130,6 +130,36 @@
             </div>
           </div>
 
+          <p class="section-label">Caractéristiques du poste</p>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Statut du poste</label>
+              <select name="statut_poste">
+                <option value=""          <%= !fiche.statut_poste                     ? 'selected' : '' %>>Non précisé</option>
+                <option value="Cadre"     <%= fiche.statut_poste === 'Cadre'          ? 'selected' : '' %>>Cadre</option>
+                <option value="ETAM"      <%= fiche.statut_poste === 'ETAM'           ? 'selected' : '' %>>ETAM</option>
+                <option value="Technicien"<%= fiche.statut_poste === 'Technicien'     ? 'selected' : '' %>>Technicien</option>
+                <option value="Employé"   <%= fiche.statut_poste === 'Employé'        ? 'selected' : '' %>>Employé</option>
+                <option value="Ouvrier"   <%= fiche.statut_poste === 'Ouvrier'        ? 'selected' : '' %>>Ouvrier</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Type de métier</label>
+              <input type="text" name="type_metier" value="<%= fiche.type_metier || '' %>" placeholder="ex: Informatique, Cybersécurité..." />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Rythme de travail</label>
+            <input type="text" name="rythme" value="<%= fiche.rythme || '' %>" placeholder="ex: 35h/semaine, télétravail possible..." />
+          </div>
+
+          <div class="form-group">
+            <label>Pièces demandées</label>
+            <input type="text" name="pieces_demandees" value="<%= fiche.pieces_demandees || '' %>" placeholder="ex: CV, lettre de motivation, diplôme..." />
+          </div>
+
           <p class="section-label">Description</p>
 
           <div class="form-group">

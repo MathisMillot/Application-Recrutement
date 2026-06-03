@@ -167,7 +167,15 @@
         <% } else if (error === 'mdp') { %>
           Les mots de passe ne correspondent pas.
         <% } else if (error === 'mdp-court') { %>
-          Le mot de passe doit contenir au moins 8 caractères.
+          Le mot de passe doit contenir au moins 12 caractères.
+        <% } else if (error === 'mdp-majuscule') { %>
+          Le mot de passe doit contenir au moins une lettre majuscule.
+        <% } else if (error === 'mdp-minuscule') { %>
+          Le mot de passe doit contenir au moins une lettre minuscule.
+        <% } else if (error === 'mdp-chiffre') { %>
+          Le mot de passe doit contenir au moins un chiffre.
+        <% } else if (error === 'mdp-special') { %>
+          Le mot de passe doit contenir au moins un caractère spécial (ex : ! @ # $ %).
         <% } %>
       </div>
     <% } %>
