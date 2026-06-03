@@ -14,6 +14,7 @@ function checkRateLimit(ip) {
   return entry.count > LOGIN_MAX;
 }
 var passport = require('passport');
+const mailer = require('../model/mailer');
 const offre = require('../model/offre');
 const ficheDePoste = require('../model/fiche_de_poste');
 const organisation = require('../model/organisation');
@@ -147,6 +148,7 @@ router.post('/inscription_recruteur/etape2', async function (req, res, next) {
     const { nom, prenom, num_tel, siren_organisation, nom_organisation } = req.body;
     const { email, mdp } = req.session.inscriptionRec;
     const id_user = await utilisateur.createRecruteur(nom, prenom, email, mdp, num_tel, siren_organisation, nom_organisation);
+    mailer.sendWelcome(email, prenom).catch(console.error);
     const user = await utilisateur.read(id_user);
     req.session.inscriptionRec = null;
     req.session.user = { id_user: user.id_user, nom: user.nom, prenom: user.prenom, email: user.email, num_tel: user.num_tel, statut: user.statut, photo_profil: user.photo_profil || null, role: 'Recruteur' };
@@ -297,6 +299,7 @@ router.post('/inscription/etape3', upload.single('cv'), async function (req, res
 
     // 1. Création de l'utilisateur
     const id_user = await utilisateur.create(nom, prenom, email, mdp, num_tel);
+    mailer.sendWelcome(email, prenom).catch(console.error);
 
     // 2. Ajout du CV s'il a été téléchargé
     if (req.file) {
@@ -348,6 +351,7 @@ router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 
 router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/connection?error=credentials' }),
   function (req, res) {
+    if (req.user.isNew) mailer.sendWelcome(req.user.email, req.user.prenom).catch(console.error);
     req.session.user = req.user;
     const dest = { Admin: '/admin', Recruteur: '/recruteur' }[req.user.role] || '/profil_candidat';
     res.redirect(dest);
@@ -404,6 +408,10 @@ router.post('/admin/users/:id/role', isAdmin, async function (req, res, next) {
     if (req.body.role === 'Recruteur' && req.body.siren_organisation) {
       await organisation.addRecruteur(req.body.siren_organisation, req.params.id);
     }
+    if (req.body.role === 'Admin') {
+      const targetUser = await utilisateur.read(req.params.id);
+      if (targetUser) mailer.sendAdminRights(targetUser.email, targetUser.prenom).catch(console.error);
+    }
     res.redirect('/admin');
   } catch (err) {
     if (err.status === 409) return res.redirect('/admin?error=' + encodeURIComponent(err.message));
@@ -456,6 +464,9 @@ router.post('/admin/demandes/:id/accepter', isAdmin, async function (req, res, n
     await organisation.addRecruteur(demande.siren, demande.id_candidat);
 
     await demandeRecruteur.accept(req.params.id);
+    const userDemande = await utilisateur.read(demande.id_candidat);
+    const orgDemande  = await organisation.read(demande.siren);
+    if (userDemande) mailer.sendDemandeAcceptee(userDemande.email, userDemande.prenom, orgDemande ? orgDemande.nom : demande.nom_organisation).catch(console.error);
     res.redirect('/admin');
   } catch (err) { next(err); }
 });
@@ -470,6 +481,9 @@ router.post('/admin/demandes/:id/rejeter', isAdmin, async function (req, res, ne
 router.post('/admin/adhesions/:siren/:id_recruteur/accepter', isAdmin, async function (req, res, next) {
   try {
     await organisation.approveJoin(req.params.siren, req.params.id_recruteur);
+    const userAdh = await utilisateur.read(req.params.id_recruteur);
+    const orgAdh  = await organisation.read(req.params.siren);
+    if (userAdh && orgAdh) mailer.sendAdhesionAcceptee(userAdh.email, userAdh.prenom, orgAdh.nom).catch(console.error);
     res.redirect('/admin');
   } catch (err) { next(err); }
 });

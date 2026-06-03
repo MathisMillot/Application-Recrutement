@@ -130,7 +130,7 @@ module.exports = {
     );
     const id_user = result.insertId;
     await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
-    return { id_user, nom, prenom, email, num_tel: '', statut: 'ACTIF', photo_profil: null, role: 'Candidat' };
+    return { id_user, nom, prenom, email, num_tel: '', statut: 'ACTIF', photo_profil: null, role: 'Candidat', isNew: true };
   },
 
   async setPhoto(id_user, filename) {
