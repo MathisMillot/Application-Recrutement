@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* Simple in-memory rate limiter for login */
 const loginAttempts = new Map();
-const LOGIN_MAX = 10;
+const LOGIN_MAX = 5;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 function checkRateLimit(ip) {
   const now = Date.now();
