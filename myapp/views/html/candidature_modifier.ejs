@@ -66,7 +66,7 @@
           <p style="margin:4px 0 0; font-size:13px; color:#666;"><%= user.email %></p>
         </div>
 
-        <form class="form" style="width:100%; max-width:480px;" action="/candidature/<%= cand.id_candidature %>/modifier" method="POST" enctype="multipart/form-data">
+        <form class="form" style="width:100%; max-width:480px;" action="/candidature/<%= cand.id_candidature %>/modifier?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data">
 
           <div class="form__group">
             <label>CV (PDF, DOC) — laisser vide pour conserver l'actuel</label>

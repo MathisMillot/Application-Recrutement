@@ -212,7 +212,7 @@
           <% } %>
         </div>
         <div class="avatar-upload">
-          <form method="POST" action="/profil/photo" enctype="multipart/form-data" id="photo-form">
+          <form method="POST" action="/profil/photo?_csrf=<%= csrfToken %>" enctype="multipart/form-data" id="photo-form">
             <label for="photo-input">Changer la photo</label>
             <input type="file" id="photo-input" name="photo" accept=".jpg,.jpeg,.png,.webp" />
           </form>
@@ -225,6 +225,7 @@
     <div class="card">
       <p class="card-title">Informations personnelles</p>
       <form method="POST" action="/modifier_profil">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="form-row">
           <div class="form-group">
             <label for="prenom">Prénom</label>

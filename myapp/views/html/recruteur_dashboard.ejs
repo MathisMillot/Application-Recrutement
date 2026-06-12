@@ -26,6 +26,7 @@
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
       </form>
     </aside>
@@ -96,13 +97,14 @@
             </div>
             <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
               <% if (org.adhesion_statut === 'ACCEPTEE') { %>
-              <form method="POST" action="/recruteur/organisation/<%= org.siren %>/photo" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+              <form method="POST" action="/recruteur/organisation/<%= org.siren %>/photo?_csrf=<%= csrfToken %>" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
                 <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" style="font-size:11px; max-width:120px;" />
                 <button type="submit" class="btn btn--primary" style="height:28px; font-size:12px; padding:0 12px;">Changer logo</button>
               </form>
               <% } %>
               <form method="POST" action="/recruteur/organisation/<%= org.siren %>/quitter" style="margin:0;"
                     onsubmit="return confirm('<%= org.adhesion_statut === 'ATTENTE' ? 'Annuler la demande ?' : 'Quitter cette organisation ?' %>')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <button type="submit" class="btn" style="height:28px; font-size:12px; padding:0 10px; background:#fee2e2; color:#b91c1c;">
                   <%= org.adhesion_statut === 'ATTENTE' ? 'Annuler' : 'Quitter' %>
                 </button>
@@ -114,6 +116,7 @@
                 <% } else { %>
                   <form method="POST" action="/recruteur/organisation/<%= org.siren %>/demander-suppression" style="margin:0;"
                         onsubmit="return confirm('Demander la suppression de cette organisation ? Un administrateur devra valider.')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn" style="height:28px; font-size:11px; padding:0 10px; background:#fff0f0; color:#b91c1c; border:1px solid #fca5a5;">
                       Supprimer l'org
                     </button>
@@ -196,6 +199,7 @@
                   </a>
                   <form method="POST" action="/recruteur/offres/<%= o.id_offre %>/supprimer" style="margin:0;"
                         onsubmit="return confirm('Supprimer cette offre ?')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn"
                             style="height:28px;font-size:12px;padding:0 10px;background:#fee2e2;color:#b91c1c;">
                       Supprimer

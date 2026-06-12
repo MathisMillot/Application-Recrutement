@@ -24,6 +24,7 @@
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
       </form>
     </aside>
@@ -101,6 +102,7 @@
                   </a>
                   <form method="POST" action="/recruteur/fiches/<%= f.id_fiche %>/supprimer" style="margin:0;"
                         onsubmit="return confirm('Supprimer cette fiche de poste ?')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn"
                             style="height:28px;font-size:12px;padding:0 10px;background:#fee2e2;color:#b91c1c;">
                       Supprimer

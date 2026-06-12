@@ -156,6 +156,7 @@
     <h1 class="card__title">Responsable recrutement</h1>
 
     <form method="POST" action="/inscription_recruteur/etape2" style="display:flex;flex-direction:column;gap:28px;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
       <div class="form-row">
         <div class="form-group">

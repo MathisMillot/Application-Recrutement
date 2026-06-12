@@ -287,6 +287,7 @@
         <a href="/devenir_recruteur" style="color:#0369a1;">Devenir recruteur</a>
         <div class="dropdown-divider"></div>
         <form method="POST" action="/logout" style="margin:0;padding:0">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button type="submit" class="dropdown-logout">Se déconnecter</button>
         </form>
       </div>
@@ -311,7 +312,7 @@
                 <% }); %>
                   <% } %>
         </div>
-        <form method="POST" action="/upload" enctype="multipart/form-data" style="margin-top:12px">
+        <form method="POST" action="/upload?_csrf=<%= csrfToken %>" enctype="multipart/form-data" style="margin-top:12px">
           <input type="file" name="document" accept=".pdf,.doc,.docx" required
             style="font-size:13px; width:100%; margin-bottom:8px" />
           <button type="submit" class="btn btn--primary"
@@ -403,6 +404,7 @@
                        style="font-size:12px; color:#0369a1; text-decoration:underline;">Modifier</a>
                     <form method="POST" action="/candidature/<%= c.id_candidature %>/annuler"
                           onsubmit="return confirm('Annuler cette candidature ?')" style="margin:0;">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button type="submit"
                               style="font-size:12px; color:#e53935; background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;">
                         Annuler

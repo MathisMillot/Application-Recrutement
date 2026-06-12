@@ -158,6 +158,7 @@
         <a href="/modifier_profil">Modifier mon profil</a>
         <div class="dropdown-divider"></div>
         <form method="POST" action="/logout" style="margin:0;padding:0">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button type="submit" class="dropdown-logout">Se déconnecter</button>
         </form>
       </div>

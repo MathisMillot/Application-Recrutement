@@ -107,9 +107,47 @@ describe('(b) Force brute — limitation des tentatives de connexion', () => {
   });
 });
 
+// ─── (d) Protection CSRF — token obligatoire pour les POST ───────────────────
+//
+// Le middleware csurf (app.js) est bypassé en NODE_ENV='test' pour ne pas
+// casser les tests fonctionnels existants. Ce describe utilise jest.isolateModules
+// pour obtenir une instance de l'app avec NODE_ENV='production' (CSRF actif).
+// Protection implémentée dans app.js avec csurf({ cookie: false }).
+
+describe('(d) Protection CSRF — token obligatoire pour les POST', () => {
+  let csrfApp;
+
+  beforeAll(() => {
+    const savedEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    jest.isolateModules(() => { csrfApp = require('../app'); });
+    process.env.NODE_ENV = savedEnv;
+  });
+
+  test('Le formulaire de connexion contient un champ _csrf', async () => {
+    const res = await request(csrfApp).get('/connection');
+    expect(res.text).toMatch(/name="_csrf"/);
+  });
+
+  test('POST /login sans token CSRF → 403', async () => {
+    const res = await request(csrfApp)
+      .post('/login')
+      .type('form')
+      .send({ email: 'x@x.com', mdp: 'Wrong12345!' });
+    expect(res.statusCode).toBe(403);
+  });
+
+  test('En mode production, le token CSRF embarqué est bien formé (non-vide)', async () => {
+    const res = await request(csrfApp).get('/connection');
+    const match = res.text.match(/name="_csrf" value="([^"]+)"/);
+    expect(match).not.toBeNull();
+    expect(match[1].length).toBeGreaterThan(20);
+  });
+});
+
 // ─── (c) Injection SQL — vérification des requêtes paramétrées ────────────────
 //
-// Toutes les requêtes de l'application utilisent des placeholders ? (mysql2).
+// Toutes les requêtes de l'application utilisent des placeholders ?.
 // Un payload SQL dans le champ email ne doit jamais contourner l'authentification.
 // Protection implémentée dans model/utilisateur.js:52-71 + model/db.js.
 
@@ -137,4 +175,27 @@ describe('(c) Injection SQL — résistance aux payloads malveillants', () => {
       expect(res.headers.location).toContain('/connection');
     }
   );
+});
+
+// ─── (e) Headers de sécurité HTTP — helmet ────────────────────────────────────
+//
+// Vérifie que les headers de sécurité fournis par helmet sont bien présents
+// sur les réponses. Protection implémentée dans app.js via helmet().
+
+describe('(e) Headers de sécurité — présence des protections HTTP', () => {
+  test('GET /connection répond avec X-Content-Type-Options: nosniff', async () => {
+    const res = await request(app).get('/connection');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+  });
+
+  test('GET /connection répond avec X-Frame-Options', async () => {
+    const res = await request(app).get('/connection');
+    expect(res.headers['x-frame-options']).toBeDefined();
+  });
+
+  test('GET /connection répond avec Content-Security-Policy', async () => {
+    const res = await request(app).get('/connection');
+    expect(res.headers['content-security-policy']).toBeDefined();
+    expect(res.headers['content-security-policy']).toContain("default-src 'self'");
+  });
 });

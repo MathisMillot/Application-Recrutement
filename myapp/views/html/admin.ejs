@@ -23,6 +23,7 @@
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
       </form>
     </aside>
@@ -88,9 +89,11 @@
               <td>
                 <div style="display:flex;gap:8px;">
                   <form method="POST" action="/admin/organisations/<%= org.siren %>/valider" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn btn--primary" style="height:30px;font-size:12px;padding:0 12px;">Valider</button>
                   </form>
                   <form method="POST" action="/admin/organisations/<%= org.siren %>/rejeter" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Rejeter</button>
                   </form>
                 </div>
@@ -137,10 +140,12 @@
               <td>
                 <div style="display:flex;gap:8px;">
                   <form method="POST" action="/admin/demandes/<%= d.id_demande %>/accepter" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn btn--primary" style="height:30px;font-size:12px;padding:0 12px;">Accepter</button>
                   </form>
                   <form method="POST" action="/admin/demandes/<%= d.id_demande %>/rejeter" style="margin:0;"
                         onsubmit="return confirm('Rejeter cette demande ?')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Rejeter</button>
                   </form>
                 </div>
@@ -179,10 +184,12 @@
               <td>
                 <div style="display:flex;gap:8px;">
                   <form method="POST" action="/admin/adhesions/<%= j.siren_organisation %>/<%= j.id_recruteur %>/accepter" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn btn--primary" style="height:30px;font-size:12px;padding:0 12px;">Accepter</button>
                   </form>
                   <form method="POST" action="/admin/adhesions/<%= j.siren_organisation %>/<%= j.id_recruteur %>/rejeter" style="margin:0;"
                         onsubmit="return confirm('Rejeter cette demande ?')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Rejeter</button>
                   </form>
                 </div>
@@ -227,9 +234,11 @@
                 <div style="display:flex;gap:8px;">
                   <form method="POST" action="/admin/demandes-suppression/<%= d.id_demande %>/accepter" style="margin:0;"
                         onsubmit="return confirm('Supprimer définitivement l\'organisation <%= d.org_nom %> ? Cette action est irréversible.')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Supprimer</button>
                   </form>
                   <form method="POST" action="/admin/demandes-suppression/<%= d.id_demande %>/rejeter" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="btn" style="height:30px;font-size:12px;padding:0 12px;background:#f3f4f6;color:#374151;">Rejeter</button>
                   </form>
                 </div>
@@ -268,6 +277,7 @@
               <td>
                 <form method="POST" action="/admin/organisations/<%= org.siren %>/supprimer" style="margin:0;"
                       onsubmit="return confirm('Supprimer définitivement l\'organisation <%= org.nom %> ainsi que toutes ses offres et candidatures ? Cette action est irréversible.')">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <button type="submit" class="btn" style="height:28px;font-size:12px;padding:0 12px;background:#fee2e2;color:#b91c1c;">Supprimer</button>
                 </form>
               </td>
@@ -305,6 +315,7 @@
               <td><span class="badge badge--<%= u.statut === 'ACTIF' ? 'actif' : 'inactif' %>"><%= u.statut %></span></td>
               <td onclick="event.stopPropagation()">
                 <form method="POST" action="/admin/users/<%= u.id_user %>/statut" style="margin:0;">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <button type="submit" class="btn" style="height:28px;font-size:12px;padding:0 10px;background:<%= u.statut === 'ACTIF' ? '#fee2e2' : '#dcfce7' %>;color:<%= u.statut === 'ACTIF' ? '#b91c1c' : '#15803d' %>;">
                     <%= u.statut === 'ACTIF' ? 'Désactiver' : 'Réactiver' %>
                   </button>
@@ -324,6 +335,7 @@
             <p id="modal-username" class="role-modal__subtitle"></p>
           </div>
           <form id="role-form" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="hidden" name="role" id="modal-role-input" />
             <input type="hidden" name="newAdminId" id="modal-new-admin-input" />
             <input type="hidden" name="siren_organisation" id="modal-siren-input" />

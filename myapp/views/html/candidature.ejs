@@ -125,7 +125,7 @@
           <% if (user.num_tel) { %><p style="margin:2px 0 0; font-size:13px; color:#666;"><%= user.num_tel %></p><% } %>
         </div>
 
-        <form class="form" style="width:100%; max-width:480px;" action="/candidature" method="POST" enctype="multipart/form-data">
+        <form class="form" style="width:100%; max-width:480px;" action="/candidature?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="id_offre" value="<%= offre.id_offre %>" />
 
           <div class="form__group">

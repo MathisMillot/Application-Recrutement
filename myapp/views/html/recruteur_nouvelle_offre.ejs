@@ -60,6 +60,7 @@
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
       </form>
     </aside>
@@ -85,6 +86,7 @@
         </p>
 
         <form method="POST" action="/recruteur/offres/nouvelle">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
           <div class="form-group">
             <label>Fiche de poste <span class="required">*</span></label>

@@ -3,6 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var csrf = require('csurf');
+var helmet = require('helmet');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var passport = require('passport');
@@ -17,6 +19,21 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:     ["'self'"],
+      scriptSrc:      ["'self'", "'unsafe-inline'"],
+      styleSrc:       ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:        ["'self'", "https://fonts.gstatic.com"],
+      imgSrc:         ["'self'", "data:"],
+      connectSrc:     ["'self'"],
+      formAction:     ["'self'"],
+      frameAncestors: ["'none'"],
+    }
+  }
+}));
 
 var sessionStore = new MySQLStore({
   host:     process.env.DB_HOST,
@@ -67,11 +84,28 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/css', express.static(path.join(__dirname, 'views', 'css')));
 
+var csrfProtection = csrf({ cookie: false });
+if (process.env.NODE_ENV !== 'test') {
+  app.use(csrfProtection);
+}
+app.use(function(req, res, next) {
+  res.locals.csrfToken = req.csrfToken ? req.csrfToken() : '';
+  next();
+});
+
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
+});
+
+// CSRF error handler
+app.use(function(err, req, res, next) {
+  if (err.code === 'EBADCSRFTOKEN') {
+    return res.status(403).send('Token CSRF invalide ou manquant.');
+  }
+  next(err);
 });
 
 // Multer error handler (file too large, wrong type)

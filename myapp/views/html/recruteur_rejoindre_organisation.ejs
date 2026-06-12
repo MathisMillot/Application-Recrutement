@@ -71,6 +71,7 @@
       <hr class="admin-sidebar__divider" />
       <a href="/offres">← Retour au site</a>
       <form method="POST" action="/logout" class="admin-sidebar__form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" class="admin-sidebar__logout">Se déconnecter</button>
       </form>
     </aside>
@@ -100,6 +101,7 @@
         </div>
 
         <form method="POST" action="/recruteur/organisation/rejoindre">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
           <div class="form-group">
             <label>Organisation <span style="color:#e53935;">*</span></label>
