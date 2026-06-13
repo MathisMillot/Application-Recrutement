@@ -11,15 +11,15 @@ db.query(`CREATE TABLE IF NOT EXISTS FicheDePoste (
   description TEXT,
   siren_organisation INT NOT NULL,
   FOREIGN KEY (siren_organisation) REFERENCES Organisation(siren)
-)`).catch(() => {});
+)`).catch(db.ignoreKnownMigrationError('FicheDePoste create'));
 
-db.query('ALTER TABLE FicheDePoste ADD COLUMN type_contrat VARCHAR(50) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE FicheDePoste ADD COLUMN remote VARCHAR(50) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE FicheDePoste ADD COLUMN photo VARCHAR(255) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE FicheDePoste ADD COLUMN statut_poste VARCHAR(50) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE FicheDePoste ADD COLUMN type_metier VARCHAR(100) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE FicheDePoste ADD COLUMN rythme VARCHAR(100) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE FicheDePoste ADD COLUMN pieces_demandees TEXT DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE FicheDePoste ADD COLUMN type_contrat VARCHAR(50) DEFAULT NULL').catch(db.ignoreKnownMigrationError('FicheDePoste.type_contrat'));
+db.query('ALTER TABLE FicheDePoste ADD COLUMN remote VARCHAR(50) DEFAULT NULL').catch(db.ignoreKnownMigrationError('FicheDePoste.remote'));
+db.query('ALTER TABLE FicheDePoste ADD COLUMN photo VARCHAR(255) DEFAULT NULL').catch(db.ignoreKnownMigrationError('FicheDePoste.photo'));
+db.query('ALTER TABLE FicheDePoste ADD COLUMN statut_poste VARCHAR(50) DEFAULT NULL').catch(db.ignoreKnownMigrationError('FicheDePoste.statut_poste'));
+db.query('ALTER TABLE FicheDePoste ADD COLUMN type_metier VARCHAR(100) DEFAULT NULL').catch(db.ignoreKnownMigrationError('FicheDePoste.type_metier'));
+db.query('ALTER TABLE FicheDePoste ADD COLUMN rythme VARCHAR(100) DEFAULT NULL').catch(db.ignoreKnownMigrationError('FicheDePoste.rythme'));
+db.query('ALTER TABLE FicheDePoste ADD COLUMN pieces_demandees TEXT DEFAULT NULL').catch(db.ignoreKnownMigrationError('FicheDePoste.pieces_demandees'));
 
 module.exports = {
 

@@ -10,7 +10,7 @@ db.query(`
     date_demande DATE NOT NULL DEFAULT (CURDATE()),
     FOREIGN KEY (id_candidat) REFERENCES Utilisateur(id_user)
   )
-`).catch(() => {});
+`).catch(db.ignoreKnownMigrationError('DemandeRecruteur create'));
 
 module.exports = {
 

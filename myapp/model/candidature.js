@@ -79,6 +79,21 @@ module.exports = {
     return result.affectedRows;
   },
 
+  // Renvoie le candidat propriétaire et le SIREN de l'offre pour un fichier
+  // (cv ou lettre de motivation) donné. Sert au contrôle d'accès des
+  // téléchargements de documents.
+  async findOwnerByFile(filename) {
+    const [rows] = await db.query(
+      `SELECT c.id_candidat, o.siren_organisation
+       FROM Candidature c
+       JOIN OffreEmploi o ON c.id_offre = o.id_offre
+       WHERE c.cv = ? OR c.lm = ?
+       LIMIT 1`,
+      [filename, filename]
+    );
+    return rows[0] || null;
+  },
+
   async readByOffre(id_offre) {
     const [rows] = await db.query(`
       SELECT c.id_candidature, c.date, c.cv, c.lm, c.dispo,

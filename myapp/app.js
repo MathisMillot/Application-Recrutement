@@ -16,6 +16,13 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 
+// Derrière un reverse proxy (Azure / gunicorn) : nécessaire pour que les
+// cookies `secure` soient émis sur HTTPS et que req.ip reflète l'IP cliente
+// réelle (X-Forwarded-For) utilisée par le rate-limiter de /login.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -86,7 +93,14 @@ app.use('/css', express.static(path.join(__dirname, 'views', 'css')));
 
 var csrfProtection = csrf({ cookie: false });
 if (process.env.NODE_ENV !== 'test') {
-  app.use(csrfProtection);
+  // On saute le CSRF global pour le multipart : multer n'a pas encore parsé le
+  // corps, donc csurf ne trouve pas _csrf dans req.body. La validation se fait
+  // par route, après multer.
+  app.use(function(req, res, next) {
+    const ct = req.headers['content-type'] || '';
+    if (ct.includes('multipart/form-data')) return next();
+    csrfProtection(req, res, next);
+  });
 }
 app.use(function(req, res, next) {
   res.locals.csrfToken = req.csrfToken ? req.csrfToken() : '';
@@ -121,9 +135,20 @@ app.use(function(err, req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
+  const isDev = req.app.get('env') === 'development';
+  const status = err.status || 500;
+  if (status >= 500 && !isDev) {
+    // En production, ne jamais exposer le message d'erreur interne (peut
+    // contenir des détails SQL/infrastructure). On journalise côté serveur et
+    // on n'affiche qu'un message générique au client.
+    console.error(err);
+    res.locals.message = 'Une erreur interne est survenue.';
+  } else {
+    // Erreurs « clientes » (404, 400…) : le message est sûr à afficher.
+    res.locals.message = err.message;
+  }
+  res.locals.error = isDev ? err : {};
+  res.status(status);
   res.render('error');
 });
 

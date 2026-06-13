@@ -212,7 +212,8 @@
           <% } %>
         </div>
         <div class="avatar-upload">
-          <form method="POST" action="/profil/photo?_csrf=<%= csrfToken %>" enctype="multipart/form-data" id="photo-form">
+          <form method="POST" action="/profil/photo" enctype="multipart/form-data" id="photo-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <label for="photo-input">Changer la photo</label>
             <input type="file" id="photo-input" name="photo" accept=".jpg,.jpeg,.png,.webp" />
           </form>

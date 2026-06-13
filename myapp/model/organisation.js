@@ -1,9 +1,9 @@
 const db = require('./db');
 
-db.query('ALTER TABLE Organisation ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(() => {});
-db.query('ALTER TABLE Organisation MODIFY COLUMN id_admin_createur INT DEFAULT NULL').catch(() => {});
-db.query("UPDATE Organisation SET validation = 'OUI' WHERE validation = 'ATTENTE' AND id_admin_createur IS NOT NULL").catch(() => {});
-db.query("ALTER TABLE Appartient ADD COLUMN statut VARCHAR(10) NOT NULL DEFAULT 'ACCEPTEE'").catch(() => {});
+db.query('ALTER TABLE Organisation ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(db.ignoreKnownMigrationError('Organisation.photo_profil'));
+db.query('ALTER TABLE Organisation MODIFY COLUMN id_admin_createur INT DEFAULT NULL').catch(db.ignoreKnownMigrationError('Organisation.id_admin_createur'));
+db.query("UPDATE Organisation SET validation = 'OUI' WHERE validation = 'ATTENTE' AND id_admin_createur IS NOT NULL").catch(db.ignoreKnownMigrationError('Organisation.validation backfill'));
+db.query("ALTER TABLE Appartient ADD COLUMN statut VARCHAR(10) NOT NULL DEFAULT 'ACCEPTEE'").catch(db.ignoreKnownMigrationError('Appartient.statut'));
 db.query(`CREATE TABLE IF NOT EXISTS DemandeSuppressionOrg (
   id_demande         INT          AUTO_INCREMENT PRIMARY KEY,
   siren_organisation INT          NOT NULL,
@@ -12,7 +12,7 @@ db.query(`CREATE TABLE IF NOT EXISTS DemandeSuppressionOrg (
   statut             VARCHAR(10)  NOT NULL DEFAULT 'ATTENTE',
   FOREIGN KEY (siren_organisation) REFERENCES Organisation(siren),
   FOREIGN KEY (id_recruteur)       REFERENCES Recruteur(id_user)
-)`).catch(() => {});
+)`).catch(db.ignoreKnownMigrationError('DemandeSuppressionOrg create'));
 
 module.exports = {
 

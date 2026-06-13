@@ -69,7 +69,8 @@
         </div>
       <% } else { %>
       <div class="section-card fiche-form">
-        <form method="POST" action="/recruteur/fiches/nouvelle?_csrf=<%= csrfToken %>" enctype="multipart/form-data">
+        <form method="POST" action="/recruteur/fiches/nouvelle" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
           <p class="section-label">Identification du poste</p>
 

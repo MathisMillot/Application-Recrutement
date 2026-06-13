@@ -5,6 +5,18 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
 });
 
+// Échappe les valeurs fournies par l'utilisateur (prénom, nom d'organisation)
+// avant de les interpoler dans le HTML de l'e-mail, pour éviter l'injection de
+// balises HTML dans le corps du message.
+function esc(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 async function sendMail(to, subject, html) {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) return;
   await transporter.sendMail({
@@ -20,7 +32,7 @@ module.exports = {
     return sendMail(
       email,
       'Bienvenue sur la plateforme',
-      `<p>Bonjour ${prenom},</p><p>Votre compte a bien été créé. Vous pouvez dès à présent vous connecter.</p>`
+      `<p>Bonjour ${esc(prenom)},</p><p>Votre compte a bien été créé. Vous pouvez dès à présent vous connecter.</p>`
     );
   },
 
@@ -28,7 +40,7 @@ module.exports = {
     return sendMail(
       email,
       'Votre demande a été acceptée',
-      `<p>Bonjour ${prenom},</p><p>Votre demande pour rejoindre/créer l'organisation <strong>${nomOrg}</strong> a été validée. Vous êtes désormais recruteur.</p>`
+      `<p>Bonjour ${esc(prenom)},</p><p>Votre demande pour rejoindre/créer l'organisation <strong>${esc(nomOrg)}</strong> a été validée. Vous êtes désormais recruteur.</p>`
     );
   },
 
@@ -36,7 +48,7 @@ module.exports = {
     return sendMail(
       email,
       'Adhésion à une organisation validée',
-      `<p>Bonjour ${prenom},</p><p>Votre demande d'adhésion à l'organisation <strong>${nomOrg}</strong> a été acceptée.</p>`
+      `<p>Bonjour ${esc(prenom)},</p><p>Votre demande d'adhésion à l'organisation <strong>${esc(nomOrg)}</strong> a été acceptée.</p>`
     );
   },
 
@@ -44,7 +56,7 @@ module.exports = {
     return sendMail(
       email,
       'Droits administrateur accordés',
-      `<p>Bonjour ${prenom},</p><p>Des droits d'administration vous ont été octroyés sur la plateforme.</p>`
+      `<p>Bonjour ${esc(prenom)},</p><p>Des droits d'administration vous ont été octroyés sur la plateforme.</p>`
     );
   },
 };

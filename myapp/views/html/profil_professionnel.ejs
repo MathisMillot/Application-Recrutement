@@ -184,7 +184,8 @@
   <div class="card">
     <h1 class="card__title">Profil professionnel</h1>
     
-    <form method="POST" action="/inscription/etape3?_csrf=<%= csrfToken %>" enctype="multipart/form-data">
+    <form method="POST" action="/inscription/etape3" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="form-row">
         <div class="form-group">
           <label>Niveau d'études </label>

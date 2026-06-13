@@ -306,13 +306,14 @@
             <span style="font-size:13px; color:var(--color-medium)">Aucun document déposé</span>
             <% } else { %>
               <% documents.forEach(function(doc) { %>
-                <a href="/uploads/<%= doc %>" target="_blank" style="word-break:break-all; overflow-wrap:break-word;">
+                <a href="/documents/<%= encodeURIComponent(doc) %>" target="_blank" style="word-break:break-all; overflow-wrap:break-word;">
                   <%= doc %>
                 </a>
                 <% }); %>
                   <% } %>
         </div>
-        <form method="POST" action="/upload?_csrf=<%= csrfToken %>" enctype="multipart/form-data" style="margin-top:12px">
+        <form method="POST" action="/upload" enctype="multipart/form-data" style="margin-top:12px">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <input type="file" name="document" accept=".pdf,.doc,.docx" required
             style="font-size:13px; width:100%; margin-bottom:8px" />
           <button type="submit" class="btn btn--primary"

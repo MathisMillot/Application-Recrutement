@@ -97,7 +97,8 @@
             </div>
             <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
               <% if (org.adhesion_statut === 'ACCEPTEE') { %>
-              <form method="POST" action="/recruteur/organisation/<%= org.siren %>/photo?_csrf=<%= csrfToken %>" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+              <form method="POST" action="/recruteur/organisation/<%= org.siren %>/photo" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" style="font-size:11px; max-width:120px;" />
                 <button type="submit" class="btn btn--primary" style="height:28px; font-size:12px; padding:0 12px;">Changer logo</button>
               </form>

@@ -1,6 +1,6 @@
 const db = require('./db');
 
-db.query('ALTER TABLE OffreEmploi ADD COLUMN id_fiche INT DEFAULT NULL').catch(() => {});
+db.query('ALTER TABLE OffreEmploi ADD COLUMN id_fiche INT DEFAULT NULL').catch(db.ignoreKnownMigrationError('OffreEmploi.id_fiche'));
 
 module.exports = {
 
@@ -19,12 +19,14 @@ module.exports = {
       LEFT JOIN FicheDePoste f ON o.id_fiche = f.id_fiche
       JOIN Organisation org ON o.siren_organisation = org.siren
       WHERE org.validation = 'OUI'
+        AND o.statut = 'publiee'
+        AND o.date_expiration >= CURDATE()
     `);
     return rows;
   },
 
   async filterOffres({ q, localisation, contrat, salaire_min } = {}) {
-    const conditions = ["org.validation = 'OUI'"];
+    const conditions = ["org.validation = 'OUI'", "o.statut = 'publiee'", 'o.date_expiration >= CURDATE()'];
     const params = [];
     if (q) {
       conditions.push('(COALESCE(f.intitule, o.description) LIKE ? OR org.nom LIKE ?)');

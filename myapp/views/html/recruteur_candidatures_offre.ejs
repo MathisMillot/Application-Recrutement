@@ -143,14 +143,14 @@
               <td><%= c.dispo || '—' %></td>
               <td>
                 <% if (c.cv) { %>
-                  <a href="/uploads/<%= c.cv %>" target="_blank" style="color: var(--color-primary, #ECC023); font-size:13px;">Télécharger</a>
+                  <a href="/documents/<%= encodeURIComponent(c.cv) %>" target="_blank" style="color: var(--color-primary, #ECC023); font-size:13px;">Télécharger</a>
                 <% } else { %>
                   <span style="color:#bbb;">—</span>
                 <% } %>
               </td>
               <td>
                 <% if (c.lm) { %>
-                  <a href="/uploads/<%= c.lm %>" target="_blank" style="color: var(--color-primary, #ECC023); font-size:13px;">Télécharger</a>
+                  <a href="/documents/<%= encodeURIComponent(c.lm) %>" target="_blank" style="color: var(--color-primary, #ECC023); font-size:13px;">Télécharger</a>
                 <% } else { %>
                   <span style="color:#bbb;">—</span>
                 <% } %>

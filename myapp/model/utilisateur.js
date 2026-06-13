@@ -1,9 +1,7 @@
 const db = require('./db');
 const bcrypt = require('bcrypt');
 
-db.query('ALTER TABLE Utilisateur ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch((err) => {
-  if (!err.message.includes('Duplicate column')) console.warn('Migration Utilisateur:', err.message);
-});
+db.query('ALTER TABLE Utilisateur ADD COLUMN photo_profil VARCHAR(255) DEFAULT NULL').catch(db.ignoreKnownMigrationError('Utilisateur.photo_profil'));
 
 
 module.exports = {
@@ -26,8 +24,11 @@ module.exports = {
   },
 
   async read(id_user) {
+    // On sélectionne explicitement les colonnes pour ne JAMAIS exposer le hash
+    // du mot de passe : ce résultat alimente req.session.user et req.user
+    // (deserializeUser), il ne doit donc pas contenir le champ mdp.
     const [rows] = await db.query(`
-      SELECT u.*,
+      SELECT u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.statut, u.photo_profil,
         CASE
           WHEN a.id_user IS NOT NULL THEN 'Admin'
           WHEN r.id_user IS NOT NULL THEN 'Recruteur'
@@ -42,8 +43,10 @@ module.exports = {
   },
 
   async findByEmail(email) {
+    // N'expose pas le hash du mot de passe : cette fonction ne sert qu'à
+    // vérifier l'existence/l'unicité d'un e-mail (inscription, modif. profil).
     const [rows] = await db.query(
-      'SELECT * FROM Utilisateur WHERE email = ?',
+      'SELECT id_user, nom, prenom, email, num_tel, statut, photo_profil FROM Utilisateur WHERE email = ?',
       [email]
     );
     return rows[0]; // Retourne l'utilisateur s'il existe, sinon undefined
@@ -95,7 +98,16 @@ module.exports = {
       [id_user]
     );
     if (!rows[0] || !rows[0].documents) return [];
-    return JSON.parse(rows[0].documents);
+    const raw = rows[0].documents;
+    // Selon la config mysql2, une colonne JSON peut être déjà désérialisée.
+    if (Array.isArray(raw)) return raw;
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      console.warn('getDocuments: JSON invalide pour id_user', id_user, err.message);
+      return [];
+    }
   },
 
   async addDocument(id_user, filename) {
@@ -107,7 +119,12 @@ module.exports = {
   },
 
   async findOrCreateByGoogle(profile) {
-    const email = profile.emails[0].value;
+    const email = profile && profile.emails && profile.emails[0] && profile.emails[0].value;
+    if (!email) {
+      const err = new Error('Le compte Google ne fournit pas d\'adresse e-mail.');
+      err.noEmail = true;
+      throw err;
+    }
     const [rows] = await db.query(`
       SELECT u.id_user, u.nom, u.prenom, u.email, u.num_tel, u.statut, u.photo_profil,
         CASE
@@ -121,8 +138,8 @@ module.exports = {
       WHERE u.email = ?
     `, [email]);
     if (rows[0]) return rows[0].statut === 'INACTIF' ? { inactive: true } : rows[0];
-    const nom = profile.name.familyName || '';
-    const prenom = profile.name.givenName || '';
+    const nom = (profile.name && profile.name.familyName) || '';
+    const prenom = (profile.name && profile.name.givenName) || '';
     const randomHash = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
     const [result] = await db.query(
       'INSERT INTO Utilisateur (nom, prenom, email, mdp, num_tel, statut) VALUES (?, ?, ?, ?, ?, ?)',
