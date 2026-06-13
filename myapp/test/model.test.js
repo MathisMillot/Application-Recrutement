@@ -89,10 +89,10 @@ describe('findAndCheckByCredentials', () => {
     expect(result.email).toBe(TEST_EMAIL);
   });
 
-  test('retourne { inactive: true } si le compte est INACTIF', async () => {
+  test('retourne { inactive: true, id_user } si le compte est INACTIF', async () => {
     await utilisateur.setStatut(testUserId, 'INACTIF');
     const result = await utilisateur.findAndCheckByCredentials(TEST_EMAIL, TEST_MDP);
-    expect(result).toEqual({ inactive: true });
+    expect(result).toMatchObject({ inactive: true, id_user: testUserId });
     await utilisateur.setStatut(testUserId, 'ACTIF');
   });
 });

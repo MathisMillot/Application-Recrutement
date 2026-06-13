@@ -218,6 +218,10 @@
       <div style="background-color:#fff3cd; color:#856404; padding:12px; border-radius:8px; font-weight:500; font-size:14px; text-align:center;">
         Votre compte est désactivé. Contactez un administrateur.
       </div>
+    <% } else if (error === 'pending') { %>
+      <div style="background-color:#e3f2fd; color:#1565c0; padding:12px; border-radius:8px; font-weight:500; font-size:14px; text-align:center;">
+        Votre demande est en cours de traitement. Vous serez notifié(e) par email dès que votre compte sera activé par un administrateur.
+      </div>
     <% } else if (error === 'ratelimit') { %>
       <div style="background-color:#ffcdd2; color:#c62828; padding:12px; border-radius:8px; font-weight:500; font-size:14px; text-align:center;">
         Trop de tentatives de connexion. Réessayez dans 15 minutes.

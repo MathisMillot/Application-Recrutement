@@ -158,12 +158,11 @@ router.post('/inscription_recruteur/etape2', async function (req, res, next) {
     if (!req.session.inscriptionRec) return res.redirect('/inscription_recruteur');
     const { nom, prenom, num_tel, siren_organisation, nom_organisation } = req.body;
     const { email, mdp } = req.session.inscriptionRec;
-    const id_user = await utilisateur.createRecruteur(nom, prenom, email, mdp, num_tel, siren_organisation, nom_organisation);
+    const id_user = await utilisateur.createRecruteurEnAttente(nom, prenom, email, mdp, num_tel);
+    await demandeRecruteur.create(id_user, siren_organisation, nom_organisation || null);
     mailer.sendWelcome(email, prenom).catch(console.error);
-    const user = await utilisateur.read(id_user);
     req.session.inscriptionRec = null;
-    req.session.user = { id_user: user.id_user, nom: user.nom, prenom: user.prenom, email: user.email, num_tel: user.num_tel, statut: user.statut, photo_profil: user.photo_profil || null, role: 'Recruteur' };
-    res.redirect('/recruteur');
+    res.render('html/demande_recruteur_confirmation');
   } catch (err) { next(err); }
 });
 
@@ -386,7 +385,11 @@ router.post('/login', async function (req, res, next) {
     const user = await utilisateur.findAndCheckByCredentials(email, mdp);
 
     if (!user) return res.redirect('/connection?error=credentials');
-    if (user.inactive) return res.redirect('/connection?error=inactive');
+    if (user.inactive) {
+      const pending = await demandeRecruteur.hasPending(user.id_user);
+      if (pending) return res.redirect('/connection?error=pending');
+      return res.redirect('/connection?error=inactive');
+    }
 
     // Régénère l'ID de session pour éviter la session fixation
     req.session.regenerate(function (err) {
@@ -468,6 +471,9 @@ router.post('/admin/demandes/:id/accepter', isAdmin, async function (req, res, n
     if (!orgExistante && demande.nom_organisation) {
       await organisation.create(demande.siren, demande.nom_organisation, '', '', req.session.user.id_user);
     }
+
+    // Activer le compte si INACTIF (cas inscription recruteur en attente)
+    await utilisateur.setStatut(demande.id_candidat, 'ACTIF');
 
     // Passer le candidat en recruteur
     await utilisateur.changeRole(demande.id_candidat, 'Recruteur', null, req.session.user.id_user);
@@ -556,11 +562,14 @@ router.get('/recruteur/fiches/nouvelle', isRecruteur, async function (req, res, 
 router.post('/recruteur/fiches/nouvelle', isRecruteur, upload.offer.single('photo'), async function (req, res, next) {
   try {
     const { intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, siren_organisation, statut_poste, type_metier, rythme, pieces_demandees } = req.body;
+    const sMin = parseInt(salaire_min, 10) || 0;
+    const sMax = parseInt(salaire_max, 10) || 0;
+    if (sMax > 0 && sMin > sMax) return res.status(400).send('Le salaire minimum ne peut pas être supérieur au salaire maximum.');
     const orgs = await organisation.readByRecruteur(req.session.user.id_user);
     const sirensAutorisés = orgs.map(o => String(o.siren));
     if (!sirensAutorisés.includes(String(siren_organisation))) return res.status(403).send('Accès refusé');
     const photo = req.file ? req.file.filename : null;
-    await ficheDePoste.create(intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, photo, siren_organisation, statut_poste, type_metier, rythme, pieces_demandees);
+    await ficheDePoste.create(intitule, nom_poste, responsable, lieu, sMin, sMax, description, type_contrat, remote, photo, siren_organisation, statut_poste, type_metier, rythme, pieces_demandees);
     res.redirect('/recruteur/fiches');
   } catch (err) { next(err); }
 });
@@ -584,7 +593,10 @@ router.post('/recruteur/fiches/:id/modifier', isRecruteur, async function (req, 
     const sirensAutorisés = orgs.map(o => String(o.siren));
     if (!sirensAutorisés.includes(String(ficheData.siren_organisation))) return res.status(403).send('Accès refusé');
     const { intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, statut_poste, type_metier, rythme, pieces_demandees } = req.body;
-    await ficheDePoste.update(req.params.id, intitule, nom_poste, responsable, lieu, salaire_min, salaire_max, description, type_contrat, remote, statut_poste, type_metier, rythme, pieces_demandees);
+    const sMin = parseInt(salaire_min, 10) || 0;
+    const sMax = parseInt(salaire_max, 10) || 0;
+    if (sMax > 0 && sMin > sMax) return res.status(400).send('Le salaire minimum ne peut pas être supérieur au salaire maximum.');
+    await ficheDePoste.update(req.params.id, intitule, nom_poste, responsable, lieu, sMin, sMax, description, type_contrat, remote, statut_poste, type_metier, rythme, pieces_demandees);
     res.redirect('/recruteur/fiches');
   } catch (err) { next(err); }
 });
@@ -612,7 +624,7 @@ router.get('/recruteur/offres/nouvelle', isRecruteur, async function (req, res, 
     const orgs = await organisation.readByRecruteur(req.session.user.id_user);
     const sirens = orgs.filter(o => o.validation === 'OUI').map(o => o.siren);
     const fiches = await ficheDePoste.readByOrganisations(sirens);
-    res.render('html/recruteur_nouvelle_offre', { user: req.session.user, fiches });
+    res.render('html/recruteur_nouvelle_offre', { user: req.session.user, fiches, error: null });
   } catch (err) { next(err); }
 });
 
@@ -624,6 +636,15 @@ router.post('/recruteur/offres/nouvelle', isRecruteur, async function (req, res,
     const orgs = await organisation.readByRecruteur(req.session.user.id_user);
     const sirensAutorisés = orgs.map(o => String(o.siren));
     if (!sirensAutorisés.includes(String(ficheData.siren_organisation))) return res.status(403).send('Accès refusé');
+    const today = new Date().toISOString().split('T')[0];
+    if (!date_expiration || date_expiration < today) {
+      const sirens = orgs.filter(o => o.validation === 'OUI').map(o => o.siren);
+      const fiches = await ficheDePoste.readByOrganisations(sirens);
+      return res.render('html/recruteur_nouvelle_offre', {
+        user: req.session.user, fiches,
+        error: 'La date d\'expiration ne peut pas être dans le passé.'
+      });
+    }
     await offre.create(statut, date_expiration, id_fiche, ficheData.siren_organisation);
     res.redirect('/recruteur');
   } catch (err) { next(err); }
@@ -636,7 +657,7 @@ router.get('/recruteur/offres/:id/modifier', isRecruteur, async function (req, r
     const orgs = await organisation.readByRecruteur(req.session.user.id_user);
     const sirensAutorisés = orgs.map(o => String(o.siren));
     if (!sirensAutorisés.includes(String(offreData.siren_organisation))) return res.status(403).send('Accès refusé');
-    res.render('html/recruteur_modifier_offre', { user: req.session.user, offre: offreData });
+    res.render('html/recruteur_modifier_offre', { user: req.session.user, offre: offreData, error: null });
   } catch (err) { next(err); }
 });
 
@@ -648,6 +669,14 @@ router.post('/recruteur/offres/:id/modifier', isRecruteur, async function (req, 
     const sirensAutorisés = orgs.map(o => String(o.siren));
     if (!sirensAutorisés.includes(String(offreData.siren_organisation))) return res.status(403).send('Accès refusé');
     const { statut, date_expiration } = req.body;
+    const today = new Date().toISOString().split('T')[0];
+    if (!date_expiration || date_expiration < today) {
+      return res.render('html/recruteur_modifier_offre', {
+        user: req.session.user,
+        offre: { ...offreData, statut, date_expiration },
+        error: 'La date d\'expiration ne peut pas être dans le passé.'
+      });
+    }
     await offre.update(req.params.id, statut, date_expiration);
     res.redirect('/recruteur');
   } catch (err) { next(err); }

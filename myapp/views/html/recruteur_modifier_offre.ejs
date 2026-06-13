@@ -96,6 +96,12 @@
         </div>
         <% } %>
 
+        <% if (error) { %>
+          <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:14px; color:#b91c1c; display:flex; align-items:center; gap:8px;">
+            <span>⚠️</span> <%= error %>
+          </div>
+        <% } %>
+
         <!-- Seuls statut et date sont modifiables -->
         <form method="POST" action="/recruteur/offres/<%= offre.id_offre %>/modifier">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -112,7 +118,7 @@
               <label>Date d'expiration <span class="required">*</span></label>
               <input type="date" name="date_expiration"
                 value="<%= offre.date_expiration ? new Date(offre.date_expiration).toISOString().split('T')[0] : '' %>"
-                required />
+                required min="<%= new Date().toISOString().split('T')[0] %>" />
             </div>
           </div>
 

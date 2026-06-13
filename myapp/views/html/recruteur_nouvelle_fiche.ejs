@@ -132,13 +132,14 @@
             <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:end;">
               <div>
                 <label>Salaire min (€/an) <span class="required">*</span></label>
-                <input type="number" name="salaire_min" placeholder="ex: 35000" min="0" step="1000" required />
+                <input type="number" id="salaire_min" name="salaire_min" placeholder="ex: 35000" min="0" step="1000" required />
               </div>
               <div>
                 <label>Salaire max (€/an) <span class="required">*</span></label>
-                <input type="number" name="salaire_max" placeholder="ex: 50000" min="0" step="1000" required />
+                <input type="number" id="salaire_max" name="salaire_max" placeholder="ex: 50000" min="0" step="1000" required />
               </div>
             </div>
+            <p id="salaire-error" style="color:#e53935; font-size:13px; margin-top:4px; display:none;">Le salaire minimum ne peut pas être supérieur au salaire maximum.</p>
           </div>
 
           <p class="section-label">Caractéristiques du poste</p>
@@ -204,6 +205,19 @@
         preview.style.display = 'block';
       } else {
         preview.style.display = 'none';
+      }
+    });
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+      const sMin = parseInt(document.getElementById('salaire_min').value, 10) || 0;
+      const sMax = parseInt(document.getElementById('salaire_max').value, 10) || 0;
+      const err = document.getElementById('salaire-error');
+      if (sMax > 0 && sMin > sMax) {
+        e.preventDefault();
+        err.style.display = 'block';
+        document.getElementById('salaire_min').focus();
+      } else {
+        err.style.display = 'none';
       }
     });
   </script>

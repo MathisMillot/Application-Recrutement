@@ -7,6 +7,7 @@
     "test": "jest --forceExit"
   },
   "jest": {
+    "testRunner": "jest-circus/runner",
     "collectCoverage": true,
     "maxWorkers": 1
   },

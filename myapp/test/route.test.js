@@ -263,6 +263,9 @@ describe('Flux inscription recruteur (étape 2)', () => {
   let createdRecId = null;
 
   afterAll(async () => {
+    if (createdRecId) {
+      await DB.query('DELETE FROM DemandeRecruteur WHERE id_candidat = ?', [createdRecId]);
+    }
     await cleanupUser(createdRecId);
     await DB.query('DELETE FROM Organisation WHERE siren = ?', [SIREN_REC_INS]);
   });
@@ -273,15 +276,24 @@ describe('Flux inscription recruteur (étape 2)', () => {
     expect(res.statusCode).toBe(200);
   });
 
-  test('POST /inscription_recruteur/etape2 crée le recruteur et redirige vers /recruteur', async () => {
+  test('POST /inscription_recruteur/etape2 crée le compte INACTIF et affiche la confirmation', async () => {
     const res = await agent.post('/inscription_recruteur/etape2').type('form').send({
       nom: 'RecIns', prenom: 'PrenIns', num_tel: '', siren_organisation: SIREN_REC_INS, nom_organisation: 'OrgRecIns'
     });
-    expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe('/recruteur');
+    // Affiche la page de confirmation (200) au lieu de rediriger vers /recruteur
+    expect(res.statusCode).toBe(200);
+    expect(res.text).toContain('Demande prise en compte');
     const user = await utilisateur.findByEmail(REC_INS_EMAIL);
     expect(user).toBeDefined();
+    // Le compte est créé en INACTIF (attente validation admin)
+    expect(user.statut).toBe('INACTIF');
     if (user) createdRecId = user.id_user;
+    // Une DemandeRecruteur doit exister
+    const [rows] = await DB.query(
+      "SELECT id_demande FROM DemandeRecruteur WHERE id_candidat = ? AND statut = 'ATTENTE'",
+      [createdRecId]
+    );
+    expect(rows.length).toBe(1);
   });
 });
 
@@ -439,13 +451,18 @@ describe('POST /admin/users/:id/role', () => {
 // ─── POST /admin/demandes (accepter / rejeter) ────────────────────────────────
 
 describe('POST /admin/demandes', () => {
-  const TEMP_EMAIL    = `route_temp_${TS}@jest.local`;
-  const SIREN_DEMANDE = parseInt(String(TS).slice(-7)) + 80000000;
+  const TEMP_EMAIL     = `route_temp_${TS}@jest.local`;
+  const PENDING_EMAIL  = `route_pending_${TS}@jest.local`;
+  const SIREN_DEMANDE  = parseInt(String(TS).slice(-7)) + 80000000;
+  const SIREN_PENDING  = parseInt(String(TS).slice(-7)) + 85000000;
   let tempUserId = null;
+  let pendingUserId = null;
   let demandeAccepterId = null;
   let demandeRejeterId  = null;
+  let demandePendingId  = null;
 
   beforeAll(async () => {
+    // Candidat actif → demande recruteur (flux "devenir recruteur")
     tempUserId = await utilisateur.create('TempNom', 'TempPren', TEMP_EMAIL, TEST_MDP, '');
     const [r1] = await DB.query(
       "INSERT INTO DemandeRecruteur (id_candidat, siren, nom_organisation, statut) VALUES (?, ?, ?, 'ATTENTE')",
@@ -457,12 +474,36 @@ describe('POST /admin/demandes', () => {
       [candidatId, '555666777', null]
     );
     demandeRejeterId = r2.insertId;
+    // Recruteur en attente (flux inscription_recruteur) : INACTIF + DemandeRecruteur
+    pendingUserId = await utilisateur.createRecruteurEnAttente('PendNom', 'PendPren', PENDING_EMAIL, TEST_MDP, '');
+    const [r3] = await DB.query(
+      "INSERT INTO DemandeRecruteur (id_candidat, siren, nom_organisation, statut) VALUES (?, ?, ?, 'ATTENTE')",
+      [pendingUserId, SIREN_PENDING, 'OrgPending']
+    );
+    demandePendingId = r3.insertId;
   });
 
   afterAll(async () => {
-    await DB.query('DELETE FROM DemandeRecruteur WHERE id_demande IN (?, ?)', [demandeAccepterId, demandeRejeterId]);
+    await DB.query('DELETE FROM DemandeRecruteur WHERE id_demande IN (?, ?, ?)', [demandeAccepterId, demandeRejeterId, demandePendingId]);
     await cleanupUser(tempUserId);
-    await DB.query('DELETE FROM Organisation WHERE siren = ?', [SIREN_DEMANDE]);
+    await cleanupUser(pendingUserId);
+    await DB.query('DELETE FROM Organisation WHERE siren IN (?, ?)', [SIREN_DEMANDE, SIREN_PENDING]);
+  });
+
+  test('login avec compte INACTIF + demande ATTENTE redirige vers error=pending', async () => {
+    const res = await request(app).post('/login').type('form').send({ email: PENDING_EMAIL, mdp: TEST_MDP });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toContain('error=pending');
+  });
+
+  test('POST /admin/demandes/:id/accepter active le compte, change le rôle, redirige vers /admin', async () => {
+    const res = await adminAgent.post(`/admin/demandes/${demandePendingId}/accepter`).type('form').send({});
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe('/admin');
+    // Vérifier que le compte est maintenant ACTIF et rôle Recruteur
+    const user = await utilisateur.read(pendingUserId);
+    expect(user.statut).toBe('ACTIF');
+    expect(user.role).toBe('Recruteur');
   });
 
   test('POST /admin/demandes/:id/accepter change le rôle et redirige vers /admin', async () => {
@@ -567,6 +608,21 @@ describe('Recruteur CRUD fiches et offres', () => {
     expect(res.headers.location).toBe('/recruteur/fiches');
   });
 
+  test('POST /recruteur/offres/nouvelle avec date passée retourne 200 avec erreur', async () => {
+    expect(ficheId).not.toBeNull();
+    const res = await recruteurAgent.post('/recruteur/offres/nouvelle').type('form').send({
+      id_fiche: ficheId, statut: 'publiee', date_expiration: '2020-01-01'
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.text).toContain('passé');
+    // Aucune offre ne doit avoir été créée
+    const [[row]] = await DB.query(
+      'SELECT COUNT(*) AS n FROM OffreEmploi WHERE siren_organisation = ? AND date_expiration = ?',
+      [SIREN_REC_CRUD, '2020-01-01']
+    );
+    expect(row.n).toBe(0);
+  });
+
   test('POST /recruteur/offres/nouvelle crée une offre et redirige', async () => {
     const res = await recruteurAgent.post('/recruteur/offres/nouvelle').type('form').send({
       id_fiche: ficheId, statut: 'publiee', date_expiration: '2099-12-31'
@@ -589,6 +645,18 @@ describe('Recruteur CRUD fiches et offres', () => {
   test('GET /recruteur/offres/:id/candidatures répond 200', async () => {
     const res = await recruteurAgent.get(`/recruteur/offres/${offreId}/candidatures`);
     expect(res.statusCode).toBe(200);
+  });
+
+  test('POST /recruteur/offres/:id/modifier avec date passée retourne 200 avec erreur', async () => {
+    expect(offreId).not.toBeNull();
+    const res = await recruteurAgent.post(`/recruteur/offres/${offreId}/modifier`).type('form').send({
+      statut: 'publiee', date_expiration: '2020-01-01'
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.text).toContain('passé');
+    // La date en base ne doit pas avoir changé
+    const [[row]] = await DB.query('SELECT date_expiration FROM OffreEmploi WHERE id_offre = ?', [offreId]);
+    expect(new Date(row.date_expiration).getFullYear()).not.toBe(2020);
   });
 
   test('POST /recruteur/offres/:id/modifier met à jour et redirige', async () => {

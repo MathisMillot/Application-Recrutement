@@ -65,7 +65,7 @@ module.exports = {
     if (!rows[0]) return null;
     const valide = await bcrypt.compare(mdp, rows[0].mdp);
     if (!valide) return null;
-    if (rows[0].statut === 'INACTIF') return { inactive: true };
+    if (rows[0].statut === 'INACTIF') return { inactive: true, id_user: rows[0].id_user };
     const { mdp: _, ...user } = rows[0];
     return user;
   },
@@ -165,6 +165,17 @@ module.exports = {
       }
       await db.query('INSERT INTO Appartient (id_recruteur, siren_organisation) VALUES (?, ?)', [id_user, siren_organisation]);
     }
+    return id_user;
+  },
+
+  async createRecruteurEnAttente(nom, prenom, email, mdp, num_tel) {
+    const hash = await bcrypt.hash(mdp, 10);
+    const [result] = await db.query(
+      'INSERT INTO Utilisateur (nom, prenom, email, mdp, num_tel, statut) VALUES (?, ?, ?, ?, ?, ?)',
+      [nom, prenom, email, hash, num_tel, 'INACTIF']
+    );
+    const id_user = result.insertId;
+    await db.query('INSERT INTO Candidat (id_user) VALUES (?)', [id_user]);
     return id_user;
   },
 
