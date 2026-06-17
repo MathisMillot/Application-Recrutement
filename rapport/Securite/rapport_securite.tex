@@ -1,0 +1,249 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{colortbl}
+
+\geometry{margin=2.5cm}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codekey}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{163,21,21}
+\definecolor{codecomment}{RGB}{0,128,0}
+\definecolor{okgreen}{RGB}{0,150,0}
+\definecolor{warnred}{RGB}{180,0,0}
+\definecolor{rowgray}{RGB}{240,240,240}
+
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekey}\bfseries,
+  stringstyle=\color{codestr},
+  commentstyle=\color{codecomment}\itshape,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{gray!40},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  tabsize=2,
+  showstringspaces=false,
+  extendedchars=true,
+  literate=%
+    {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {ë}{{\"e}}1
+    {à}{{\`a}}1 {â}{{\^a}}1 {î}{{\^i}}1 {ï}{{\"i}}1
+    {ô}{{\^o}}1 {û}{{\^u}}1 {ù}{{\`u}}1 {ç}{{\c c}}1
+    {É}{{\'E}}1 {È}{{\`E}}1 {À}{{\`A}}1 {’}{{'}}1 {→}{{$\rightarrow$}}1
+}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\title{\textbf{Rapport Sécurité : SR10}\\
+\large Tests de sécurité : Failles corrigées et analyse des risques\\[4pt]
+\normalsize Projet \textit{Landr} : Plateforme de recrutement}
+\author{Mathis Millot \& Romain Pierre}
+\date{Juin 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+{\large\bfseries Table des matières}\\[1em]
+\noindent\textbf{Introduction : Démarche et fichier de test}\dotfill\textbf{2}\\[6pt]
+\noindent\textbf{(a) Contrôle d'accès : élévation de privilèges}\dotfill\textbf{2}\\[2pt]
+\noindent\textbf{(b) Force brute : limitation des tentatives}\dotfill\textbf{3}\\[2pt]
+\noindent\textbf{(c) Injection SQL : requêtes paramétrées}\dotfill\textbf{4}\\[2pt]
+\noindent\textbf{(d) Protection CSRF : jeton anti-falsification}\dotfill\textbf{5}\\[2pt]
+\noindent\textbf{(e) En-têtes HTTP de sécurité : helmet}\dotfill\textbf{6}\\[6pt]
+\noindent\textbf{Bilan}\dotfill\textbf{6}
+\newpage
+
+% ─────────────────────────────────────────────────────────────────
+\section{Introduction : Démarche et fichier de test}
+
+Ce rapport documente les failles de sécurité identifiées et corrigées dans la plateforme \textit{Landr}, ainsi que la suite de tests automatisés qui valide ces corrections. L'ensemble est regroupé dans \texttt{test/securite.test.js} : 15 tests répartis en cinq familles correspondant aux principaux risques d'une application web manipulant des comptes et des données personnelles (\textit{Broken Access Control}, \textit{Identification and Authentication Failures}, \textit{Injection}, \textit{CSRF} et \textit{Security Misconfiguration}).
+
+Comme les autres suites du projet, les tests s'appuient sur \texttt{supertest} et sur la vraie base de données. Trois utilisateurs (candidat, recruteur, admin) sont créés en \texttt{beforeAll} avec un email horodaté unique, via \texttt{utilisateur.create} puis \texttt{changeRole}, et supprimés en \texttt{afterAll} dans l'ordre des clés étrangères.
+
+Pour chaque famille, on présente ci-dessous : la \textbf{faille} d'origine, le \textbf{risque} concret en l'absence de correctif, le \textbf{correctif} mis en place et le \textbf{test} qui le verrouille contre toute régression.
+
+% ─────────────────────────────────────────────────────────────────
+\section{(a) Contrôle d'accès : élévation de privilèges}
+
+\textbf{Faille.} Les routes sensibles (\texttt{/admin}, \texttt{/recruteur}, espaces candidat) n'étaient protégées que par la présence d'une session, sans vérification du rôle réel de l'utilisateur. Un compte candidat pouvait ainsi atteindre des écrans d'administration.
+
+\textbf{Risque.} \textit{Broken Access Control} : un utilisateur authentifié de bas privilège peut consulter ou modifier des ressources réservées à l'administrateur (validation d'organisations, changement de rôle, gestion des comptes). C'est une élévation horizontale et verticale de privilèges, l'une des failles web les plus critiques.
+
+\textbf{Correctif.} Trois middlewares \texttt{isAdmin} / \texttt{isRecruteur} / \texttt{isCandidat} (\texttt{routes/index.js}) rechargent le rôle depuis la base à chaque requête (et non depuis la session, potentiellement périmée) puis renvoient un \texttt{403} en cas de rôle insuffisant, ou une redirection si la session est absente :
+
+\begin{lstlisting}
+async function isAdmin(req, res, next) {
+  if (!req.session.user) return res.redirect('/connection');
+  const user = await refreshSessionUser(req);
+  if (!user || user.gone || user.inactive)
+    return req.session.destroy(() => res.redirect('/connection'));
+  if (user.role === 'Admin') return next();
+  return res.status(403).send('Accès refusé');
+}
+\end{lstlisting}
+
+\textbf{Tests.} On vérifie les trois situations : sans session (redirection), rôle insuffisant (403), et confinement du recruteur hors de l'espace candidat (redirection) :
+
+\begin{lstlisting}
+test('Sans session : GET /admin redirige vers /connection', async () => {
+  const res = await request(app).get('/admin');
+  expect(res.statusCode).toBe(302);
+  expect(res.headers.location).toBe('/connection');
+});
+
+test('Candidat connecté : GET /admin répond 403', async () => {
+  const res = await candidatAgent.get('/admin');
+  expect(res.statusCode).toBe(403);
+});
+\end{lstlisting}
+
+Les autres tests vérifient symétriquement qu'un candidat est refusé sur \texttt{/recruteur} et qu'un recruteur est confiné hors de l'espace candidat. Recharger le rôle à chaque requête plutôt que de faire confiance à la session bloque aussi le cas d'un utilisateur rétrogradé ou désactivé pendant que sa session est encore ouverte.
+
+% ─────────────────────────────────────────────────────────────────
+\section{(b) Force brute : limitation des tentatives}
+
+\textbf{Faille.} La route \texttt{POST /login} acceptait un nombre illimité de tentatives de connexion, sans aucun ralentissement.
+
+\textbf{Risque.} Attaque par force brute / \textit{credential stuffing}  : un attaquant peut tester des milliers de mots de passe par minute jusqu'à compromettre un compte. La protection bcrypt sur les mots de passe stockés ne suffit pas si l'on autorise un volume illimité d'essais en ligne.
+
+\textbf{Correctif.} Un rate-limiter en mémoire (\texttt{routes/index.js}) bloque une IP après \texttt{LOGIN\_MAX = 5} tentatives \textit{échouées} sur une fenêtre glissante de 15 minutes (\texttt{isRateLimited} / \texttt{recordFailedLogin}). Point important : seules les tentatives échouées sont comptées, et un succès remet le compteur à zéro (\texttt{resetLoginAttempts}). Un utilisateur légitime ne se verrouille donc jamais lui-même.
+
+\textbf{Test.} Cinq tentatives échouées passent, la sixième est rejetée par une redirection portant \texttt{error=ratelimit}. Jest isolant les modules par fichier, la \texttt{Map} des compteurs repart bien de zéro pour ce test :
+
+\begin{lstlisting}
+test('5 tentatives échouées, la 6e est bloquée (error=ratelimit)', async () => {
+  const badCredentials = { email: `brute_${TS}@jest.local`, mdp: 'WrongMdp999!' };
+  for (let i = 0; i < 5; i++) {
+    await request(app).post('/login').type('form').send(badCredentials);
+  }
+  const res = await request(app).post('/login').type('form').send(badCredentials);
+  expect(res.statusCode).toBe(302);
+  expect(res.headers.location).toContain('error=ratelimit');
+});
+\end{lstlisting}
+
+% ─────────────────────────────────────────────────────────────────
+\section{(c) Injection SQL : requêtes paramétrées}
+
+\textbf{Faille.} Une construction de requêtes par concaténation de chaînes (\texttt{... WHERE email = '" + email + "'}) aurait permis d'injecter du SQL via les champs de formulaire.
+
+\textbf{Risque.} Injection SQL : avec un payload comme \texttt{' OR '1'='1}, un attaquant peut contourner l'authentification, lire l'intégralité de la table \texttt{Utilisateur} (\texttt{UNION SELECT}), voire altérer ou détruire des données. C'est une faille à impact maximal sur la confidentialité et l'intégrité de la base.
+
+\textbf{Correctif.} Toutes les requêtes du modèle utilisent des \textit{placeholders} \texttt{?} ; le pilote MySQL échappe les valeurs. La vérification du mot de passe se fait ensuite par \texttt{bcrypt.compare}, jamais dans le SQL :
+
+\begin{lstlisting}
+const [rows] = await db.query(
+  'SELECT id_user, email, mdp FROM Utilisateur WHERE email = ?',
+  [email]);                       // valeur paramétrée, jamais concaténée
+if (!rows[0]) return null;
+const valide = await bcrypt.compare(mdp, rows[0].mdp);  // hors SQL
+if (!valide) return null;
+\end{lstlisting}
+
+\textbf{Tests.} Trois payloads classiques sont envoyés dans le champ email. Aucun ne doit aboutir sur un espace authentifié ; la réponse reste une redirection vers \texttt{/connection} :
+
+\begin{lstlisting}
+const payloads = [
+  { label: "classique OR 1=1",   email: "' OR '1'='1" },
+  { label: "commentaire SQL --", email: "admin'--" },
+  { label: "UNION SELECT",       email: "' UNION SELECT * FROM Utilisateur--" },
+];
+test.each(payloads)('Payload "$label" ne contourne pas l\'authentification',
+  async ({ email }) => {
+    const res = await request(app).post('/login').type('form')
+      .send({ email, mdp: 'WrongMdp999!' });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).not.toBe('/admin');
+    expect(res.headers.location).toContain('/connection');
+  });
+\end{lstlisting}
+
+% ─────────────────────────────────────────────────────────────────
+\section{(d) Protection CSRF : jeton anti-falsification}
+
+\textbf{Faille.} Les formulaires POST (connexion, modification de profil, actions admin) n'embarquaient aucun jeton anti-CSRF ; n'importe quel site tiers pouvait soumettre une requête au nom d'un utilisateur connecté.
+
+\textbf{Risque.} \textit{Cross-Site Request Forgery} : un attaquant fait exécuter à la victime, à son insu, une action authentifiée (changer son email, supprimer une candidature, valider une organisation pour un admin). L'attaque exploite le cookie de session envoyé automatiquement par le navigateur.
+
+\textbf{Correctif.} Le middleware \texttt{csurf(\{ cookie: false \})} (\texttt{app.js}) ajoute un jeton à chaque formulaire et rejette par un \texttt{403} toute requête mutante sans jeton valide. Pour ne pas casser les suites de tests fonctionnels existantes, la protection est désactivée uniquement en \texttt{NODE\_ENV='test'} ; la suite de sécurité recharge donc l'application en mode \texttt{production} via \texttt{jest.isolateModules} pour tester le comportement réel :
+
+\begin{lstlisting}
+// recharge l'app en mode production (CSRF actif) le temps du test
+jest.isolateModules(() => { csrfApp = require('../app'); });
+
+test('POST /login sans token CSRF → 403', async () => {
+  const res = await request(csrfApp).post('/login').type('form')
+    .send({ email: 'x@x.com', mdp: 'Wrong12345!' });
+  expect(res.statusCode).toBe(403);
+});
+\end{lstlisting}
+
+\textbf{Tests.} On vérifie aussi que le formulaire de connexion contient bien un champ \texttt{\_csrf} et que le jeton émis est non-vide (longueur \textgreater\ 20), garantissant qu'il est réellement généré et non un placeholder.
+
+% ─────────────────────────────────────────────────────────────────
+\section{(e) En-têtes HTTP de sécurité : helmet}
+
+\textbf{Faille.} Les réponses HTTP ne portaient aucun en-tête de sécurité, laissant le navigateur sans garde-fou contre plusieurs classes d'attaques côté client.
+
+\textbf{Risque.} \textit{Security Misconfiguration}. Sans ces en-têtes : \texttt{X-Content-Type-Options} absent autorise le \textit{MIME-sniffing} (un fichier uploadé interprété comme script) ; \texttt{X-Frame-Options} absent permet le \textit{clickjacking} via une \texttt{<iframe>} ; et l'absence de \textit{Content-Security-Policy} ouvre la porte à l'exécution de scripts externes en cas de XSS.
+
+\textbf{Correctif.} \texttt{helmet()} est activé dans \texttt{app.js} avec une CSP restrictive (\texttt{default-src 'self'}, \texttt{frameAncestors 'none'}), qui complète l'échappement automatique des templates EJS contre le XSS :
+
+\begin{lstlisting}
+app.use(helmet({ contentSecurityPolicy: { directives: {
+  defaultSrc: ["'self'"], frameAncestors: ["'none'"],
+  imgSrc: ["'self'", "data:"], /* ... */
+}}}));
+\end{lstlisting}
+
+\textbf{Tests.} On contrôle la présence et le contenu des trois en-têtes clés sur une réponse réelle (\texttt{nosniff}, \texttt{X-Frame-Options}, CSP) :
+
+\begin{lstlisting}
+test('Content-Security-Policy présente et restrictive', async () => {
+  const res = await request(app).get('/connection');
+  expect(res.headers['x-content-type-options']).toBe('nosniff');
+  expect(res.headers['content-security-policy']).toContain("default-src 'self'");
+});
+\end{lstlisting}
+
+% ─────────────────────────────────────────────────────────────────
+\section{Bilan}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Faille} & \textbf{Risque principal} & \textbf{Correctif} \\
+\midrule
+\rowcolor{rowgray}
+Contrôle d'accès   & Élévation de privilèges        & Middlewares de rôle (403) \\
+Force brute        & Vol de compte                  & Rate-limiter login (5/15 min) \\
+\rowcolor{rowgray}
+Injection SQL      & Fuite / altération de la base  & Requêtes paramétrées + bcrypt \\
+CSRF               & Action forcée à l'insu         & Jeton csurf (403 si absent) \\
+\rowcolor{rowgray}
+En-têtes HTTP      & Clickjacking, MIME-sniffing, XSS & helmet + CSP \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.5em}
+
+La suite \texttt{securite.test.js} (15 tests, tous passants) transforme ces cinq corrections en garanties non-régressives : toute réintroduction d'une faille fait désormais échouer la CI. Les défenses se complètent en profondeur (contrôle de rôle côté serveur, limitation des tentatives, paramétrage SQL, jeton CSRF et durcissement des en-têtes), couvrant les principales catégories applicables à la plateforme.
+
+\end{document}
